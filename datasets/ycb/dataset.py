@@ -14,7 +14,6 @@ import copy
 import scipy.misc
 import scipy.io as scio
 
-
 class PoseDataset(data.Dataset):
     def __init__(self, mode, num_pt, add_noise, root, noise_trans, refine):
         if mode == 'train':
@@ -65,7 +64,7 @@ class PoseDataset(data.Dataset):
                 self.cld[class_id].append([float(input_line[0]), float(input_line[1]), float(input_line[2])])
             self.cld[class_id] = np.array(self.cld[class_id])
             input_file.close()
-            
+
             class_id += 1
 
         self.cam_cx_1 = 312.9869
@@ -80,7 +79,7 @@ class PoseDataset(data.Dataset):
 
         self.xmap = np.array([[j for i in range(640)] for j in range(480)])
         self.ymap = np.array([[i for i in range(640)] for j in range(480)])
-        
+
         self.trancolor = transforms.ColorJitter(0.2, 0.2, 0.2, 0.05)
         self.noise_img_loc = 0.0
         self.noise_img_scale = 7.0
@@ -122,7 +121,7 @@ class PoseDataset(data.Dataset):
                 f_label = np.array(Image.open('{0}/{1}-label.png'.format(self.root, seed)))
                 front_label = np.unique(f_label).tolist()[1:]
                 if len(front_label) < self.front_num:
-                   continue
+                    continue
                 front_label = random.sample(front_label, self.front_num)
                 for f_i in front_label:
                     mk = ma.getmaskarray(ma.masked_not_equal(f_label, f_i))
@@ -161,7 +160,8 @@ class PoseDataset(data.Dataset):
             img_masked = img
 
         if self.add_noise and add_front:
-            img_masked = img_masked * mask_front[rmin:rmax, cmin:cmax] + front[:, rmin:rmax, cmin:cmax] * ~(mask_front[rmin:rmax, cmin:cmax])
+            img_masked = img_masked * mask_front[rmin:rmax, cmin:cmax] + front[:, rmin:rmax, cmin:cmax] * ~(
+            mask_front[rmin:rmax, cmin:cmax])
 
         if self.list[index][:8] == 'data_syn':
             img_masked = img_masked + np.random.normal(loc=0.0, scale=7.0, size=img_masked.shape)
@@ -182,7 +182,7 @@ class PoseDataset(data.Dataset):
             choose = choose[c_mask.nonzero()]
         else:
             choose = np.pad(choose, (0, self.num_pt - len(choose)), 'wrap')
-        
+
         depth_masked = depth[rmin:rmax, cmin:cmax].flatten()[choose][:, np.newaxis].astype(np.float32)
         xmap_masked = self.xmap[rmin:rmax, cmin:cmax].flatten()[choose][:, np.newaxis].astype(np.float32)
         ymap_masked = self.ymap[rmin:rmax, cmin:cmax].flatten()[choose][:, np.newaxis].astype(np.float32)
@@ -218,12 +218,48 @@ class PoseDataset(data.Dataset):
             target = np.add(target, target_t + add_t)
         else:
             target = np.add(target, target_t)
-        
+
         # fw = open('temp/{0}_tar.xyz'.format(index), 'w')
         # for it in target:
         #    fw.write('{0} {1} {2}\n'.format(it[0], it[1], it[2]))
         # fw.close()
-        
+
+        #######################################
+        # PROJECT TO SCREEN
+        #######################################
+        # import cv2
+        # test_folder = '/data/Akeaveny/Datasets/YCB_Video_Dataset/test_densefusion/'
+        #
+        # cam_mat = np.array([[cam_fx, 0, cam_cx], [0, cam_fy, cam_cy], [0, 0, 1]])
+        # dist = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+        #
+        # cam_rotation4 = target_r[0]
+        # cam_translation = target_t[0]
+        #
+        # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
+        # imgpts, jac = cv2.projectPoints(cloud*1e2, np.eye(3), np.zeros(shape=cam_translation.shape), cam_mat, dist)
+        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # temp_folder = test_folder + 'cv2.cloud.png'
+        # cv2.imwrite(temp_folder, cv2_img)
+        #
+        # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
+        # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=cam_translation.shape), cam_mat, dist)
+        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # temp_folder = test_folder + 'cv2.target.png'
+        # cv2.imwrite(temp_folder, cv2_img)
+        #
+        # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
+        # imgpts, jac = cv2.projectPoints(model_points*1e2, cam_rotation4, cam_translation*1e2, cam_mat, dist)
+        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # temp_folder = test_folder + 'cv2.model_points.png'
+        # cv2.imwrite(temp_folder, cv2_img)
+        #
+        # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
+        # imgpts, jac = cv2.projectPoints(self.cld[obj[idx]]*1e2, cam_rotation4, cam_translation*1e2, cam_mat, dist)
+        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # temp_folder = test_folder + 'cv2.1.self.cld.png'
+        # cv2.imwrite(temp_folder, cv2_img)
+
         return torch.from_numpy(cloud.astype(np.float32)), \
                torch.LongTensor(choose.astype(np.int32)), \
                self.norm(torch.from_numpy(img_masked.astype(np.float32))), \

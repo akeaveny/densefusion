@@ -1,6 +1,7 @@
 import _init_paths
 import argparse
 import os
+import sys
 import copy
 import random
 import numpy as np
@@ -9,6 +10,11 @@ import scipy.io as scio
 import scipy.misc
 import numpy.ma as ma
 import math
+
+ROOT_DIR = os.path.abspath("../")
+sys.path.append(ROOT_DIR)
+print("ROOT_DIR", ROOT_DIR)
+
 import torch
 import torch.nn as nn
 import torch.nn.parallel
@@ -20,15 +26,35 @@ import torchvision.transforms as transforms
 import torchvision.utils as vutils
 import torch.nn.functional as F
 from torch.autograd import Variable
-from datasets.ycb.dataset import PoseDataset
 from lib.network import PoseNet, PoseRefineNet
 from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from_matrix
 
+import matplotlib.pyplot as plt
+
+###################
+###################
+
+DENSEFUSION_ROOT = '/home/akeaveny/catkin_ws/src/object-rpe-ak/DenseFusion/'
+dataset_config_dir = DENSEFUSION_ROOT + 'datasets/ycb/dataset_config'
+ycb_toolbox_dir = DENSEFUSION_ROOT + 'YCB_Video_toolbox'
+result_wo_refine_dir = DENSEFUSION_ROOT + 'experiments/eval_result/ycb/Densefusion_wo_refine_result'
+result_refine_dir = DENSEFUSION_ROOT + 'experiments/eval_result/ycb/Densefusion_iterative_result'
+
+###################
+###################
+
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset_root', type=str, default = '', help='dataset root dir')
-parser.add_argument('--model', type=str, default = '',  help='resume PoseNet model')
-parser.add_argument('--refine_model', type=str, default = '',  help='resume PoseRefineNet model')
+parser.add_argument('--dataset_root', required=False, default='/data/Akeaveny/Datasets/YCB_Video_Dataset',
+                    type=str,
+                    metavar="/path/to/Affordance/dataset/")
+parser.add_argument('--model', required=False, default=ROOT_DIR + '/trained_models/pretrained_ycb/pose_model_26_0.012863246640872631.pth',
+                    metavar="/path/to/weights.h5 or 'coco'")
+parser.add_argument('--refine_model', required=False, default=ROOT_DIR + '/trained_models/pretrained_ycb/pose_refine_model_69_0.009449292959118935.pth',
+                    metavar="/path/to/weights.h5 or 'coco'")
 opt = parser.parse_args()
+
+###################
+###################
 
 norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 border_list = [-1, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600, 640, 680]
@@ -46,10 +72,9 @@ num_points = 1000
 num_points_mesh = 500
 iteration = 2
 bs = 1
-dataset_config_dir = 'datasets/ycb/dataset_config'
-ycb_toolbox_dir = 'YCB_Video_toolbox'
-result_wo_refine_dir = 'experiments/eval_result/ycb/Densefusion_wo_refine_result'
-result_refine_dir = 'experiments/eval_result/ycb/Densefusion_iterative_result'
+
+###################
+###################
 
 def get_bbox(posecnn_rois):
     rmin = int(posecnn_rois[idx][3]) + 1
@@ -89,15 +114,21 @@ def get_bbox(posecnn_rois):
         cmin -= delt
     return rmin, rmax, cmin, cmax
 
-estimator = PoseNet(num_points = num_points, num_obj = num_obj)
+###################
+###################
+
+estimator = PoseNet(num_points=num_points, num_obj=num_obj)
 estimator.cuda()
 estimator.load_state_dict(torch.load(opt.model))
 estimator.eval()
 
-refiner = PoseRefineNet(num_points = num_points, num_obj = num_obj)
+refiner = PoseRefineNet(num_points=num_points, num_obj=num_obj)
 refiner.cuda()
 refiner.load_state_dict(torch.load(opt.refine_model))
 refiner.eval()
+
+###################
+###################
 
 testlist = []
 input_file = open('{0}/test_data_list.txt'.format(dataset_config_dir))
@@ -109,9 +140,12 @@ while 1:
         input_line = input_line[:-1]
     testlist.append(input_line)
 input_file.close()
-print(len(testlist))
+
+###################
+###################
 
 class_file = open('{0}/classes.txt'.format(dataset_config_dir))
+classes = np.loadtxt(class_file, dtype=np.str)
 class_id = 1
 cld = {}
 while 1:
@@ -133,7 +167,11 @@ while 1:
     cld[class_id] = np.array(cld[class_id])
     class_id += 1
 
+###################
+###################
+
 for now in range(0, 2949):
+
     img = Image.open('{0}/{1}-color.png'.format(opt.dataset_root, testlist[now]))
     depth = np.array(Image.open('{0}/{1}-depth.png'.format(opt.dataset_root, testlist[now])))
     posecnn_meta = scio.loadmat('{0}/results_PoseCNN_RSS2018/{1}.mat'.format(ycb_toolbox_dir, '%06d' % now))
@@ -143,7 +181,22 @@ for now in range(0, 2949):
     lst = posecnn_rois[:, 1:2].flatten()
     my_result_wo_refine = []
     my_result = []
-    
+
+    # plt.subplot(2, 2, 1)
+    # plt.title("rgb")
+    # plt.imshow(img)
+    # plt.subplot(2, 2, 2)
+    # plt.title("depth")
+    # plt.imshow(depth)
+    # plt.subplot(2, 2, 3)
+    # plt.title("gt")
+    # plt.imshow(label)
+    # plt.subplot(2, 2, 4)
+    # plt.title("label")
+    # plt.imshow(label)
+    # plt.show()
+    # plt.ioff()
+
     for idx in range(len(lst)):
         itemid = lst[idx]
         try:
@@ -203,11 +256,11 @@ for now in range(0, 2949):
             my_result_wo_refine.append(my_pred.tolist())
 
             for ite in range(0, iteration):
-                T = Variable(torch.from_numpy(my_t.astype(np.float32))).cuda().view(1, 3).repeat(num_points, 1).contiguous().view(1, num_points, 3)
+                T = Variable(torch.from_numpy(my_t.astype(np.float32))).cuda().view(1, 3).repeat(num_points,1).contiguous().view(1,num_points,3)
                 my_mat = quaternion_matrix(my_r)
                 R = Variable(torch.from_numpy(my_mat[:3, :3].astype(np.float32))).cuda().view(1, 3, 3)
                 my_mat[0:3, 3] = my_t
-                
+
                 new_cloud = torch.bmm((cloud - T), R).contiguous()
                 pred_r, pred_t = refiner(new_cloud, emb, index)
                 pred_r = pred_r.view(1, 1, -1)
@@ -236,6 +289,6 @@ for now in range(0, 2949):
             my_result_wo_refine.append([0.0 for i in range(7)])
             my_result.append([0.0 for i in range(7)])
 
-    scio.savemat('{0}/{1}.mat'.format(result_wo_refine_dir, '%04d' % now), {'poses':my_result_wo_refine})
-    scio.savemat('{0}/{1}.mat'.format(result_refine_dir, '%04d' % now), {'poses':my_result})
+    scio.savemat('{0}/{1}.mat'.format(result_wo_refine_dir, '%04d' % now), {'poses': my_result_wo_refine})
+    scio.savemat('{0}/{1}.mat'.format(result_refine_dir, '%04d' % now), {'poses': my_result})
     print("Finish No.{0} keyframe".format(now))
