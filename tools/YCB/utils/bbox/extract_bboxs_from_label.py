@@ -14,6 +14,48 @@ from tools.YCB.utils.dataset import ycb_dataset_utils
 # bbox
 ###########################################################
 
+def get_posecnn_bbox(posecnn_rois, pred_to_gt_idx):
+    rmin = int(posecnn_rois[pred_to_gt_idx][3]) + 1
+    rmax = int(posecnn_rois[pred_to_gt_idx][5]) - 1
+    cmin = int(posecnn_rois[pred_to_gt_idx][2]) + 1
+    cmax = int(posecnn_rois[pred_to_gt_idx][4]) - 1
+    r_b = rmax - rmin
+    for tt in range(len(config.BORDER_LIST)):
+        if r_b > config.BORDER_LIST[tt] and r_b < config.BORDER_LIST[tt + 1]:
+            r_b = config.BORDER_LIST[tt + 1]
+            break
+    c_b = cmax - cmin
+    for tt in range(len(config.BORDER_LIST)):
+        if c_b > config.BORDER_LIST[tt] and c_b < config.BORDER_LIST[tt + 1]:
+            c_b = config.BORDER_LIST[tt + 1]
+            break
+    center = [int((rmin + rmax) / 2), int((cmin + cmax) / 2)]
+    rmin = center[0] - int(r_b / 2)
+    rmax = center[0] + int(r_b / 2)
+    cmin = center[1] - int(c_b / 2)
+    cmax = center[1] + int(c_b / 2)
+    if rmin < 0:
+        delt = -rmin
+        rmin = 0
+        rmax += delt
+    if cmin < 0:
+        delt = -cmin
+        cmin = 0
+        cmax += delt
+    if rmax > config.WIDTH:
+        delt = rmax - config.WIDTH
+        rmax = config.WIDTH
+        rmin -= delt
+    if cmax > config.HEIGHT:
+        delt = cmax - config.HEIGHT
+        cmax = config.HEIGHT
+        cmin -= delt
+    return rmin, rmax, cmin, cmax
+
+###########################################################
+# bbox
+###########################################################
+
 def get_bbox(label):
     rows = np.any(label, axis=1)
     cols = np.any(label, axis=0)

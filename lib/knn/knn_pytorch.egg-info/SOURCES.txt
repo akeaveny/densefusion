@@ -2,6 +2,9 @@ setup.py
 /home/akeaveny/catkin_ws/src/object-rpe-ak/DenseFusion/lib/knn/src/vision.cpp
 /home/akeaveny/catkin_ws/src/object-rpe-ak/DenseFusion/lib/knn/src/cpu/knn_cpu.cpp
 /home/akeaveny/catkin_ws/src/object-rpe-ak/DenseFusion/lib/knn/src/cuda/knn.cu
+/home/akeaveny/git/DenseFusion/lib/knn/src/vision.cpp
+/home/akeaveny/git/DenseFusion/lib/knn/src/cpu/knn_cpu.cpp
+/home/akeaveny/git/DenseFusion/lib/knn/src/cuda/knn.cu
 knn_pytorch.egg-info/PKG-INFO
 knn_pytorch.egg-info/SOURCES.txt
 knn_pytorch.egg-info/dependency_links.txt

@@ -14,6 +14,9 @@ import copy
 import scipy.misc
 import scipy.io as scio
 
+#######################################
+#######################################
+
 class PoseDataset(data.Dataset):
     def __init__(self, mode, num_pt, add_noise, root, noise_trans, refine):
         if mode == 'train':

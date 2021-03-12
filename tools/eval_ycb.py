@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 ###################
 ###################
 
-DENSEFUSION_ROOT = '/home/akeaveny/catkin_ws/src/object-rpe-ak/DenseFusion/'
+DENSEFUSION_ROOT = '/home/akeaveny/git/DenseFusion/'
 dataset_config_dir = DENSEFUSION_ROOT + 'datasets/ycb/dataset_config'
 ycb_toolbox_dir = DENSEFUSION_ROOT + 'YCB_Video_toolbox'
 result_wo_refine_dir = DENSEFUSION_ROOT + 'experiments/eval_result/ycb/Densefusion_wo_refine_result'

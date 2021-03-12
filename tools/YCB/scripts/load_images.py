@@ -20,14 +20,14 @@ def main():
     # image_files = open('{}'.format(config.TRAIN_FILE), "r")
     image_files = open('{}'.format(config.TEST_FILE), "r")
     image_files = image_files.readlines()
-    print(f"Loaded Files:{len(image_files)}")
+    print("Loaded Files: {}".format(len(image_files)))
 
     # select random test images
     np.random.seed(0)
     num_files = 100
     random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
     image_files = np.array(image_files)[random_idx]
-    print(f"Chosen Files:{len(image_files)}")
+    print("Chosen Files: {}".format(len(image_files)))
 
     for image_idx, image_addr in enumerate(image_files):
 

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="fef67ee5-702b-4651-9b94-1d0cb15fd781" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/DenseFusion.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DenseFusion.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/ycb/dataset (copy).py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/ycb/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ycb/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/eval_result/ycb/Densefusion_iterative_result/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/eval_result/ycb/Densefusion_wo_refine_result/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/experiments/logs/ycb/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/EGG-INFO/SOURCES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/lib/knn/dist/EGG-INFO/SOURCES.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.5-linux-x86_64.egg" beforeDir="false" afterPath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.5-linux-x86_64.egg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.7-linux-x86_64/EGG-INFO/PKG-INFO" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.7-linux-x86_64/EGG-INFO/SOURCES.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.7-linux-x86_64/EGG-INFO/dependency_links.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.7-linux-x86_64/EGG-INFO/native_libs.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.7-linux-x86_64/EGG-INFO/not-zip-safe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.7-linux-x86_64/EGG-INFO/top_level.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.7-linux-x86_64/knn_pytorch/knn_pytorch.cpython-37m-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.7-linux-x86_64/knn_pytorch/knn_pytorch.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/knn_pytorch-0.1-py3.5-linux-x86_64.egg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/knn_pytorch.cpython-37m-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/knn/knn_pytorch.egg-info/SOURCES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/lib/knn/knn_pytorch.egg-info/SOURCES.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/replace_ycb_toolbox/evaluate_poses_keyframe.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/replace_ycb_toolbox/plot_accuracy_keyframe.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/YCB/cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/cfg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/load_gt_poses.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/scripts/load_gt_poses.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/load_images.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/scripts/load_images.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/YCB/utils/bbox/extract_bboxs_from_label.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/utils/bbox/extract_bboxs_from_label.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/YCB/utils/dataset/ycb_dataset_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/utils/dataset/ycb_dataset_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/eval_ycb.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/eval_ycb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/utils/evaluate_ycb_poses_keyframe.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/utils/helper_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/utils/helper_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/utils/plot_accuracy_keyframe.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1pX2PASbGZ95t3XT2jcGcvNX0JJ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/tools/ycb_evaluate_poses_keyframe.py" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunManager" selected="Python.evaluate_poses_keyframe">
+    <configuration name="evaluate_poses_keyframe" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="DenseFusion" />
+      <option name="INTERPRETER_OPTIONS" value="-W ignore" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/DenseFusion/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools/YCB/scripts" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/YCB/scripts/evaluate_poses_keyframe.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="load_gt_poses" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="DenseFusion" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/DenseFusion/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools/YCB/scripts" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/YCB/scripts/load_gt_poses.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="load_images" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="DenseFusion" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/DenseFusion/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools/YCB/scripts" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/YCB/scripts/load_images.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ycb_evaluate_poses_keyframe" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="DenseFusion" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/DenseFusion/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/ycb_evaluate_poses_keyframe.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.evaluate_poses_keyframe" />
+      <item itemvalue="Python.load_gt_poses" />
+      <item itemvalue="Python.load_images" />
+      <item itemvalue="Python.ycb_evaluate_poses_keyframe" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fef67ee5-702b-4651-9b94-1d0cb15fd781" name="Default Changelist" comment="" />
+      <created>1615315088412</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1615315088412</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+</project>

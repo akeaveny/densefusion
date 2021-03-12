@@ -22,18 +22,19 @@ import torchvision.transforms as transforms
 import torchvision.utils as vutils
 from torch.autograd import Variable
 
-from tensorboardX import SummaryWriter
-
 from lib.network import PoseNet, PoseRefineNet
 from lib.loss import Loss
 from lib.loss_refiner import Loss_refine
 from lib.utils import setup_logger
 
+#######################################
+#######################################
+
 from datasets.ycb.dataset import PoseDataset as PoseDataset_ycb
 from datasets.linemod.dataset import PoseDataset as PoseDataset_linemod
-from datasets.arl.dataset import PoseDataset as PoseDataset_arl
-from datasets.arl1.dataset import PoseDataset as PoseDataset_arl1
-from datasets.elevator.dataset import PoseDataset as PoseDataset_elevator
+
+#######################################
+#######################################
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default = 'ycb', help='ycb or linemod')
@@ -55,10 +56,14 @@ parser.add_argument('--resume_refinenet', type=str, default = '',  help='resume 
 parser.add_argument('--start_epoch', type=int, default=1, help='which epoch to start')
 opt = parser.parse_args()
 
-###################
+#######################################
 # GPU
-###################
+#######################################
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+#######################################
+#######################################
 
 def main():
     opt.manualSeed = random.randint(1, 10000)
@@ -81,69 +86,8 @@ def main():
         opt.log_dir = 'experiments/logs/ycb' #folder to save logs
         opt.repeat_epoch = 1 #number of repeat times for one epoch training
 
-    elif opt.dataset == 'arl':
-        opt.num_objects = 10  # number of object classes in the dataset
-        opt.num_points = 1000  # number of points on the input pointcloud
-        opt.dataset_root = '/data/Akeaveny/Datasets/arl_dataset'
-        opt.outf = 'trained_models/arl/clutter/arl_finetune_syn_2'  # folder to save trained models
-        opt.log_dir = '/home/akeaveny/catkin_ws/src/object-rpe-ak/DenseFusion/experiments/logs/arl/clutter/arl_finetune_syn_2'  # folder to save logs
-        output_results = 'check_arl_syn.txt'
-
-        opt.nepoch = 750
-
-        opt.w = 0.05
-        opt.refine_margin = 0.015
-
-         # TODO
-        opt.repeat_epoch = 20
-        opt.start_epoch = 15
-        opt.resume_posenet = 'pose_model_14_0.017745343778127184.pth'
-        # opt.resume_refinenet = 'pose_refine_model_193_0.00409046133552173.pth'
-
-    elif opt.dataset == 'arl1':
-        opt.num_objects = 5  # number of object classes in the dataset
-        opt.num_points = 1000  # number of points on the input pointcloud
-        opt.dataset_root = '/data/Akeaveny/Datasets/arl_dataset'
-        opt.outf = 'trained_models/arl1/clutter/arl_real_2'  # folder to save trained models
-        opt.log_dir = '/home/akeaveny/catkin_ws/src/object-rpe-ak/DenseFusion/experiments/logs/arl1/clutter/arl_real_2'  # folder to save logs
-        output_results = 'check_arl_syn.txt'
-
-        opt.nepoch = 750
-
-        opt.w = 0.05
-        opt.refine_margin = 0.015
-
-        # opt.start_epoch = 120
-        # opt.resume_posenet = 'pose_model_current.pth'
-        # opt.resume_refinenet = 'pose_refine_model_115_0.008727498716640046.pth'
-
-    elif opt.dataset == 'elevator':
-        opt.num_objects = 1  # number of object classes in the dataset
-        opt.num_points = 1000  # number of points on the input pointcloud
-        opt.dataset_root = '/data/Akeaveny/Datasets/elevator_dataset'
-        opt.outf = 'trained_models/elevator/elevator_2'  # folder to save trained models
-        opt.log_dir = '/home/akeaveny/catkin_ws/src/object-rpe-ak/DenseFusion/experiments/logs/elevator/elevator_2'  # folder to save logs
-        output_results = 'check_arl_syn.txt'
-
-        opt.nepoch = 750
-
-        opt.w = 0.05
-        opt.refine_margin = 0.015
-
-        opt.nepoch = 750
-
-        opt.w = 0.05
-        opt.refine_margin = 0.015
-
-        # TODO
-        opt.repeat_epoch = 40
-        # opt.start_epoch = 47
-        # opt.resume_posenet = 'pose_model_current.pth'
-        # opt.resume_refinenet = 'pose_refine_model_46_0.007581770288279472.pth'
-
     else:
-        print('Unknown dataset')
-        return
+        assert 'Unknown dataset'
 
     estimator = PoseNet(num_points = opt.num_points, num_obj = opt.num_objects)
     estimator.cuda()
@@ -170,12 +114,6 @@ def main():
         dataset = PoseDataset_ycb('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
     elif opt.dataset == 'linemod':
         dataset = PoseDataset_linemod('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
-    elif opt.dataset == 'arl':
-        dataset = PoseDataset_arl('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
-    elif opt.dataset == 'arl1':
-        dataset = PoseDataset_arl1('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
-    elif opt.dataset == 'elevator':
-        dataset = PoseDataset_elevator('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=opt.workers)
 
@@ -183,12 +121,6 @@ def main():
         test_dataset = PoseDataset_ycb('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
     elif opt.dataset == 'linemod':
         test_dataset = PoseDataset_linemod('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
-    elif opt.dataset == 'arl':
-        test_dataset = PoseDataset_arl('test', opt.num_points, True, opt.dataset_root, 0.0, opt.refine_start)
-    elif opt.dataset == 'arl1':
-        test_dataset = PoseDataset_arl1('test', opt.num_points, True, opt.dataset_root, 0.0, opt.refine_start)
-    elif opt.dataset == 'elevator':
-        test_dataset = PoseDataset_elevator('test', opt.num_points, True, opt.dataset_root, 0.0, opt.refine_start)
 
     testdataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=opt.workers)
     
@@ -354,13 +286,6 @@ def main():
                 dataset = PoseDataset_ycb('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
             elif opt.dataset == 'linemod':
                 dataset = PoseDataset_linemod('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
-            elif opt.dataset == 'arl':
-                dataset = PoseDataset_arl('train', opt.num_points, True, opt.dataset_root, opt.noise_trans,opt.refine_start)
-            elif opt.dataset == 'arl1':
-                dataset = PoseDataset_arl1('train', opt.num_points, True, opt.dataset_root, opt.noise_trans,opt.refine_start)
-            elif opt.dataset == 'elevator':
-                dataset = PoseDataset_elevator('train', opt.num_points, True, opt.dataset_root, opt.noise_trans,
-                                           opt.refine_start)
 
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=opt.workers)
 
@@ -368,12 +293,6 @@ def main():
                 test_dataset = PoseDataset_ycb('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
             elif opt.dataset == 'linemod':
                 test_dataset = PoseDataset_linemod('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
-            elif opt.dataset == 'arl':
-                test_dataset = PoseDataset_arl('test', opt.num_points, True, opt.dataset_root, 0.0, opt.refine_start)
-            elif opt.dataset == 'arl1':
-                test_dataset = PoseDataset_arl1('test', opt.num_points, True, opt.dataset_root, 0.0, opt.refine_start)
-            elif opt.dataset == 'elevator':
-                test_dataset = PoseDataset_elevator('test', opt.num_points, True, opt.dataset_root, 0.0, opt.refine_start)
 
             testdataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=opt.workers)
             

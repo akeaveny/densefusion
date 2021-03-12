@@ -43,17 +43,17 @@ def map_obj_id_to_name(object_id):
     elif object_id == 15:
         return 'power_drill'
     elif object_id == 16:
-        return 'power_drill'
-    elif object_id == 17:
         return 'wood_block'
-    elif object_id == 18:
+    elif object_id == 17:
         return 'scissors'
-    elif object_id == 19:
+    elif object_id == 18:
         return 'large_marker'
-    elif object_id == 20:
+    elif object_id == 19:
         return 'large_clamp'
-    elif object_id == 21:
+    elif object_id == 20:
         return 'extra_large_clamp'
+    elif object_id == 21:
+        return 'foam_brick'
     else:
         print(" --- Object ID does not exist in UMD --- ")
         exit(1)
@@ -77,7 +77,7 @@ def obj_color_map_dict():
     obj_color_map_dict = {
         0: [0, 0, 0],
         1: [255, 73, 51],    # red 1
-        2: [255, 113, 51],   # orange
+        2: [255, 113, 51],   # orange 1
         3: [235, 195, 17],   # gold
         4: [255, 202, 51],   # yellow 1
         5: [255, 240, 51],   # yellow 2
@@ -95,14 +95,20 @@ def obj_color_map_dict():
         17: [224, 51, 255],  # pink 1
         18: [255, 51, 252],  # hot pink
         19: [255, 51, 196],  # dark pink 1
-        20: [255, 51, 138],  # dark pink 2
-        21: [255, 51, 104],  # red 2
+        20: [288, 121, 51],  # orange 2
+        21: [255, 51, 138],  # dark pink 2
     }
 
     return obj_color_map_dict
 
 ##################################
 ##################################
+
+def densefusion_pred_color():
+    return (150, 247, 241) # teal
+
+def pose_cnn_pred_color():
+    return (247, 163, 150) # teal
 
 def obj_color_map(idx):
     ''' [red, blue, green]'''
@@ -146,9 +152,9 @@ def obj_color_map(idx):
     elif idx == 19:
         return (255, 51, 196)
     elif idx == 20:
-        return (255, 51, 138)
+        return (288, 121, 51)
     elif idx == 21:
-        return (255, 51, 104)
+        return (255, 51, 138)
     else:
         print(" --- idx does not map to a colour --- ")
         exit(1)
