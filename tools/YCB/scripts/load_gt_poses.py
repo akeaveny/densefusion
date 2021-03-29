@@ -7,7 +7,6 @@ import numpy.ma as ma
 
 import cv2
 from PIL import Image
-import matplotlib.pyplot as plt
 
 import scipy.io as scio
 
@@ -152,9 +151,8 @@ def main():
 
             # draw model
             cv2_obj_img = cv2.polylines(cv2_obj_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
-
-            c
-
+            # draw bbox
+            cv2_obj_img = cv2.rectangle(cv2_obj_img, (cmin, rmin), (cmax, rmax), obj_color, 2)
             # draw pose
             rotV, _ = cv2.Rodrigues(target_r)
             points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)

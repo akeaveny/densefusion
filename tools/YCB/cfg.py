@@ -6,11 +6,10 @@ import torchvision.transforms as transforms
 #######################################
 #######################################
 
-# from pathlib import Path
-# DENSEFUSION_ROOT_PATH = Path(__file__).parent.absolute().resolve(strict=True)
-# DENSEFUSION_ROOT_PATH = np.str(DENSEFUSION_ROOT_PATH) + '/'
-
 DENSEFUSION_ROOT_PATH = '/home/akeaveny/git/DenseFusion/'
+
+#######################################
+#######################################
 
 PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_model_26_0.012863246640872631.pth'
 PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_refine_model_69_0.009449292959118935.pth'
@@ -20,10 +19,6 @@ PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_y
 #######################################
 
 DATASET_ROOT_PATH = '/data/Akeaveny/Datasets/YCB_Video_Dataset/'
-
-# DATA_DIRECTORY_TRAIN = DATASET_ROOT_PATH + 'data/'
-# DATA_DIRECTORY_SYN   = DATASET_ROOT_PATH + 'data_syn/'
-# DATA_DIRECTORY_TEST  = DATASET_ROOT_PATH + 'keyframes/'
 
 RGB_EXT     = '-color.png'
 DEPTH_EXT   = '-depth.png'
@@ -57,7 +52,8 @@ CLASSES_FILE   = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/classes.tx
 CLASS_IDS_FILE = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/class_ids.txt'
 
 TRAIN_FILE = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/train_data_list.txt'
-TEST_FILE  = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/keyframe.txt'
+TEST_FILE  = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/test_data_list.txt'
+# TEST_FILE  = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/keyframe.txt'
 
 YCB_TOOLBOX_CONFIG = DENSEFUSION_ROOT_PATH + 'YCB_Video_toolbox/results_PoseCNN_RSS2018/'
 
