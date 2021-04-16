@@ -3,19 +3,20 @@
   <component name="ChangeListManager">
     <list default="true" id="fef67ee5-702b-4651-9b94-1d0cb15fd781" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/build/temp.linux-x86_64-3.5/home/akeaveny/catkin_ws/src/DenseFusion/lib/knn/src/cpu/knn_cpu.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/build/temp.linux-x86_64-3.5/home/akeaveny/catkin_ws/src/DenseFusion/lib/knn/src/cuda/knn.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/build/temp.linux-x86_64-3.5/home/akeaveny/catkin_ws/src/DenseFusion/lib/knn/src/vision.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/build/temp.linux-x86_64-3.7/home/akeaveny/catkin_ws/src/DenseFusion/lib/knn/src/cpu/knn_cpu.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/build/temp.linux-x86_64-3.7/home/akeaveny/catkin_ws/src/DenseFusion/lib/knn/src/cuda/knn.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/build/temp.linux-x86_64-3.7/home/akeaveny/catkin_ws/src/DenseFusion/lib/knn/src/vision.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.5-linux-x86_64.egg" beforeDir="false" afterPath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch-0.1-py3.5-linux-x86_64.egg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch/knn_pytorch.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/knn/dist/knn_pytorch/knn_pytorch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/knn/knn_pytorch/knn_pytorch.cpython-36m-x86_64-linux-gnu.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/cfg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/load_gt_poses.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/scripts/load_gt_poses.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/utils/dataset/ycb_dataset_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/utils/dataset/ycb_dataset_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/elevator/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/classes.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/elevator/dataset_config/classes.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/classes_ids.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/elevator/dataset_config/classes_ids.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/test_list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/test_list.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/train_list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/train_list.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/val_list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/val_list.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/Elevator/cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/Elevator/cfg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/Elevator/scripts/format_data_for_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/Elevator/scripts/format_data_for_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/Elevator/scripts/load_gt_poses.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/Elevator/scripts/load_gt_poses.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/Elevator/utils/helper_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/Elevator/utils/helper_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/Elevator/utils/pose/load_obj_ply_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/Elevator/utils/pose/load_obj_ply_files.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/utils/helper_utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/trained_models/ycb/.gitignore" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,12 +48,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/DenseFusion/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools/Elevator/scripts" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools/ARLVicon/scripts" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/Elevator/scripts/format_data_for_training.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/ARLVicon/scripts/format_data_for_training.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -68,7 +69,7 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/DenseFusion/bin/python" />
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/MaskRCNNTorch/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools/Elevator/scripts" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -98,6 +99,16 @@
       <updated>1615315088412</updated>
       <workItem from="1616762292211" duration="26000" />
       <workItem from="1616790647120" duration="9832000" />
+      <workItem from="1617301385846" duration="8900000" />
+      <workItem from="1617628052432" duration="14539000" />
+      <workItem from="1617804221025" duration="2632000" />
+      <workItem from="1617884253095" duration="194000" />
+      <workItem from="1617893545870" duration="2634000" />
+      <workItem from="1617970205682" duration="268000" />
+      <workItem from="1618225100202" duration="45000" />
+      <workItem from="1618315018817" duration="149000" />
+      <workItem from="1618415280191" duration="3337000" />
+      <workItem from="1618517031545" duration="9090000" />
     </task>
     <servers />
   </component>
@@ -117,7 +128,7 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_poses.coverage" NAME="load_gt_poses Coverage Results" MODIFIED="1616854590471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/Elevator/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$format_data_for_training.coverage" NAME="format_data_for_training Coverage Results" MODIFIED="1616853291117" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/Elevator/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$format_data_for_training.coverage" NAME="format_data_for_training Coverage Results" MODIFIED="1618538036869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLVicon/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_poses.coverage" NAME="load_gt_poses Coverage Results" MODIFIED="1618538170854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/Elevator/scripts" />
   </component>
 </project>

@@ -4,7 +4,7 @@ import numpy as np
 #######################################
 #######################################
 
-import tools.Elevator.cfg as config
+import tools.ARLVicon.cfg as config
 
 ###################################
 # PRELIM
@@ -20,9 +20,14 @@ print("class_IDs: ", class_IDs)
 ################################
 print('\n-------- TRAIN --------')
 
-# /data/Akeaveny/Datasets/Elevator/Real/train/rgb/000000.png
-gt_label_addr = config.DATA_DIRECTORY_TRAIN + 'rgb/' + '*' + config.RGB_EXT
-files = sorted(glob.glob(gt_label_addr))
+# real
+real_gt_label_addr = config.DATA_DIRECTORY_TRAIN + 'rgb/' + '*' + config.RGB_EXT
+real_files = sorted(glob.glob(real_gt_label_addr))
+# syn
+syn_gt_label_addr = config.SYN_DATA_DIRECTORY_TRAIN + 'rgb/' + '*' + config.RGB_EXT
+syn_files = sorted(glob.glob(syn_gt_label_addr))
+# combined
+files = np.array(np.hstack([real_files, syn_files]))
 print('Loaded {} Images'.format(len(files)))
 
 f_train = open(config.TRAIN_FILE, 'w')
@@ -39,8 +44,14 @@ print('wrote {} files'.format(i+1))
 ################################
 print('\n-------- VAL --------')
 
-gt_label_addr = config.DATA_DIRECTORY_VAL + 'rgb/' + '*' + config.RGB_EXT
-files = sorted(glob.glob(gt_label_addr))
+# real
+real_gt_label_addr = config.DATA_DIRECTORY_VAL + 'rgb/' + '*' + config.RGB_EXT
+real_files = sorted(glob.glob(real_gt_label_addr))
+# syn
+syn_gt_label_addr = config.SYN_DATA_DIRECTORY_VAL + 'rgb/' + '*' + config.RGB_EXT
+syn_files = sorted(glob.glob(syn_gt_label_addr))
+# combined
+files = np.array(np.hstack([real_files, syn_files]))
 print('Loaded {} Images'.format(len(files)))
 
 f_val = open(config.VAL_FILE, 'w')
@@ -57,8 +68,14 @@ print('wrote {} files'.format(i+1))
 ################################
 print('\n-------- TEST --------')
 
-gt_label_addr = config.DATA_DIRECTORY_TEST + 'rgb/' + '*' + config.RGB_EXT
-files = sorted(glob.glob(gt_label_addr))
+# real
+real_gt_label_addr = config.DATA_DIRECTORY_TEST + 'rgb/' + '*' + config.RGB_EXT
+real_files = sorted(glob.glob(real_gt_label_addr))
+# syn
+syn_gt_label_addr = config.SYN_DATA_DIRECTORY_TEST + 'rgb/' + '*' + config.RGB_EXT
+syn_files = sorted(glob.glob(syn_gt_label_addr))
+# combined
+files = np.array(np.hstack([real_files, syn_files]))
 print('Loaded {} Images'.format(len(files)))
 
 f_test = open(config.TEST_FILE, 'w')

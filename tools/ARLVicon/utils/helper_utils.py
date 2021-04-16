@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 ######################
 ######################
 
-from tools.Elevator import cfg as config
+from tools.ARLVicon import cfg as config
 
 ######################
 # IMG UTILS

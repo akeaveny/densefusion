@@ -36,6 +36,7 @@ from tensorboardX import SummaryWriter
 from datasets.ycb.dataset import PoseDataset as PoseDataset_ycb
 from datasets.linemod.dataset import PoseDataset as PoseDataset_linemod
 from datasets.elevator.dataset import PoseDataset as PoseDataset_elevator
+from datasets.arl_vicon.dataset import PoseDataset as PoseDataset_arl_vicon
 
 #######################################
 #######################################
@@ -90,17 +91,24 @@ def main():
         opt.log_dir = 'experiments/logs/ycb' #folder to save logs
         opt.repeat_epoch = 1 #number of repeat times for one epoch training
 
-        opt.start_epoch = 80
-        opt.resume_posenet = 'pose_model_52_0.014977159440650381.pth'
-        opt.resume_refinenet = 'pose_refine_model_77_0.015989926275238205.pth'
+        opt.refine_margin = 0.017
 
-        opt.refine_margin = 0.02
+        # opt.start_epoch = 80
+        # opt.resume_posenet = 'pose_model_52_0.014977159440650381.pth'
+        # opt.resume_refinenet = 'pose_refine_model_77_0.015989926275238205.pth'
 
     elif opt.dataset == 'elevator':
-        opt.num_objects = 2
-        opt.num_points = 500
+        opt.num_objects = 1
+        opt.num_points = 250
         opt.outf = 'trained_models/elevator'
         opt.log_dir = 'experiments/logs/elevator'
+        opt.repeat_epoch = 1
+
+    elif opt.dataset == 'arl_vicon':
+        opt.num_objects = 1
+        opt.num_points = 500
+        opt.outf = 'trained_models/arl_vicon'
+        opt.log_dir = 'experiments/logs/arl_vicon'
         opt.repeat_epoch = 1
 
     else:
@@ -133,6 +141,8 @@ def main():
         dataset = PoseDataset_linemod('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
     elif opt.dataset == 'elevator':
         dataset = PoseDataset_elevator('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
+    elif opt.dataset == 'arl_vicon':
+        dataset = PoseDataset_arl_vicon('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=opt.workers)
 
@@ -142,6 +152,8 @@ def main():
         test_dataset = PoseDataset_linemod('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
     elif opt.dataset == 'elevator':
         test_dataset = PoseDataset_elevator('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
+    elif opt.dataset == 'arl_vicon':
+        test_dataset = PoseDataset_arl_vicon('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
 
     testdataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=opt.workers)
     
@@ -324,6 +336,8 @@ def main():
                 dataset = PoseDataset_linemod('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
             elif opt.dataset == 'elevator':
                 dataset = PoseDataset_elevator('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
+            elif opt.dataset == 'arl_vicon':
+                dataset = PoseDataset_arl_vicon('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
 
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=opt.workers)
 
@@ -333,6 +347,8 @@ def main():
                 test_dataset = PoseDataset_linemod('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
             elif opt.dataset == 'elevator':
                 test_dataset = PoseDataset_elevator('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
+            elif opt.dataset == 'arl_vicon':
+                test_dataset = PoseDataset_arl_vicon('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
 
             testdataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=opt.workers)
             

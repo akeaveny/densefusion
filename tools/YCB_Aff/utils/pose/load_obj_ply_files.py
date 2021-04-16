@@ -1,14 +1,12 @@
-import glob
 import numpy as np
 
-import cv2
-from PIL import Image
-import matplotlib.pyplot as plt
-
 #######################################
 #######################################
 
-from tools.Elevator import cfg as config
+import cfg as config
+
+from utils import helper_utils
+from utils.dataset import ycb_aff_dataset_utils
 
 #######################################
 #######################################
@@ -16,21 +14,23 @@ from tools.Elevator import cfg as config
 def load_obj_ply_files():
 
     ###################################
-    # OG PLY
+    # YCB CONFIG
     ###################################
 
-    class_file = open(config.CLASSES_FILE)
-    class_id_file = open(config.CLASS_IDS_FILE)
-    class_IDs = np.loadtxt(class_id_file, dtype=np.int32)
+    classes_file = open(config.CLASSES_FILE)
+    class_ids_file = open(config.CLASS_IDS_FILE)
+    class_ids = np.loadtxt(class_ids_file, dtype=np.int32)
 
-    class_IDs = np.array([class_IDs])
+    ###################################
+    ###################################
+    print()
 
     cld = {}
-    for class_id in class_IDs:
-        class_input = class_file.readline()
+    for class_id in class_ids:
+        class_input = classes_file.readline()
         if not class_input:
             break
-        input_file = open(config.ROOT_DATA_PATH + 'object_meshes/models/{0}.xyz'.format(class_input))
+        input_file = open(config.DATASET_ROOT_PATH + 'models/{0}/points.xyz'.format(class_input[:-1]))
         cld[class_id] = []
         while 1:
             input_line = input_file.readline()
@@ -45,14 +45,16 @@ def load_obj_ply_files():
         input_file.close()
 
     ##################################
+    # CHECKING AFF LABELS
     ##################################
 
-    class_file = open(config.CLASSES_FILE)
-    obj_classes = np.loadtxt(class_file, dtype=np.str)
-    class_id_file = open(config.CLASS_IDS_FILE)
-    class_IDs = np.loadtxt(class_id_file, dtype=np.int32)
+    classes_file = open(config.CLASSES_FILE)
+    class_ids_file = open(config.CLASS_IDS_FILE)
 
-    class_IDs = np.array([class_IDs])
-    obj_classes = np.array([obj_classes])
+    obj_classes = np.loadtxt(classes_file, dtype=np.str)
+    obj_class_ids = np.loadtxt(class_ids_file, dtype=np.int32)
 
-    return cld, obj_classes, class_IDs
+    ##################################
+    ##################################
+
+    return cld, obj_classes, obj_class_ids

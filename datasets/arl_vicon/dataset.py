@@ -19,13 +19,13 @@ import cv2
 #######################################
 #######################################
 
-from tools.Elevator.utils import helper_utils
+from tools.ARLVicon.utils import helper_utils
 
-from tools.Elevator import cfg as config
-from tools.Elevator.utils.dataset import elavator_dataset_utils
+from tools.ARLVicon import cfg as config
+from tools.ARLVicon.utils.dataset import vicon_dataset_utils
 
-from tools.Elevator.utils.pose.load_obj_ply_files import load_obj_ply_files
-from tools.Elevator.utils.bbox.extract_bboxs_from_label import get_obj_bbox
+from tools.ARLVicon.utils.pose.load_obj_ply_files import load_obj_ply_files
+from tools.ARLVicon.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
 #######################################
 #######################################
@@ -96,13 +96,9 @@ class PoseDataset(data.Dataset):
         self.num_pt_mesh_large = 800
         self.refine = refine
 
-        # class_file = open(config.CLASSES_FILE)
-        # class_id_file = open(config.CLASS_IDS_FILE)
-        # self.class_IDs = np.loadtxt(class_id_file, dtype=np.int32)
-        #
-        # self.class_IDs = np.array([self.class_IDs])
-
-        self.cld, self.obj_classes, self.class_IDs = load_obj_ply_files()
+        self.cld, self.cld_obj_centered, self.cld_obj_part_centered, \
+        self.obj_classes, self.obj_part_classes, \
+        self.obj_ids, self.obj_part_ids = load_obj_ply_files()
 
         print("************** LOADED DATASET! **************")
 
@@ -120,7 +116,7 @@ class PoseDataset(data.Dataset):
 
         img_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
         depth_addr = dataset_dir + 'depth/' + image_num + config.DEPTH_EXT
-        label_addr = dataset_dir + 'masks/' + image_num + config.LABEL_EXT
+        label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
         meta_addr = dataset_dir + 'meta/' + image_num + config.META_EXT
 
         img = Image.open(img_addr)
@@ -144,9 +140,9 @@ class PoseDataset(data.Dataset):
         label = cv2.resize(label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
         depth = cv2.resize(depth, config.RESIZE, interpolation=cv2.INTER_NEAREST)
 
-        img = helper_utils.crop(pil_img=img, crop_size=config.INPUT_SIZE, is_img=True)
-        label = helper_utils.crop(pil_img=label, crop_size=config.INPUT_SIZE)
-        depth = helper_utils.crop(pil_img=depth, crop_size=config.INPUT_SIZE)
+        img = helper_utils.crop(pil_img=img, crop_size=config.CROP_SIZE, is_img=True)
+        label = helper_utils.crop(pil_img=label, crop_size=config.CROP_SIZE)
+        depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
 
         ##################################
         # select random obj id
@@ -157,7 +153,7 @@ class PoseDataset(data.Dataset):
 
         obj_ids = []
         for obj_id in label_obj_ids:
-            if obj_id in self.class_IDs:
+            if obj_id in self.obj_ids:
                 obj_ids.append(obj_id)
 
         while True:
@@ -177,14 +173,14 @@ class PoseDataset(data.Dataset):
         # mask_depth = mask_label * mask_depth
 
         # todo (visualize): ROIs
-        cv2_img = helper_utils.convert_16_bit_depth_to_8_bit(mask_depth.copy())
-        img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_depth.png'
-        # cv2.imwrite(img_name, cv2.applyColorMap(cv2_img, cv2.COLORMAP_JET))
-        cv2.imwrite(img_name, cv2_img)
-
-        cv2_img = mask_rgb.copy()
-        img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_rgb.png'
-        cv2.imwrite(img_name, cv2_img)
+        # cv2_img = helper_utils.convert_16_bit_depth_to_8_bit(mask_depth.copy())
+        # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_depth.png'
+        # # cv2.imwrite(img_name, cv2.applyColorMap(cv2_img, cv2.COLORMAP_JET))
+        # cv2.imwrite(img_name, cv2_img)
+        #
+        # cv2_img = mask_rgb.copy()
+        # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_rgb.png'
+        # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
         ##################################
         # META
@@ -214,13 +210,13 @@ class PoseDataset(data.Dataset):
         obj_translation = meta['obj_translation_' + np.str(obj_meta_idx)] # in [m]
 
         # todo (visualize): gt pose
-        cv2_img = np.array(Image.open(img_addr))
-        cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.INPUT_SIZE, is_img=True)
-        imgpts, jac = cv2.projectPoints(self.cld[obj_id] * 1e3, obj_rotation, obj_translation * 1e3, cam_mat, cam_distortion)
-        cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
-        temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt.png'
-        cv2.imwrite(temp_folder, cv2_img)
+        # cv2_img = np.array(Image.open(img_addr))
+        # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+        # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
+        # imgpts, jac = cv2.projectPoints(self.cld[obj_id] * 1e3, obj_rotation, obj_translation * 1e3, cam_mat, cam_distortion)
+        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt.png'
+        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
         ##################################
         # BBOX
@@ -230,12 +226,12 @@ class PoseDataset(data.Dataset):
         # print("y1, y2, x1, x2: ", y1, y2, x1, x2)
 
         # todo (visualize): bbox
-        cv2_img = np.array(Image.open(img_addr))
-        cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.INPUT_SIZE, is_img=True)
-        img_name = config.TEST_DENSEFUSION_FOLDER + 'bbox.png'
-        cv2.rectangle(cv2_img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-        cv2.imwrite(img_name, cv2_img)
+        # cv2_img = np.array(Image.open(img_addr))
+        # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+        # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
+        # img_name = config.TEST_DENSEFUSION_FOLDER + 'bbox.png'
+        # cv2.rectangle(cv2_img, (x1, y1), (x2, y2), (255, 0, 0), 2)
+        # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
         ##################################
         # Select Region of Interest
@@ -276,13 +272,13 @@ class PoseDataset(data.Dataset):
             cloud = np.add(cloud, translation_noise)
 
         # todo (visualize): pointcloud_from_depth
-        cv2_img = np.array(Image.open(img_addr))
-        cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.INPUT_SIZE, is_img=True)
-        imgpts, jac = cv2.projectPoints(cloud, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
-        cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
-        temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_pointcloud_from_depth.png'
-        cv2.imwrite(temp_folder, cv2_img)
+        # cv2_img = np.array(Image.open(img_addr))
+        # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+        # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
+        # imgpts, jac = cv2.projectPoints(cloud, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
+        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_pointcloud_from_depth.png'
+        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
         ######################################
         # create target from gt pose
@@ -302,13 +298,13 @@ class PoseDataset(data.Dataset):
             target = np.add(target, obj_translation)
 
         # todo (visualize): gt pose from object mesh
-        cv2_img = np.array(Image.open(img_addr))
-        cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.INPUT_SIZE, is_img=True)
-        imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
-        cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
-        temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt_target.png'
-        cv2.imwrite(temp_folder, cv2_img)
+        # cv2_img = np.array(Image.open(img_addr))
+        # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+        # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
+        # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
+        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt_target.png'
+        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
         ######################################
         ######################################

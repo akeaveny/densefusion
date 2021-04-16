@@ -15,13 +15,13 @@ import argparse
 #######################################
 #######################################
 
-from tools.Elevator.utils import helper_utils
+from tools.ARLVicon.utils import helper_utils
 
-from tools.Elevator import cfg as config
-from tools.Elevator.utils.dataset import elavator_dataset_utils
+from tools.ARLVicon import cfg as config
+from tools.ARLVicon.utils.dataset import vicon_dataset_utils
 
-from tools.Elevator.utils.pose.load_obj_ply_files import load_obj_ply_files
-from tools.Elevator.utils.bbox.extract_bboxs_from_label import get_obj_bbox
+from tools.ARLVicon.utils.pose.load_obj_ply_files import load_obj_ply_files
+from tools.ARLVicon.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
 #######################################
 #######################################
@@ -32,22 +32,23 @@ def main():
     # Load Ply files
     ###################################
 
-    cld, obj_classes, obj_ids = load_obj_ply_files()
+    # cld, obj_classes = load_obj_ply_files()
+    cld, cld_obj_centered, cld_obj_part_centered, obj_classes, obj_part_classes, obj_ids, obj_part_ids = load_obj_ply_files()
 
     ##################################
     ##################################
 
     # image_files = open('{}'.format(config.TRAIN_FILE), "r")
-    # image_files = open('{}'.format(config.VAL_FILE), "r")
-    image_files = open('{}'.format(config.TEST_FILE), "r")
+    image_files = open('{}'.format(config.VAL_FILE), "r")
+    # image_files = open('{}'.format(config.TEST_FILE), "r")
     image_files = image_files.readlines()
     print("Loaded Files: {}".format(len(image_files)))
 
     # select random test images
-    # np.random.seed(0)
-    # num_files = 25
-    # random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
-    # image_files = np.array(image_files)[random_idx]
+    np.random.seed(0)
+    num_files = 25
+    random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
+    image_files = np.array(image_files)[random_idx]
     print("Chosen Files: {}".format(len(image_files)))
     good_choose_files = []
 
@@ -63,9 +64,9 @@ def main():
 
         rgb_addr   = dataset_dir + 'rgb/'   + image_num + config.RGB_EXT
         depth_addr = dataset_dir + 'depth/' + image_num + config.DEPTH_EXT
-        label_addr = dataset_dir + 'masks/' + image_num + config.LABEL_EXT
+        label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
 
-        rgb = np.array(Image.open(rgb_addr))
+        rgb = np.array(Image.open(rgb_addr))[..., :3]
         depth = np.array(Image.open(depth_addr))
         label = np.array(Image.open(label_addr))
 
@@ -77,9 +78,9 @@ def main():
         label = cv2.resize(label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
         depth = cv2.resize(depth, config.RESIZE, interpolation=cv2.INTER_NEAREST)
 
-        rgb = helper_utils.crop(pil_img=rgb, crop_size=config.INPUT_SIZE, is_img=True)
-        label = helper_utils.crop(pil_img=label, crop_size=config.INPUT_SIZE)
-        depth = helper_utils.crop(pil_img=depth, crop_size=config.INPUT_SIZE)
+        rgb = helper_utils.crop(pil_img=rgb, crop_size=config.CROP_SIZE, is_img=True)
+        label = helper_utils.crop(pil_img=label, crop_size=config.CROP_SIZE)
+        depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
 
         ##################################
         # META
@@ -104,7 +105,7 @@ def main():
         for idx, obj_id in enumerate(obj_ids):
             if obj_id in label_obj_ids:
                 print("Object:", obj_classes[int(obj_id) - 1])
-                obj_color = elavator_dataset_utils.obj_color_map(obj_id)
+                obj_color = vicon_dataset_utils.obj_color_map(obj_id)
 
                 ####################
                 # GT POSE
@@ -115,8 +116,7 @@ def main():
                 target_t = meta['obj_translation_' + np.str(obj_meta_idx)]
 
                 # projecting 3D model to 2D image
-                imgpts, jac = cv2.projectPoints(cld[obj_id] * 1e3, target_r, target_t * 1e3, config.CAM_MAT,
-                                                config.CAM_DIST)
+                imgpts, jac = cv2.projectPoints(cld[obj_id] * 1e3, target_r, target_t * 1e3, config.CAM_MAT, config.CAM_DIST)
                 cv2_obj_img = cv2.polylines(cv2_obj_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
 
                 # draw pose
@@ -144,7 +144,7 @@ def main():
                 cv2_obj_img = cv2.rectangle(cv2_obj_img, (x1, y1), (x2, y2), obj_color, 2)
 
                 cv2_obj_img = cv2.putText(cv2_obj_img,
-                                          elavator_dataset_utils.map_obj_id_to_name(obj_id),
+                                          vicon_dataset_utils.map_obj_id_to_name(obj_id),
                                           (x1, y1 - 5),
                                           cv2.FONT_ITALIC,
                                           0.4,
@@ -176,15 +176,15 @@ def main():
         # PLOTTING
         #####################
 
-        # color_label = elavator_dataset_utils.colorize_obj_mask(label)
-        #
-        # cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
-        # cv2.imshow('depth', depth)
-        # cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
-        # cv2.imshow('label', cv2.cvtColor(color_label, cv2.COLOR_BGR2RGB))
-        # cv2.imshow('gt_pose', cv2.cvtColor(cv2_obj_img, cv2.COLOR_BGR2RGB))
-        #
-        # cv2.waitKey(0)
+        color_label = vicon_dataset_utils.colorize_obj_mask(label)
+
+        cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
+        cv2.imshow('depth', depth)
+        cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
+        cv2.imshow('label', cv2.cvtColor(color_label, cv2.COLOR_BGR2RGB))
+        cv2.imshow('gt_pose', cv2.cvtColor(cv2_obj_img, cv2.COLOR_BGR2RGB))
+
+        cv2.waitKey(0)
 
     #####################
     #####################
