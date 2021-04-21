@@ -1,7 +1,7 @@
-function evaluate_poses_keyframe
+function posecnn_evaluate_poses_keyframe
 
 opt = globals();
-delete 'results_keyframe.mat'
+% delete 'results_keyframe.mat'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read class names

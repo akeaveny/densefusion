@@ -1,7 +1,9 @@
 function evaluate_poses_keyframe
 
+clear;clc;
+
 opt = globals();
-% delete 'results_keyframe.mat'
+delete 'results/results_keyframe.mat'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read class names
@@ -17,92 +19,75 @@ fclose(fid);
 num_objects = numel(object_names);
 models = cell(num_objects, 1);
 for i = 1:num_objects
-    filename = fullfile(opt.dataset_root, 'models', object_names{i}, 'points.xyz');
+    filename = fullfile(opt.dataset_root, 'object_meshes/models', object_names{i}, 'densefusion', strcat(object_names{i}, '.xyz'));
     disp(filename);
     models{i} = load(filename);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% read class names
+% read keyframes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-fid = fopen(opt.keyframes(), 'r');
-C = textscan(fid, '%s');
-keyframes = C{1};
-fclose(fid);
+gt_keyframes = dir(fullfile(opt.eval_folder_gt, '*.mat'));
+df_wo_refine_keyframes = dir(fullfile(opt.eval_folder_df_wo_refine, '*.mat'));
+df_iterative_keyframes = dir(fullfile(opt.eval_folder_df_iterative, '*.mat'));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-posecnn_mat_files      = dir(strcat(opt.eval_folder_posecnn(),'*.mat'));
+num_preds = length(gt_keyframes)*6; % ~6 objects per scene
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-results_class_ids  = zeros(15000, 1);
-
-errors_add         = zeros(15000, 1);
-errors_add_s       = zeros(15000, 1);
-errors_rotation    = zeros(15000, 1); 
-errors_translation = zeros(15000, 1);
+results_class_ids  = zeros(num_preds, 1);
+errors_add         = zeros(num_preds, 1);
+errors_add_s       = zeros(num_preds, 1);
+errors_rotation    = zeros(num_preds, 1); 
+errors_translation = zeros(num_preds, 1);
 
 count = 0;
-for i = 1:numel(keyframes)
-    
-    % parse keyframe name
-    name = keyframes{i};
-    pos = strfind(name, '/');
-    seq_id = str2double(name(1:pos-1));
-    frame_id = str2double(name(pos+1:end));
+for i = 1:numel(gt_keyframes)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load gt poses
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    filename = fullfile(opt.dataset_root(), 'data', sprintf('%04d/%06d-meta.mat', seq_id, frame_id));
-    disp(filename);
+    filename = strcat(gt_keyframes(i).folder, '/' , gt_keyframes(i).name);
     gt = load(filename);
+    % display filename
+    disp(filename);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % load pred poses
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-    pred_results = load(strcat(opt.eval_folder_posecnn(), posecnn_mat_files(i).name));
-%     pred_results = load(strcat(opt.eval_folder_df_iterative(), posecnn_mat_files(i).name));
+    % load gt poses
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    filename = strcat(df_iterative_keyframes(i).folder, '/' , df_iterative_keyframes(i).name);
+    pred = load(filename);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % for each class
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    for j = 1:numel(gt.cls_indexes)
+    for j = 1:numel(gt.class_ids)
+        % class id         
         count = count + 1;
-        
-        cls_index = gt.cls_indexes(j);
+        cls_index = gt.class_ids(j);
         results_class_ids(count) = cls_index;
         
-        RT_gt = gt.poses(:, :, j);
+        % Load gt & pred poses
+        gt_pose = gt.poses(:, :, j);
+        GT(1:3, 1:3) = quat2rotm(gt_pose(1:4));
+        GT(:, 4) = gt_pose(5:7);
+            
+        pred_pose = pred.poses(:, :, j);
+        PRED(1:3, 1:3) = quat2rotm(pred_pose(1:4));
+        PRED(:, 4) = pred_pose(5:7);
         
-        % network result
-        roi_index = find(pred_results.class_ids == cls_index);
-        if isempty(roi_index) == 0
-            RT = zeros(3, 4);
-
-            % pose after ICP refinement
-            RT(1:3, 1:3) = quat2rotm(pred_results.poses(roi_index,1:4));
-            RT(:, 4) = pred_results.poses(roi_index, 5:7);
-            errors_add(count) = add(RT, RT_gt, models{cls_index}');
-            errors_add_s(count) = adi(RT, RT_gt, models{cls_index}');
-            errors_rotation(count) = re(RT(1:3, 1:3), RT_gt(1:3, 1:3));
-            errors_translation(count) = te(RT(:, 4), RT_gt(:, 4));
-        
-        else
-            disp(filename);
-            errors_add(count) = inf;
-            errors_add_s(count) = inf;
-            errors_rotation(count) = inf;
-            errors_translation(count) = inf;
-        end
-        
+        % error metrics
+        pointcloud = models{cls_index}(:, 1:3); % remove colour from xyz
+        errors_add(count)         = add(PRED, GT, pointcloud');
+        errors_add_s(count)       = adi(PRED, GT, pointcloud');
+        errors_rotation(count)    = re(PRED(1:3, 1:3), GT(1:3, 1:3));
+        errors_translation(count) = te(PRED(:, 4), GT(:, 4));        
     end
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-save('results_keyframe.mat', ...
+save('results/results_keyframe.mat', ...
 'results_class_ids',...
 'errors_add', ...
 'errors_add_s',...

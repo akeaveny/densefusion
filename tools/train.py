@@ -93,9 +93,9 @@ def main():
 
         opt.refine_margin = 0.017
 
-        # opt.start_epoch = 80
-        # opt.resume_posenet = 'pose_model_52_0.014977159440650381.pth'
-        # opt.resume_refinenet = 'pose_refine_model_77_0.015989926275238205.pth'
+        opt.start_epoch = 45
+        opt.resume_posenet = 'pose_model_35_0.016540854830511494.pth'
+        opt.resume_refinenet = 'pose_refine_model_44_0.016030524675080614.pth'
 
     elif opt.dataset == 'elevator':
         opt.num_objects = 1
@@ -106,9 +106,9 @@ def main():
 
     elif opt.dataset == 'arl_vicon':
         opt.num_objects = 1
-        opt.num_points = 500
-        opt.outf = 'trained_models/arl_vicon'
-        opt.log_dir = 'experiments/logs/arl_vicon'
+        opt.num_points = 1000
+        opt.outf = 'trained_models/arl_vicon_retrain'
+        opt.log_dir = 'experiments/logs/arl_vicon_retrain'
         opt.repeat_epoch = 1
 
     else:

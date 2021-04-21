@@ -167,17 +167,12 @@ class PoseDataset(data.Dataset):
             if len(mask_depth.nonzero()[0]) > self.minimum_num_pt:
                 break
 
-        # obj_id = obj_ids[np.random.randint(0, len(obj_ids))]
-        # mask_depth = ma.getmaskarray(ma.masked_not_equal(depth, 0))
-        # mask_label = ma.getmaskarray(ma.masked_equal(label, obj_id))
-        # mask_depth = mask_label * mask_depth
-
-        # todo (visualize): ROIs
+        # todo (visualize): RGB ROIs
         # cv2_img = helper_utils.convert_16_bit_depth_to_8_bit(mask_depth.copy())
         # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_depth.png'
         # # cv2.imwrite(img_name, cv2.applyColorMap(cv2_img, cv2.COLORMAP_JET))
         # cv2.imwrite(img_name, cv2_img)
-        #
+        # todo (visualize): Depth ROIs
         # cv2_img = mask_rgb.copy()
         # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_rgb.png'
         # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
@@ -214,7 +209,7 @@ class PoseDataset(data.Dataset):
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
         # imgpts, jac = cv2.projectPoints(self.cld[obj_id] * 1e3, obj_rotation, obj_translation * 1e3, cam_mat, cam_distortion)
-        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
@@ -276,7 +271,7 @@ class PoseDataset(data.Dataset):
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
         # imgpts, jac = cv2.projectPoints(cloud, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
-        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_pointcloud_from_depth.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
@@ -302,7 +297,7 @@ class PoseDataset(data.Dataset):
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
         # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
-        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt_target.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 

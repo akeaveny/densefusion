@@ -28,17 +28,6 @@ from torch.autograd import Variable
 
 #######################################
 #######################################
-print(os.getcwd())
-
-from pathlib import Path
-ROOT_DIR_PATH = Path(__file__).resolve().parents[3]
-
-print("ROOT_DIR_PATH:{}".format(ROOT_DIR_PATH))
-os.chdir(str(ROOT_DIR_PATH))
-print(os.getcwd())
-
-#######################################
-#######################################
 
 from lib.network import PoseNet, PoseRefineNet
 from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from_matrix
@@ -117,7 +106,7 @@ def main():
         #######################################
 
         # posecnn
-        posecnn_meta_idx = str(1000000 + image_idx)[1:]         # gt results and posecnn are offset by 1
+        posecnn_meta_idx = str(1000000 + image_idx)[1:] # gt results and posecnn are offset by 1
         posecnn_meta_addr = config.YCB_TOOLBOX_CONFIG + posecnn_meta_idx + config.POSECNN_EXT
         posecnn_meta = scio.loadmat(posecnn_meta_addr)
 

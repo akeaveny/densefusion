@@ -32,14 +32,13 @@ def main():
     # Load Ply files
     ###################################
 
-    # cld, obj_classes = load_obj_ply_files()
     cld, cld_obj_centered, cld_obj_part_centered, obj_classes, obj_part_classes, obj_ids, obj_part_ids = load_obj_ply_files()
 
     ##################################
     ##################################
 
-    # image_files = open('{}'.format(config.TRAIN_FILE), "r")
-    image_files = open('{}'.format(config.VAL_FILE), "r")
+    image_files = open('{}'.format(config.TRAIN_FILE), "r")
+    # image_files = open('{}'.format(config.VAL_FILE), "r")
     # image_files = open('{}'.format(config.TEST_FILE), "r")
     image_files = image_files.readlines()
     print("Loaded Files: {}".format(len(image_files)))
@@ -61,6 +60,8 @@ def main():
         image_addr = image_addr.rstrip()
         dataset_dir = image_addr.split('rgb/')[0]
         image_num = image_addr.split('rgb/')[-1]
+
+        print('\nimage:{}/{}, file:{}'.format(image_idx + 1, len(image_files), image_addr))
 
         rgb_addr   = dataset_dir + 'rgb/'   + image_num + config.RGB_EXT
         depth_addr = dataset_dir + 'depth/' + image_num + config.DEPTH_EXT
@@ -117,15 +118,15 @@ def main():
 
                 # projecting 3D model to 2D image
                 imgpts, jac = cv2.projectPoints(cld[obj_id] * 1e3, target_r, target_t * 1e3, config.CAM_MAT, config.CAM_DIST)
-                cv2_obj_img = cv2.polylines(cv2_obj_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
+                cv2_obj_img = cv2.polylines(cv2_obj_img, helper_utils.sort_imgpts(imgpts), True, obj_color)
 
                 # draw pose
                 rotV, _ = cv2.Rodrigues(target_r)
                 points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
                 axisPoints, _ = cv2.projectPoints(points, rotV, target_t * 1e3, config.CAM_MAT, config.CAM_DIST)
-                cv2_obj_img = cv2.line(cv2_obj_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (0, 0, 255), 3)
+                cv2_obj_img = cv2.line(cv2_obj_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
                 cv2_obj_img = cv2.line(cv2_obj_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
-                cv2_obj_img = cv2.line(cv2_obj_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (255, 0, 0), 3)
+                cv2_obj_img = cv2.line(cv2_obj_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
 
                 ##################################
                 # BBOX

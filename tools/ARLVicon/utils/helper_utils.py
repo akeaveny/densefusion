@@ -60,3 +60,11 @@ def crop(pil_img, crop_size, is_img=False):
         resize_img[0:(bottom - top), 0:(right - left)] = np.array(pil_img)
 
     return np.array(resize_img, dtype=_dtype)
+
+######################
+######################
+
+def sort_imgpts(_imgpts):
+    imgpts = np.squeeze(_imgpts.copy())
+    imgpts = imgpts[np.lexsort(np.transpose(imgpts)[::-1])]
+    return np.int32([imgpts])

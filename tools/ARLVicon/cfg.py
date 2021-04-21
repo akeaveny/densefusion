@@ -1,5 +1,8 @@
 import numpy as np
 
+import torch
+import torchvision.transforms as transforms
+
 #######################################
 # DenseFusion
 #######################################
@@ -16,6 +19,15 @@ OBJ_PART_CLASS_IDS_FILE = ROOT_PATH + 'datasets/arl_vicon/dataset_config/obj_par
 TRAIN_FILE = ROOT_PATH + 'datasets/arl_vicon/dataset_config/data_lists/train_list.txt'
 VAL_FILE   = ROOT_PATH + 'datasets/arl_vicon/dataset_config/data_lists/val_list.txt'
 TEST_FILE  = ROOT_PATH + 'datasets/arl_vicon/dataset_config/data_lists/test_list.txt'
+
+# Trained models
+PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_vicon/pose_model_4_0.012356991511138556.pth'
+PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_vicon/pose_refine_model_275_0.004461987070023732.pth'
+
+# MATLAB
+EVAL_FOLDER_GT           = ROOT_PATH + 'tools/ARLVicon/matlab/results/gt'
+EVAL_FOLDER_DF_WO_REFINE = ROOT_PATH + 'tools/ARLVicon/matlab/results/df_wo_refine'
+EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'tools/ARLVicon/matlab/results/df_iterative'
 
 #######################################
 # Dataset Prelims
@@ -73,4 +85,23 @@ YMAP = np.array([[i for i in range(HEIGHT)] for j in range(WIDTH)])
 
 CAM_MAT = np.array([[CAM_FX, 0, CAM_CX], [0, CAM_FY, CAM_CY], [0, 0, 1]])
 CAM_DIST = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+
+#######################################
+#######################################
+
+NUM_OBJECTS = 1
+
+IMG_MEAN   = [0.485, 0.456, 0.406]
+IMG_STD    = [0.229, 0.224, 0.225]
+
+NORM = transforms.Normalize(mean=IMG_MEAN, std=IMG_STD)
+
+NUM_PT = 1000
+NUM_PT_MESH_SMALL = 500
+NUM_PT_MESH_LARGE = 2600
+
+REFINE_ITERATIONS = 2
+BATCH_SIZE = 1
+
+
 
