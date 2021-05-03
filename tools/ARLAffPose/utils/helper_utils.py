@@ -13,11 +13,6 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 ######################
-######################
-
-from tools.ARLVicon import cfg as config
-
-######################
 # IMG UTILS
 ######################
 
@@ -34,9 +29,6 @@ def print_class_labels(label):
     class_ids = np.unique(np.array(label, dtype=np.uint8))
     class_ids = class_ids[1:] # exclude the backgound
     print("Mask has {} Labels: {}".format(len(class_ids), class_ids))
-
-######################
-######################
 
 def crop(pil_img, crop_size, is_img=False):
     _dtype = np.array(pil_img).dtype
@@ -62,9 +54,10 @@ def crop(pil_img, crop_size, is_img=False):
     return np.array(resize_img, dtype=_dtype)
 
 ######################
+# 3D UTILS
 ######################
 
 def sort_imgpts(_imgpts):
     imgpts = np.squeeze(_imgpts.copy())
-    imgpts = imgpts[np.lexsort(np.transpose(imgpts)[::-1])]
+    # imgpts = imgpts[np.lexsort(np.transpose(imgpts)[::-1])]
     return np.int32([imgpts])

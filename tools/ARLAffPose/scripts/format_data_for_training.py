@@ -4,7 +4,7 @@ import numpy as np
 #######################################
 #######################################
 
-import tools.ARLVicon.cfg as config
+import tools.ARLAffPose.cfg as config
 
 ###################################
 # PRELIM
@@ -75,7 +75,7 @@ real_files = sorted(glob.glob(real_gt_label_addr))
 syn_gt_label_addr = config.SYN_DATA_DIRECTORY_TEST + 'rgb/' + '*' + config.RGB_EXT
 syn_files = sorted(glob.glob(syn_gt_label_addr))
 # combined
-files = real_files # np.array(np.hstack([real_files, syn_files]))
+files = syn_files # np.array(np.hstack([real_files, syn_files]))
 print('Loaded {} Images'.format(len(files)))
 
 f_test = open(config.TEST_FILE, 'w')

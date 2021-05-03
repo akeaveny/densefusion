@@ -19,13 +19,12 @@ import cv2
 #######################################
 #######################################
 
-from tools.ARLVicon.utils import helper_utils
+from tools.ARLAffPose.utils import helper_utils
 
-from tools.ARLVicon import cfg as config
-from tools.ARLVicon.utils.dataset import vicon_dataset_utils
+from tools.ARLAffPose import cfg as config
 
-from tools.ARLVicon.utils.pose.load_obj_ply_files import load_obj_ply_files
-from tools.ARLVicon.utils.bbox.extract_bboxs_from_label import get_obj_bbox
+from tools.ARLAffPose.utils.pose.load_obj_ply_files import load_obj_ply_files
+from tools.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
 #######################################
 #######################################
@@ -83,8 +82,7 @@ class PoseDataset(data.Dataset):
         self.noise_img_loc = 0.0
         self.noise_img_scale = 7.0
 
-        self.norm = transforms.Normalize(mean=[107.1515813/255, 108.32803021/255, 105.53228755/255],
-                                          std=[47.80617899/255, 48.83287752/255, 50.25165637/255])
+        self.norm = transforms.Normalize(mean=config.IMG_MEAN, std=config.IMG_STD)
 
         ##################################
         # 3D models
@@ -116,12 +114,13 @@ class PoseDataset(data.Dataset):
 
         img_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
         depth_addr = dataset_dir + 'depth/' + image_num + config.DEPTH_EXT
-        label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
+        # obj_label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
+        obj_part_label_addr = dataset_dir + 'masks_obj_part/' + image_num + config.OBJ_PART_LABEL_EXT
         meta_addr = dataset_dir + 'meta/' + image_num + config.META_EXT
 
         img = Image.open(img_addr)
         depth = np.array(Image.open(depth_addr))
-        label = np.array(Image.open(label_addr))
+        obj_part_label = np.array(Image.open(obj_part_label_addr))
         meta = scio.loadmat(meta_addr)
 
         ##################################
@@ -137,42 +136,43 @@ class PoseDataset(data.Dataset):
         ##################################
 
         img = cv2.resize(img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        label = cv2.resize(label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+        obj_part_label = cv2.resize(obj_part_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
         depth = cv2.resize(depth, config.RESIZE, interpolation=cv2.INTER_NEAREST)
 
         img = helper_utils.crop(pil_img=img, crop_size=config.CROP_SIZE, is_img=True)
-        label = helper_utils.crop(pil_img=label, crop_size=config.CROP_SIZE)
+        obj_part_label = helper_utils.crop(pil_img=obj_part_label, crop_size=config.CROP_SIZE)
         depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
 
         ##################################
         # select random obj id
         ##################################
 
-        label_obj_ids = np.unique(np.array(label))
-        # print("obj_ids: ", label_obj_ids)
+        label_obj_part_ids = np.unique(np.array(obj_part_label))
 
-        obj_ids = []
-        for obj_id in label_obj_ids:
-            if obj_id in self.obj_ids:
-                obj_ids.append(obj_id)
+        obj_part_ids = []
+        for obj_part_id in label_obj_part_ids:
+            if obj_part_id in self.obj_part_ids:
+                obj_part_ids.append(obj_part_id)
 
         while True:
-            obj_id = obj_ids[np.random.randint(0, len(obj_ids))]
-            mask_label = ma.getmaskarray(ma.masked_equal(label, obj_id))
-            mask_rgb = np.repeat(mask_label, 3).reshape(label.shape[0], label.shape[1], -1) * img
-            # mask_depth = mask_label * ma.getmaskarray(ma.masked_not_equal(depth, 0))
+            obj_part_id = obj_part_ids[np.random.randint(0, len(obj_part_ids))]
+            mask_label = ma.getmaskarray(ma.masked_equal(obj_part_label, obj_part_id))
+            mask_rgb = np.repeat(mask_label, 3).reshape(obj_part_label.shape[0], obj_part_label.shape[1], -1) * img
             mask_depth = mask_label * depth
             # WE NEED AT LEAST minimum_num_pt ON DEPTH IMAGE
-            # print("Obj ID:{}, Depth Image Pointcloud:{}".format(obj_id, len(mask_depth.nonzero()[0])))
+            # print("Obj ID:{}, Depth Image Pointcloud:{}".format(obj_part_id, len(mask_depth.nonzero()[0])))
             if len(mask_depth.nonzero()[0]) > self.minimum_num_pt:
                 break
 
-        # todo (visualize): RGB ROIs
+        # print("self: ", self.obj_part_ids)
+        # print("label: ", label_obj_part_ids)
+        # print("obj_part_id: ", obj_part_id)
+
+        # # todo (visualize): RGB ROIs
         # cv2_img = helper_utils.convert_16_bit_depth_to_8_bit(mask_depth.copy())
         # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_depth.png'
-        # # cv2.imwrite(img_name, cv2.applyColorMap(cv2_img, cv2.COLORMAP_JET))
         # cv2.imwrite(img_name, cv2_img)
-        # todo (visualize): Depth ROIs
+        # # todo (visualize): Depth ROIs
         # cv2_img = mask_rgb.copy()
         # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_rgb.png'
         # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
@@ -180,8 +180,6 @@ class PoseDataset(data.Dataset):
         ##################################
         # META
         ##################################
-
-        width, height = config.WIDTH, config.HEIGHT
 
         self.xmap = config.XMAP
         self.ymap = config.YMAP
@@ -195,20 +193,20 @@ class PoseDataset(data.Dataset):
         cam_mat = np.array([[cam_fx, 0, cam_cx], [0, cam_fy, cam_cy], [0, 0, 1]])
         cam_distortion = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
 
-        obj_meta_idx = str(1000 + obj_id)[1:]
-
         ##################################
         # GT POSE
         ##################################
 
-        obj_rotation = meta['obj_rotation_' + np.str(obj_meta_idx)]
-        obj_translation = meta['obj_translation_' + np.str(obj_meta_idx)] # in [m]
+        obj_part_id_idx = str(1000 + obj_part_id)[1:]
 
-        # todo (visualize): gt pose
+        obj_part_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
+        obj_part_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]    # in [m]
+
+        # # todo (visualize): gt pose
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
-        # imgpts, jac = cv2.projectPoints(self.cld[obj_id] * 1e3, obj_rotation, obj_translation * 1e3, cam_mat, cam_distortion)
+        # imgpts, jac = cv2.projectPoints(self.cld_obj_part_centered[obj_part_id] * 1e3, obj_part_r, obj_part_t * 1e3, cam_mat, cam_distortion)
         # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
@@ -217,10 +215,10 @@ class PoseDataset(data.Dataset):
         # BBOX
         ##################################
 
-        x1, y1, x2, y2 = get_obj_bbox(label, obj_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
+        x1, y1, x2, y2 = get_obj_bbox(obj_part_label, obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
         # print("y1, y2, x1, x2: ", y1, y2, x1, x2)
 
-        # todo (visualize): bbox
+        # # todo (visualize): bbox
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
@@ -234,11 +232,6 @@ class PoseDataset(data.Dataset):
 
         choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
 
-        #print("\nchoose: ", len(choose))
-        # if len(choose) == 0:
-        #     print("*** CHOOSE IS ZERO ***")
-        #     print('{}'.format(img_addr))
-        #     exit(1)
         if len(choose) > self.num_pt:
             c_mask = np.zeros(len(choose), dtype=int)
             c_mask[:self.num_pt] = 1
@@ -266,11 +259,11 @@ class PoseDataset(data.Dataset):
         if self.add_noise:
             cloud = np.add(cloud, translation_noise)
 
-        # todo (visualize): pointcloud_from_depth
+        # # todo (visualize): pointcloud_from_depth
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
-        # imgpts, jac = cv2.projectPoints(cloud, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
+        # imgpts, jac = cv2.projectPoints(cloud, np.eye(3), np.zeros(shape=obj_part_t.shape), cam_mat, cam_distortion)
         # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_pointcloud_from_depth.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
@@ -279,24 +272,24 @@ class PoseDataset(data.Dataset):
         # create target from gt pose
         ######################################
 
-        dellist = [j for j in range(0, len(self.cld[obj_id]))]
+        dellist = [j for j in range(0, len(self.cld_obj_part_centered[obj_part_id]))]
         if self.refine:
-            dellist = random.sample(dellist, len(self.cld[obj_id]) - self.num_pt_mesh_large)
+            dellist = random.sample(dellist, len(self.cld_obj_part_centered[obj_part_id]) - self.num_pt_mesh_large)
         else:
-            dellist = random.sample(dellist, len(self.cld[obj_id]) - self.num_pt_mesh_small)
-        model_points = np.delete(self.cld[obj_id], dellist, axis=0)
+            dellist = random.sample(dellist, len(self.cld_obj_part_centered[obj_part_id]) - self.num_pt_mesh_small)
+        model_points = np.delete(self.cld_obj_part_centered[obj_part_id], dellist, axis=0)
 
-        target = np.dot(model_points, obj_rotation.T)
+        target = np.dot(model_points, obj_part_r.T)
         if self.add_noise:
-            target = np.add(target, obj_translation + translation_noise)
+            target = np.add(target, obj_part_t + translation_noise)
         else:
-            target = np.add(target, obj_translation)
+            target = np.add(target, obj_part_t)
 
-        # todo (visualize): gt pose from object mesh
+        # # todo (visualize): gt pose from object mesh
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
-        # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
+        # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=obj_part_t.shape), cam_mat, cam_distortion)
         # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt_target.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
@@ -309,7 +302,7 @@ class PoseDataset(data.Dataset):
                self.norm(torch.from_numpy(img_masked.astype(np.float32))), \
                torch.from_numpy(target.astype(np.float32)), \
                torch.from_numpy(model_points.astype(np.float32)), \
-               torch.LongTensor([int(obj_id) - 1])
+               torch.LongTensor([int(obj_part_id) - 1])
 
     ######################################
     ######################################

@@ -37,6 +37,7 @@ from datasets.ycb.dataset import PoseDataset as PoseDataset_ycb
 from datasets.linemod.dataset import PoseDataset as PoseDataset_linemod
 from datasets.elevator.dataset import PoseDataset as PoseDataset_elevator
 from datasets.arl_vicon.dataset import PoseDataset as PoseDataset_arl_vicon
+from datasets.arl_affpose.dataset import PoseDataset as PoseDataset_arl_affpose
 
 #######################################
 #######################################
@@ -93,9 +94,9 @@ def main():
 
         opt.refine_margin = 0.017
 
-        opt.start_epoch = 45
+        opt.start_epoch = 138
         opt.resume_posenet = 'pose_model_35_0.016540854830511494.pth'
-        opt.resume_refinenet = 'pose_refine_model_44_0.016030524675080614.pth'
+        opt.resume_refinenet = 'pose_refine_model_137_0.013625455576306377.pth'
 
     elif opt.dataset == 'elevator':
         opt.num_objects = 1
@@ -107,8 +108,15 @@ def main():
     elif opt.dataset == 'arl_vicon':
         opt.num_objects = 1
         opt.num_points = 1000
-        opt.outf = 'trained_models/arl_vicon_retrain'
-        opt.log_dir = 'experiments/logs/arl_vicon_retrain'
+        opt.outf = 'trained_models/arl_vicon/syn'
+        opt.log_dir = 'experiments/logs/arl_vicon/syn'
+        opt.repeat_epoch = 1
+
+    elif opt.dataset == 'arl_affpose':
+        opt.num_objects = 25
+        opt.num_points = 500
+        opt.outf = 'trained_models/arl_affpose/syn'
+        opt.log_dir = 'experiments/logs/arl_affpose/syn'
         opt.repeat_epoch = 1
 
     else:
@@ -143,6 +151,8 @@ def main():
         dataset = PoseDataset_elevator('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
     elif opt.dataset == 'arl_vicon':
         dataset = PoseDataset_arl_vicon('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
+    elif opt.dataset == 'arl_affpose':
+        dataset = PoseDataset_arl_affpose('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=opt.workers)
 
@@ -154,6 +164,8 @@ def main():
         test_dataset = PoseDataset_elevator('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
     elif opt.dataset == 'arl_vicon':
         test_dataset = PoseDataset_arl_vicon('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
+    elif opt.dataset == 'arl_affpose':
+        test_dataset = PoseDataset_arl_affpose('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
 
     testdataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=opt.workers)
     
@@ -338,6 +350,8 @@ def main():
                 dataset = PoseDataset_elevator('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
             elif opt.dataset == 'arl_vicon':
                 dataset = PoseDataset_arl_vicon('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
+            elif opt.dataset == 'arl_affpose':
+                dataset = PoseDataset_arl_affpose('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
 
             dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=opt.workers)
 
@@ -349,6 +363,8 @@ def main():
                 test_dataset = PoseDataset_elevator('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
             elif opt.dataset == 'arl_vicon':
                 test_dataset = PoseDataset_arl_vicon('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
+            elif opt.dataset == 'arl_affpose':
+                test_dataset = PoseDataset_arl_affpose('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
 
             testdataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=opt.workers)
             

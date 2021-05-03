@@ -1,0 +1,14 @@
+001_mallet_1_grasp
+002_spatula_1_grasp
+003_wooden_spoon_1_grasp
+004_screwdriver_1_grasp
+005_garden_shovel_1_grasp
+019_pitcher_base_1_grasp
+019_pitcher_base_7_wrap_grasp
+024_bowl_7_wrap_grasp
+025_mug_1_grasp
+025_mug_7_wrap_grasp
+035_power_drill_1_grasp
+037_scissors_1_grasp
+051_large_clamp_7_wrap_grasp
+
