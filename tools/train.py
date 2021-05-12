@@ -88,15 +88,15 @@ def main():
         opt.num_objects = 21 #number of object classes in the dataset
         opt.num_points = 1000 #number of points on the input pointcloud
         opt.dataset_root = '/data/Akeaveny/Datasets/YCB_Video_Dataset'
-        opt.outf = 'trained_models/ycb' #folder to save trained models
-        opt.log_dir = 'experiments/logs/ycb' #folder to save logs
+        opt.outf = 'trained_models/ycb_real' #folder to save trained models
+        opt.log_dir = 'experiments/logs/ycb_real' #folder to save logs
         opt.repeat_epoch = 1 #number of repeat times for one epoch training
 
         opt.refine_margin = 0.017
 
-        opt.start_epoch = 138
-        opt.resume_posenet = 'pose_model_35_0.016540854830511494.pth'
-        opt.resume_refinenet = 'pose_refine_model_137_0.013625455576306377.pth'
+        # opt.start_epoch = 145
+        # opt.resume_posenet = 'pose_model_35_0.016540854830511494.pth'
+        # opt.resume_refinenet = 'pose_refine_model_142_0.013323500733599149.pth'
 
     elif opt.dataset == 'elevator':
         opt.num_objects = 1
@@ -115,8 +115,8 @@ def main():
     elif opt.dataset == 'arl_affpose':
         opt.num_objects = 25
         opt.num_points = 500
-        opt.outf = 'trained_models/arl_affpose/syn'
-        opt.log_dir = 'experiments/logs/arl_affpose/syn'
+        opt.outf = 'trained_models/arl_affpose/real'
+        opt.log_dir = 'experiments/logs/arl_affpose/real'
         opt.repeat_epoch = 1
 
     else:

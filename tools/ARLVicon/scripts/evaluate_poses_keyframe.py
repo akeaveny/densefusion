@@ -31,6 +31,12 @@ from torch.autograd import Variable
 #######################################
 #######################################
 
+import sys
+sys.path.append('../../../')
+
+#######################################
+#######################################
+
 from lib.network import PoseNet, PoseRefineNet
 from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from_matrix
 
@@ -73,8 +79,6 @@ def main():
     ##################################
     ##################################
 
-    # image_files = open('{}'.format(config.TRAIN_FILE), "r")
-    # image_files = open('{}'.format(config.VAL_FILE), "r")
     image_files = open('{}'.format(config.TEST_FILE), "r")
     image_files = image_files.readlines()
     print("Loaded Files: {}".format(len(image_files)))
@@ -85,6 +89,28 @@ def main():
     # random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
     # image_files = np.array(image_files)[random_idx]
     # print("Chosen Files: {}".format(len(image_files)))
+
+    ##################################
+    ##################################
+
+    # create dirs
+    if not os.path.exists(config.EVAL_FOLDER_GT):
+        os.makedirs(config.EVAL_FOLDER_GT)
+    if not os.path.exists(config.EVAL_FOLDER_DF_WO_REFINE):
+        os.makedirs(config.EVAL_FOLDER_DF_WO_REFINE)
+    if not os.path.exists(config.EVAL_FOLDER_DF_ITERATIVE):
+        os.makedirs(config.EVAL_FOLDER_DF_ITERATIVE)
+
+    # remove old files
+    files = glob.glob(config.EVAL_FOLDER_GT + '/*')
+    for file in files:
+        os.remove(file)
+    files = glob.glob(config.EVAL_FOLDER_DF_WO_REFINE + '/*')
+    for file in files:
+        os.remove(file)
+    files = glob.glob(config.EVAL_FOLDER_DF_ITERATIVE + '/*')
+    for file in files:
+        os.remove(file)
 
     ##################################
     ##################################
@@ -122,6 +148,12 @@ def main():
         depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
 
         ##################################
+        ##################################
+
+        cv2_gt_img = rgb.copy()
+        cv2_pred_img = rgb.copy()
+
+        ##################################
         # META
         ##################################
 
@@ -129,14 +161,11 @@ def main():
         meta_addr = dataset_dir + 'meta/' + image_num + config.META_EXT
         meta = scio.loadmat(meta_addr)
 
-        cv2_gt_img = rgb.copy()
-        cv2_pred_img = rgb.copy()
-
-        ##################################
-        ##################################
-
         obj_ids = np.array(meta['object_class_ids']).flatten()
         label_obj_ids = np.unique(label)[1:]
+
+        ##################################
+        ##################################
 
         # TODO: MATLAB EVAL
         class_ids_list = [obj_ids]
@@ -368,17 +397,17 @@ def main():
             #####################
             # PLOTTING
             #####################
-            depth = helper_utils.convert_16_bit_depth_to_8_bit(depth)
-            color_label = vicon_dataset_utils.colorize_obj_mask(label)
+            # depth = helper_utils.convert_16_bit_depth_to_8_bit(depth)
+            # color_label = vicon_dataset_utils.colorize_obj_mask(label)
 
             # cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
             # cv2.imshow('depth', depth)
             # cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
             # cv2.imshow('label', cv2.cvtColor(color_label, cv2.COLOR_BGR2RGB))
-            cv2.imshow('gt_pose', cv2.cvtColor(cv2_gt_img, cv2.COLOR_BGR2RGB))
-            cv2.imshow('pred_pose', cv2.cvtColor(cv2_pred_img, cv2.COLOR_BGR2RGB))
+            # cv2.imshow('gt_pose', cv2.cvtColor(cv2_gt_img, cv2.COLOR_BGR2RGB))
+            # cv2.imshow('pred_pose', cv2.cvtColor(cv2_pred_img, cv2.COLOR_BGR2RGB))
 
-            cv2.waitKey(1)
+            # cv2.waitKey(1)
 
             ############################
             # TODO: MATLAB EVAL

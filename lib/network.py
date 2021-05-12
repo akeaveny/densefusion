@@ -130,8 +130,6 @@ class PoseNet(nn.Module):
         out_tx = out_tx.contiguous().transpose(2, 1).contiguous()
         
         return out_rx, out_tx, out_cx, emb.detach()
- 
-
 
 class PoseRefineNetFeat(nn.Module):
     def __init__(self, num_points):

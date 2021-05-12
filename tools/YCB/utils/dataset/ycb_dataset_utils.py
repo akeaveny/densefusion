@@ -103,11 +103,11 @@ def obj_color_map_dict():
 ##################################
 ##################################
 
-def densefusion_pred_color():
-    return (150, 247, 241) # teal
-
 def pose_cnn_pred_color():
     return (247, 163, 150) # teal
+
+def densefusion_pred_color():
+    return (150, 247, 241) # teal
 
 def obj_color_map(idx):
     ''' [red, blue, green]'''

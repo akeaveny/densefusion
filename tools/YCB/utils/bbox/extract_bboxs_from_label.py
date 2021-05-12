@@ -5,9 +5,9 @@ import numpy as np
 #######################################
 #######################################
 
-from tools.utils import helper_utils
-
 from tools.YCB import cfg as config
+
+from tools.YCB.utils import helper_utils
 from tools.YCB.utils.dataset import ycb_dataset_utils
 
 ###########################################################

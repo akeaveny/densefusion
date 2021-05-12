@@ -59,7 +59,7 @@ for i = 1:numel(gt_keyframes)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load gt poses
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    filename = strcat(df_iterative_keyframes(i).folder, '/' , df_iterative_keyframes(i).name);
+    filename = strcat(df_wo_refine_keyframes(i).folder, '/' , df_wo_refine_keyframes(i).name);
     pred = load(filename);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

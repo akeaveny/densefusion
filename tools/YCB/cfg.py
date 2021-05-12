@@ -8,8 +8,10 @@ import torchvision.transforms as transforms
 
 DENSEFUSION_ROOT_PATH = '/home/akeaveny/git/DenseFusion/'
 
-PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_model_26_0.012863246640872631.pth'
-PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_refine_model_69_0.009449292959118935.pth'
+# PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_model_26_0.012863246640872631.pth'
+# PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_refine_model_69_0.009449292959118935.pth'
+PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/ycb/pose_model_35_0.016540854830511494.pth'
+PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/ycb/pose_refine_model_146_0.013003259555032592.pth'
 
 #######################################
 ### YCB
@@ -93,7 +95,7 @@ YMAP = np.array([[i for i in range(HEIGHT)] for j in range(WIDTH)])
 #######################################
 #######################################
 
-NUM_PT = 1000
+NUM_PT = 500
 NUM_PT_MESH_SMALL = 500
 NUM_PT_MESH_LARGE = 2600
 

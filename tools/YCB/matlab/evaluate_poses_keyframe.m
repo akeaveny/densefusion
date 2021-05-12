@@ -62,8 +62,8 @@ for i = 1:numel(keyframes)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load pred poses
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-    pred_results = load(strcat(opt.eval_folder_posecnn(), posecnn_mat_files(i).name));
-%     pred_results = load(strcat(opt.eval_folder_df_iterative(), posecnn_mat_files(i).name));
+%     pred_results = load(strcat(opt.eval_folder_posecnn(), posecnn_mat_files(i).name));
+    pred_results = load(strcat(opt.eval_folder_df_iterative(), posecnn_mat_files(i).name));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % for each class

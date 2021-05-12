@@ -83,8 +83,7 @@ class PoseDataset(data.Dataset):
         self.noise_img_loc = 0.0
         self.noise_img_scale = 7.0
 
-        self.norm = transforms.Normalize(mean=[107.1515813/255, 108.32803021/255, 105.53228755/255],
-                                          std=[47.80617899/255, 48.83287752/255, 50.25165637/255])
+        self.norm = transforms.Normalize(mean=config.IMG_MEAN, std=config.IMG_STD)
 
         ##################################
         # 3D models
@@ -180,8 +179,6 @@ class PoseDataset(data.Dataset):
         ##################################
         # META
         ##################################
-
-        width, height = config.WIDTH, config.HEIGHT
 
         self.xmap = config.XMAP
         self.ymap = config.YMAP

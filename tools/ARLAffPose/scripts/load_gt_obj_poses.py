@@ -15,6 +15,12 @@ import argparse
 #######################################
 #######################################
 
+import sys
+sys.path.append('../../..')
+
+#######################################
+#######################################
+
 from tools.ARLAffPose.utils import helper_utils
 
 from tools.ARLAffPose import cfg as config
@@ -38,8 +44,8 @@ def main():
     ##################################
 
     # image_files = open('{}'.format(config.TRAIN_FILE), "r")
-    # image_files = open('{}'.format(config.VAL_FILE), "r")
-    image_files = open('{}'.format(config.TEST_FILE), "r")
+    image_files = open('{}'.format(config.VAL_FILE), "r")
+    # image_files = open('{}'.format(config.TEST_FILE), "r")
     image_files = image_files.readlines()
     print("Loaded Files: {}".format(len(image_files)))
 
@@ -75,13 +81,13 @@ def main():
         ### RESIZE & CROP
         ##################################
 
-        # rgb = cv2.resize(rgb, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        # label = cv2.resize(label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
-        # depth = cv2.resize(depth, config.RESIZE, interpolation=cv2.INTER_NEAREST)
-        #
-        # rgb = helper_utils.crop(pil_img=rgb, crop_size=config.CROP_SIZE, is_img=True)
-        # label = helper_utils.crop(pil_img=label, crop_size=config.CROP_SIZE)
-        # depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
+        rgb = cv2.resize(rgb, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+        label = cv2.resize(label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+        depth = cv2.resize(depth, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+
+        rgb = helper_utils.crop(pil_img=rgb, crop_size=config.CROP_SIZE, is_img=True)
+        label = helper_utils.crop(pil_img=label, crop_size=config.CROP_SIZE)
+        depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
 
         #####################
         #####################
@@ -89,7 +95,6 @@ def main():
         # cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
         # cv2.imshow('label', cv2.cvtColor(affpose_dataset_utils.colorize_obj_mask(label), cv2.COLOR_BGR2RGB))
         # cv2.imshow('mask',   ma.getmaskarray(ma.masked_equal(label, 7)).astype(np.uint8)*50)
-        #
         # cv2.waitKey(0)
 
         #####################
