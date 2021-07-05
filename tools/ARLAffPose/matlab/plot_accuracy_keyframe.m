@@ -15,7 +15,7 @@ fclose(fid);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-results_keyframe = load('results/results_keyframe.mat');
+results_keyframe = load('results_keyframe.mat');
 results_class_ids = results_keyframe.results_class_ids;
 errors_add = results_keyframe.errors_add;
 errors_add_s = results_keyframe.errors_add_s;
@@ -30,7 +30,7 @@ errors_translation_z = results_keyframe.errors_translation_z;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 hf = figure('units','normalized','outerposition',[0 0 1 1]);
 font_size = 12;
-max_distance = 0.1;
+max_distance = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plotting configs
@@ -49,10 +49,10 @@ for class_id = 1:numel(classes)
     D(D > max_distance) = inf;
     d = sort(D);
     n = numel(d);
-    c = numel(d(d < 0.02));
+    c = numel(d(d < max_distance));
     accuracy = cumsum(ones(1, n)) / n;
     AUC = VOCap(d, accuracy);
-    fprintf('%20s, \tIndex:%d, \tAUC:%.2f, \tADD<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
+%     fprintf('%20s, \tIndex:%d, \tAUC:%.2f, \tADD<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
     
     % plotting
     subplot(2, 2, 1);
@@ -77,10 +77,10 @@ for class_id = 1:numel(classes)
     D(D > max_distance) = inf;
     d = sort(D);
     n = numel(d);
-    c = numel(d(d < 0.02));
+    c = numel(d(d < max_distance));
     accuracy = cumsum(ones(1, n)) / n;
     AUC = VOCap(d, accuracy);
-    fprintf('%20s, \tIndex:%d, \tAUC:%.2f, \tADD-S<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
+%     fprintf('%20s, \tIndex:%d, \tAUC:%.2f, \tADD-S<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
     
     % plotting
     subplot(2, 2, 2);
@@ -105,7 +105,7 @@ for class_id = 1:numel(classes)
     d = sort(D);
     n = numel(d);
     accuracy = cumsum(ones(1, n)) / n;
-    fprintf('%20s, \tIndex:%d, \tMean Rotation Error:%.2f [deg]\n', char(classes(class_id)), length(index), mean(d))
+%     fprintf('%20s, \tIndex:%d, \tMean Rotation Error:%.2f [deg]\n', char(classes(class_id)), length(index), mean(d))
     
     % plotting
     subplot(2, 2, 3);
@@ -150,11 +150,11 @@ for class_id = 1:numel(classes)
     % TRANSLATIONS: X, Y, Z
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     D = errors_translation_x(index);
-    fprintf('%20s, \tIndex:%d, \tMean X:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
+%     fprintf('%20s, \tIndex:%d, \tMean X:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
     D = errors_translation_y(index);
-    fprintf('%20s, \tIndex:%d, \tMean Y:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
+%     fprintf('%20s, \tIndex:%d, \tMean Y:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
     D = errors_translation_z(index);
-    fprintf('%20s, \tIndex:%d, \tMean Z:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
+%     fprintf('%20s, \tIndex:%d, \tMean Z:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
     
 end
 

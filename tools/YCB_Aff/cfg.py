@@ -8,9 +8,10 @@ ROOT_PATH = '/home/akeaveny/git/DenseFusion/'
 # /home/akeaveny/git/DenseFusion/datasets/ycb_aff/
 CLASSES_FILE   = ROOT_PATH + 'datasets/ycb_aff/dataset_config/classes.txt'
 CLASS_IDS_FILE = ROOT_PATH + 'datasets/ycb_aff/dataset_config/class_ids.txt'
-
 OBJ_PART_CLASSES_FILE   = ROOT_PATH + 'datasets/ycb_aff/dataset_config/obj_part_classes.txt'
-OBJ_PART_CLASS_IDS_FILE = ROOT_PATH + 'datasets/ycb_aff/dataset_config/obj_part_class_ids.txt'
+OBJ_PART_CLASS_IDS_FILE = ROOT_PATH + 'datasets/ycb_aff/dataset_config/obj_part_classes_ids.txt'
+OBJ_PART_CLASSES_FILE_TRAIN   = ROOT_PATH + 'datasets/ycb_aff/dataset_config/obj_part_classes_train.txt'
+OBJ_PART_CLASS_IDS_FILE_TRAIN = ROOT_PATH + 'datasets/ycb_aff/dataset_config/obj_part_classes_ids_train.txt'
 
 TRAIN_FILE = ROOT_PATH + 'datasets/ycb_aff/dataset_config/train_data_list.txt'
 TEST_FILE  = ROOT_PATH + 'datasets/ycb_aff/dataset_config/test_data_list.txt'

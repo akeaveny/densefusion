@@ -34,6 +34,7 @@ from tensorboardX import SummaryWriter
 # from torch.utils.tensorboard import SummaryWriter
 
 from datasets.ycb.dataset import PoseDataset as PoseDataset_ycb
+from datasets.ycb_aff.dataset import PoseDataset as PoseDataset_ycb_aff
 from datasets.linemod.dataset import PoseDataset as PoseDataset_linemod
 from datasets.elevator.dataset import PoseDataset as PoseDataset_elevator
 from datasets.arl_vicon.dataset import PoseDataset as PoseDataset_arl_vicon
@@ -46,8 +47,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default = 'elevator', help='ycb or linemod')
 parser.add_argument('--dataset_root', type=str, default ='', help='dataset root dir (''YCB_Video_Dataset'' or ''Linemod_preprocessed'')')
 parser.add_argument('--batch_size', type=int, default =8, help='batch size')
-parser.add_argument('--workers', type=int, default = 10, help='number of data loading workers')
-parser.add_argument('--lr', default=1e-5, help='learning rate')
+parser.add_argument('--workers', type=int, default = 8, help='number of data loading workers')
+parser.add_argument('--lr', default=0.0001, help='learning rate')
 parser.add_argument('--lr_rate', default=0.3, help='learning rate decay rate')
 parser.add_argument('--w', default=0.015, help='learning rate')
 parser.add_argument('--w_rate', default=0.3, help='learning rate decay rate')
@@ -79,6 +80,7 @@ def main():
     if opt.dataset == 'linemod':
         opt.num_objects = 13
         opt.num_points = 500
+        opt.dataset_root = '/data/Akeaveny/Datasets/linemod'
         opt.outf = 'trained_models/linemod'
         opt.log_dir = 'experiments/logs/linemod'
         output_results = 'check_linemod.txt'
@@ -88,15 +90,26 @@ def main():
         opt.num_objects = 21 #number of object classes in the dataset
         opt.num_points = 1000 #number of points on the input pointcloud
         opt.dataset_root = '/data/Akeaveny/Datasets/YCB_Video_Dataset'
-        opt.outf = 'trained_models/ycb_real' #folder to save trained models
-        opt.log_dir = 'experiments/logs/ycb_real' #folder to save logs
+        opt.outf = 'trained_models/ycb/real_and_syn'      #folder to save trained models
+        opt.log_dir = 'experiments/logs/ycb/real_and_syn' #folder to save logs
+        output_results = 'check_ycb.txt'
         opt.repeat_epoch = 1 #number of repeat times for one epoch training
 
-        opt.refine_margin = 0.017
+        # opt.w = 0.017
+        # opt.iteration = 2
 
-        # opt.start_epoch = 145
-        # opt.resume_posenet = 'pose_model_35_0.016540854830511494.pth'
-        # opt.resume_refinenet = 'pose_refine_model_142_0.013323500733599149.pth'
+        # opt.start_epoch = 104
+        # opt.resume_posenet = 'pose_model_103_0.012942934118199585.pth'
+
+    elif opt.dataset == 'ycb_aff':
+        opt.num_objects = 21 #number of object classes in the dataset
+        opt.num_points = 1000 #number of points on the input pointcloud
+        opt.dataset_root = '/data/Akeaveny/Datasets/YCB_Affordance_Dataset'
+        opt.outf = 'trained_models/ycb_aff/real_and_syn'      #folder to save trained models
+        opt.log_dir = 'experiments/logs/ycb_aff/real_and_syn' #folder to save logs
+        output_results = 'check_ycb.txt'
+        opt.repeat_epoch = 1 #number of repeat times for one epoch training
+        opt.w = 0.017
 
     elif opt.dataset == 'elevator':
         opt.num_objects = 1
@@ -108,16 +121,26 @@ def main():
     elif opt.dataset == 'arl_vicon':
         opt.num_objects = 1
         opt.num_points = 1000
-        opt.outf = 'trained_models/arl_vicon/syn'
-        opt.log_dir = 'experiments/logs/arl_vicon/syn'
+        opt.outf = 'trained_models/arl_vicon/real_and_syn'
+        opt.log_dir = 'experiments/logs/arl_vicon/real_and_syn'
         opt.repeat_epoch = 1
 
+        # opt.w = 0.017
+        # opt.iteration = 4
+
     elif opt.dataset == 'arl_affpose':
-        opt.num_objects = 25
-        opt.num_points = 500
-        opt.outf = 'trained_models/arl_affpose/real'
-        opt.log_dir = 'experiments/logs/arl_affpose/real'
+        opt.num_objects = 11
+        opt.num_points = 1000
+        opt.outf = 'trained_models/arl_affpose_aff/real_and_syn'
+        opt.log_dir = 'experiments/logs/arl_affpose_aff/real_and_syn'
+        output_results = 'check_arl_affpose.txt'
         opt.repeat_epoch = 1
+
+        # opt.w = 0.013
+        # opt.iteration = 4
+
+        opt.start_epoch = 19
+        opt.resume_posenet = 'pose_model_18_0.012233130073162334.pth'
 
     else:
         assert 'Unknown dataset'
@@ -145,6 +168,8 @@ def main():
 
     if opt.dataset == 'ycb':
         dataset = PoseDataset_ycb('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
+    elif opt.dataset == 'ycb_aff':
+        dataset = PoseDataset_ycb_aff('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
     elif opt.dataset == 'linemod':
         dataset = PoseDataset_linemod('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
     elif opt.dataset == 'elevator':
@@ -158,6 +183,8 @@ def main():
 
     if opt.dataset == 'ycb':
         test_dataset = PoseDataset_ycb('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
+    elif opt.dataset == 'ycb_aff':
+        test_dataset = PoseDataset_ycb_aff('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
     elif opt.dataset == 'linemod':
         test_dataset = PoseDataset_linemod('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
     elif opt.dataset == 'elevator':
@@ -219,11 +246,12 @@ def main():
                 points, choose, img, target, model_points, idx = data
 
                 ######################
-                # TODO: check txt file
                 ######################
 
-                # fw = open(test_folder + output_results, 'w')
-                # fw.write('Points\n{0}\n\nchoose\n{1}\n\nimg\n{2}\n\ntarget\n{3}\n\nmodel_points\n{4}'.format(points, choose, img, target, model_points))
+                # todo (txt file): check units for point clouds
+                # TEST_DENSEFUSION_FOLDER = '/data/Akeaveny/Datasets/ARLAffPose/test_densefusion/'
+                # fw = open(TEST_DENSEFUSION_FOLDER + output_results, 'w')
+                # fw.write('Points\n{0}\n\ntarget\n{1}\n\nmodel_points\n{2}'.format(points, target, model_points))
                 # fw.close()
 
                 ######################
@@ -259,7 +287,7 @@ def main():
                     # TODO: tensorboard
                     ######################
 
-                    if train_count != 0 and train_count % 250 == 0:
+                    if train_count != 0 and train_count % 25 == 0:
                         scalar_info = {'loss/train': loss.item(),
                                        'dis/train': train_dis_avg / opt.batch_size * 100}
                         for key, val in scalar_info.items():
@@ -302,19 +330,6 @@ def main():
                     pred_r, pred_t = refiner(new_points, emb, idx)
                     dis, new_points, new_target = criterion_refine(pred_r, pred_t, new_target, model_points, idx, new_points)
 
-            ######################
-            # TODO: tensorboard
-            ######################
-
-            if test_count != 0 and test_count % 250 == 0:
-                scalar_info = {'loss/test': loss.item(),
-                               'dis/test': test_dis * 100}
-                for key, val in scalar_info.items():
-                    writer.add_scalar(key, val, epoch * len(testdataloader) + test_count)
-
-            ######################
-            ######################
-
             test_dis += dis.item()
             logger.info('Test time {} Test Frame No.{} dis: {} [cm]'.format(time.strftime("%Hh %Mm %Ss", time.gmtime(time.time() - st_time)), test_count, dis * 100))
 
@@ -322,6 +337,19 @@ def main():
 
         test_dis = test_dis / test_count
         logger.info('Test time {} Epoch {} TEST FINISH Avg dis: {} [cm]'.format(time.strftime("%Hh %Mm %Ss", time.gmtime(time.time() - st_time)), epoch, test_dis * 100))
+
+        ######################
+        # TODO: tensorboard
+        ######################
+
+        if test_count != 0 and test_count % 25 == 0:
+            scalar_info = {'loss/test': loss.item(),
+                           'dis/test': test_dis * 100}
+            for key, val in scalar_info.items():
+                writer.add_scalar(key, val, epoch * len(testdataloader) + test_count)
+
+        ######################
+        ######################
 
         if test_dis <= best_test:
             best_test = test_dis
@@ -344,6 +372,8 @@ def main():
 
             if opt.dataset == 'ycb':
                 dataset = PoseDataset_ycb('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
+            elif opt.dataset == 'ycb_aff':
+                dataset = PoseDataset_ycb_aff('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
             elif opt.dataset == 'linemod':
                 dataset = PoseDataset_linemod('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
             elif opt.dataset == 'elevator':
@@ -357,6 +387,8 @@ def main():
 
             if opt.dataset == 'ycb':
                 test_dataset = PoseDataset_ycb('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
+            elif opt.dataset == 'ycb_aff':
+                test_dataset = PoseDataset_ycb_aff('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
             elif opt.dataset == 'linemod':
                 test_dataset = PoseDataset_linemod('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
             elif opt.dataset == 'elevator':

@@ -35,13 +35,15 @@ def main():
     # Load Ply files
     ###################################
 
-    cld, cld_obj_centered, cld_obj_part_centered, obj_classes, obj_part_classes = load_obj_part_ply_files()
+    cld, cld_obj_centered, cld_obj_part_centered, \
+    obj_classes, obj_part_classes, \
+    obj_ids, TRAIN_OBJ_PART_IDS = load_obj_part_ply_files()
 
     ##################################
     ##################################
 
-    image_files = open('{}'.format(config.TRAIN_FILE), "r")
-    # image_files = open('{}'.format(config.TEST_FILE), "r")
+    # image_files = open('{}'.format(config.TRAIN_FILE), "r")
+    image_files = open('{}'.format(config.TEST_FILE), "r")
     image_files = image_files.readlines()
     print("Loaded Files: {}".format(len(image_files)))
 
@@ -69,7 +71,13 @@ def main():
         meta_addr = config.AFF_DATASET_ROOT_PATH + image_addr + config.META_EXT
         meta = scio.loadmat(meta_addr)
 
-        cv2_obj_parts_img = rgb.copy()
+        #######################################
+        #######################################
+
+        color_aff_label = ycb_aff_dataset_utils.colorize_aff_mask(aff_label)
+        color_obj_label = cv2.addWeighted(rgb, 0.5, color_aff_label, 0.5, 0)
+
+        cv2_obj_parts_img = color_obj_label.copy()
 
         #######################################
         #######################################
@@ -121,47 +129,47 @@ def main():
             obj_part_ids = ycb_aff_dataset_utils.map_obj_ids_to_obj_part_ids(obj_id)
             print(f'obj_part_ids:{obj_part_ids}')
             for obj_part_id in obj_part_ids:
-                aff_id = ycb_aff_dataset_utils.map_obj_part_ids_to_aff_ids(obj_part_id)
-                aff_color = ycb_aff_dataset_utils.aff_color_map(aff_id)
-                print(f"\tAff: {aff_id}, {obj_part_classes[int(obj_part_id) - 1]}")
+                if obj_part_id in TRAIN_OBJ_PART_IDS:
+                    aff_id = ycb_aff_dataset_utils.map_obj_part_ids_to_aff_ids(obj_part_id)
+                    aff_color = ycb_aff_dataset_utils.aff_color_map(aff_id)
+                    print(f"\tAff: {aff_id}, {obj_part_classes[int(obj_part_id) - 1]}")
 
-                #######################################
-                # meta
-                #######################################
-                obj_part_id_idx = str(1000 + obj_part_id)[1:]
+                    #######################################
+                    # meta
+                    #######################################
+                    obj_part_id_idx = str(1000 + obj_part_id)[1:]
 
-                obj_part_bbox = meta['obj_part_bbox_' + np.str(obj_part_id_idx)].flatten()
-                x1, y1, x2, y2 = obj_part_bbox[0], obj_part_bbox[1], obj_part_bbox[2], obj_part_bbox[3]
+                    obj_part_bbox = meta['obj_part_bbox_' + np.str(obj_part_id_idx)].flatten()
+                    x1, y1, x2, y2 = obj_part_bbox[0], obj_part_bbox[1], obj_part_bbox[2], obj_part_bbox[3]
 
-                obj_part_r = meta['obj_part_rot_' + np.str(obj_part_id_idx)]
-                obj_part_t = meta['obj_part_trans__' + np.str(obj_part_id_idx)]
+                    obj_part_r = meta['obj_part_rot_' + np.str(obj_part_id_idx)]
+                    obj_part_t = meta['obj_part_trans__' + np.str(obj_part_id_idx)]
 
-                #######################################
-                #######################################
-                # if aff_id == 2:
+                    #######################################
+                    #######################################
 
-                # draw model
-                aff_imgpts, jac = cv2.projectPoints(cld_obj_part_centered[obj_part_id] * 1e3, obj_part_r, obj_part_t * 1e3, cam_mat, cam_dist)
-                cv2_obj_parts_img = cv2.polylines(cv2_obj_parts_img, np.int32([np.squeeze(aff_imgpts)]), False, aff_color)
+                    # draw model
+                    aff_imgpts, jac = cv2.projectPoints(cld_obj_part_centered[obj_part_id] * 1e3, obj_part_r, obj_part_t * 1e3, cam_mat, cam_dist)
+                    # cv2_obj_parts_img = cv2.polylines(cv2_obj_parts_img, np.int32([np.squeeze(aff_imgpts)]), False, aff_color)
 
-                # # drawing bbox = (x1, y1), (x2, y2) = (cmin, rmin), (cmax, rmax)
-                cv2_obj_parts_img = cv2.rectangle(cv2_obj_parts_img, (x1, y1), (x2, y2), aff_color, 2)
-                cv2_obj_parts_img = cv2.rectangle(cv2_obj_parts_img, (cmin, rmin), (cmax, rmax), (255, 0, 0), 2)
+                    # # drawing bbox = (x1, y1), (x2, y2) = (cmin, rmin), (cmax, rmax)
+                    cv2_obj_parts_img = cv2.rectangle(cv2_obj_parts_img, (x1, y1), (x2, y2), aff_color, 2)
+                    cv2_obj_parts_img = cv2.rectangle(cv2_obj_parts_img, (cmin, rmin), (cmax, rmax), (255, 0, 0), 2)
 
-                cv2_obj_parts_img = cv2.putText(cv2_obj_parts_img,
-                                                ycb_aff_dataset_utils.map_obj_id_to_name(obj_id),
-                                                (cmin, rmin - 5),
-                                                cv2.FONT_ITALIC,
-                                                0.4,
-                                                (255, 0, 0))
+                    cv2_obj_parts_img = cv2.putText(cv2_obj_parts_img,
+                                                    ycb_aff_dataset_utils.map_obj_id_to_name(obj_id),
+                                                    (cmin, rmin - 5),
+                                                    cv2.FONT_ITALIC,
+                                                    0.4,
+                                                    (255, 0, 0))
 
-                # draw pose
-                # rotV, _ = cv2.Rodrigues(obj_part_r)
-                # points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-                # axisPoints, _ = cv2.projectPoints(points, rotV, obj_part_t * 1e3, cam_mat, cam_dist)
-                # cv2_obj_parts_img = cv2.line(cv2_obj_parts_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
-                # cv2_obj_parts_img = cv2.line(cv2_obj_parts_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
-                # cv2_obj_parts_img = cv2.line(cv2_obj_parts_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
+                    # draw pose
+                    rotV, _ = cv2.Rodrigues(obj_part_r)
+                    points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
+                    axisPoints, _ = cv2.projectPoints(points, rotV, obj_part_t * 1e3, cam_mat, cam_dist)
+                    cv2_obj_parts_img = cv2.line(cv2_obj_parts_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
+                    cv2_obj_parts_img = cv2.line(cv2_obj_parts_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
+                    cv2_obj_parts_img = cv2.line(cv2_obj_parts_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
 
         #####################
         # DEPTH INFO
@@ -180,16 +188,10 @@ def main():
         # PLOTTING
         #####################
 
-        rgb = cv2.resize(rgb, config.RESIZE)
-        depth = cv2.resize(depth, config.RESIZE)
-        aff_label = cv2.resize(aff_label, config.RESIZE)
-        color_aff_label = ycb_aff_dataset_utils.colorize_aff_mask(aff_label)
-        cv2_obj_parts_img = cv2.resize(cv2_obj_parts_img, config.RESIZE)
-
-        cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
-        cv2.imshow('depth', depth)
-        cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
-        cv2.imshow('aff_label', cv2.cvtColor(color_aff_label, cv2.COLOR_BGR2RGB))
+        # cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
+        # cv2.imshow('depth', depth)
+        # cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
+        # cv2.imshow('aff_label', cv2.cvtColor(color_aff_label, cv2.COLOR_BGR2RGB))
         cv2.imshow('cv2_obj_parts_img', cv2.cvtColor(cv2_obj_parts_img, cv2.COLOR_BGR2RGB))
 
         cv2.waitKey(0)

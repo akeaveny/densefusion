@@ -19,13 +19,13 @@ import cv2
 #######################################
 #######################################
 
-from tools.ARLVicon.utils import helper_utils
+from tools.ARLAffPose.utils import helper_utils
 
-from tools.ARLVicon import cfg as config
-from tools.ARLVicon.utils.dataset import vicon_dataset_utils
+from tools.ARLAffPose import cfg as config
 
-from tools.ARLVicon.utils.pose.load_obj_ply_files import load_obj_ply_files
-from tools.ARLVicon.utils.bbox.extract_bboxs_from_label import get_obj_bbox
+from tools.ARLAffPose.utils.dataset import affpose_dataset_utils
+from tools.ARLAffPose.utils.pose.load_obj_ply_files import load_obj_ply_files
+from tools.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
 #######################################
 #######################################
@@ -40,7 +40,7 @@ class PoseDataset(data.Dataset):
         if mode == 'train':
             self.path = config.TRAIN_FILE
         elif mode == 'test':
-            self.path = config.TEST_FILE
+            self.path = config.VAL_FILE
         print(self.path)
 
         self.num_pt = num_pt
@@ -97,6 +97,7 @@ class PoseDataset(data.Dataset):
         self.num_pt_mesh_small = config.NUM_PT_MESH_SMALL
         self.num_pt_mesh_large = config.NUM_PT_MESH_LARGE
         self.refine = refine
+        self.front_num = config.FRONT_NUM
 
         self.cld, self.cld_obj_centered, self.cld_obj_part_centered, \
         self.obj_classes, self.obj_part_classes, \
@@ -162,6 +163,9 @@ class PoseDataset(data.Dataset):
                 f_label = cv2.resize(f_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
                 f_label = helper_utils.crop(pil_img=f_label, crop_size=config.CROP_SIZE)
                 front_label = np.unique(f_label).tolist()[1:]
+                if len(front_label) < self.front_num:
+                    continue
+                front_label = random.sample(front_label, self.front_num)
                 for f_i in front_label:
                     mk = ma.getmaskarray(ma.masked_not_equal(f_label, f_i))
                     if f_i == front_label[0]:
@@ -275,29 +279,29 @@ class PoseDataset(data.Dataset):
         self.xmap = config.XMAP
         self.ymap = config.YMAP
 
-        cam_scale = config.CAMERA_SCALE # 1000 for depth [mm] to [m]
-        cam_cx = config.CAM_CX
-        cam_cy = config.CAM_CY
-        cam_fx = config.CAM_FX
-        cam_fy = config.CAM_FY
+        cam_scale = config.CAMERA_SCALE  # 1000 for depth [mm] to [m]
+        cam_cx = meta['cam_cx'].flatten()[0] * config.X_SCALE
+        cam_cy = meta['cam_cy'].flatten()[0] * config.Y_SCALE
+        cam_fx = meta['cam_fx'].flatten()[0]
+        cam_fy = meta['cam_fy'].flatten()[0]
 
         cam_mat = np.array([[cam_fx, 0, cam_cx], [0, cam_fy, cam_cy], [0, 0, 1]])
         cam_distortion = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
-
-        obj_meta_idx = str(1000 + obj_id)[1:]
 
         ##################################
         # GT POSE
         ##################################
 
-        obj_rotation = meta['obj_rotation_' + np.str(obj_meta_idx)]
-        obj_translation = meta['obj_translation_' + np.str(obj_meta_idx)] # in [m]
+        obj_id_idx = str(1000 + obj_id)[1:]
+
+        obj_r = meta['obj_rotation_' + np.str(obj_id_idx)]
+        obj_t = meta['obj_translation_' + np.str(obj_id_idx)]  # in [m]
 
         # # todo (visualize): gt pose
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
-        # imgpts, jac = cv2.projectPoints(self.cld[obj_id] * 1e3, obj_rotation, obj_translation * 1e3, cam_mat, cam_distortion)
+        # imgpts, jac = cv2.projectPoints(self.cld[obj_id] * 1e3, obj_r, obj_t * 1e3, cam_mat, cam_distortion)
         # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
@@ -338,7 +342,7 @@ class PoseDataset(data.Dataset):
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
-        # imgpts, jac = cv2.projectPoints(cloud, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
+        # imgpts, jac = cv2.projectPoints(cloud, np.eye(3), np.zeros(shape=obj_t.shape), cam_mat, cam_distortion)
         # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_pointcloud_from_depth.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
@@ -354,17 +358,17 @@ class PoseDataset(data.Dataset):
             dellist = random.sample(dellist, len(self.cld[obj_id]) - self.num_pt_mesh_small)
         model_points = np.delete(self.cld[obj_id], dellist, axis=0)
 
-        target = np.dot(model_points, obj_rotation.T)
+        target = np.dot(model_points, obj_r.T)
         if self.add_noise:
-            target = np.add(target, obj_translation + translation_noise)
+            target = np.add(target, obj_t + translation_noise)
         else:
-            target = np.add(target, obj_translation)
+            target = np.add(target, obj_t)
 
         # # todo (visualize): gt pose from object mesh
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
-        # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=obj_translation.shape), cam_mat, cam_distortion)
+        # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=obj_t.shape), cam_mat, cam_distortion)
         # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt_target.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))

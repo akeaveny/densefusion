@@ -70,6 +70,7 @@ class PoseDataset(data.Dataset):
             print("Object {0} buffer loaded".format(item))
 
         self.length = len(self.list_rgb)
+        self.list = self.list_rgb
 
         self.cam_cx = 325.26110
         self.cam_cy = 242.04899

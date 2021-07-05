@@ -31,6 +31,7 @@ errors_translation_z = results_keyframe.errors_translation_z;
 hf = figure('units','normalized','outerposition',[0 0 1 1]);
 font_size = 12;
 max_distance = 0.1;
+threshold = 0.1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plotting configs
@@ -49,7 +50,7 @@ for class_id = 1:numel(classes)
     D(D > max_distance) = inf;
     d = sort(D);
     n = numel(d);
-    c = numel(d(d < 0.02));
+    c = numel(d(d < threshold));
     accuracy = cumsum(ones(1, n)) / n;
     AUC = VOCap(d, accuracy);
     fprintf('%20s, \tIndex:%d, \tAUC:%.2f, \tADD<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
@@ -77,7 +78,7 @@ for class_id = 1:numel(classes)
     D(D > max_distance) = inf;
     d = sort(D);
     n = numel(d);
-    c = numel(d(d < 0.02));
+    c = numel(d(d < threshold));
     accuracy = cumsum(ones(1, n)) / n;
     AUC = VOCap(d, accuracy);
     fprintf('%20s, \tIndex:%d, \tAUC:%.2f, \tADD-S<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)

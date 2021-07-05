@@ -1,9 +1,9 @@
 function evaluate_poses_keyframe
 
-clear;clc;
+% clear;clc;
 
 opt = globals();
-% delete 'results_keyframe.mat'
+delete 'results_keyframe.mat'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read class names
@@ -72,11 +72,11 @@ for i = 1:numel(gt_keyframes)
         results_class_ids(count) = cls_index;
         
         % Load gt & pred poses
-        gt_pose = gt.poses(:, :, j);
+        gt_pose = gt.poses(j, :);
         GT(1:3, 1:3) = quat2rotm(gt_pose(1:4));
         GT(:, 4) = gt_pose(5:7);
             
-        pred_pose = pred.poses(:, :, j);
+        pred_pose = pred.poses(j, :);
         PRED(1:3, 1:3) = quat2rotm(pred_pose(1:4));
         PRED(:, 4) = pred_pose(5:7);
         
@@ -94,7 +94,7 @@ for i = 1:numel(gt_keyframes)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-save('results/results_keyframe.mat', ...
+save('results_keyframe.mat', ...
 'results_class_ids',...
 'errors_add', ...
 'errors_add_s',...

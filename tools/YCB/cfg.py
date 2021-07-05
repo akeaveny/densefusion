@@ -10,8 +10,9 @@ DENSEFUSION_ROOT_PATH = '/home/akeaveny/git/DenseFusion/'
 
 # PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_model_26_0.012863246640872631.pth'
 # PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_refine_model_69_0.009449292959118935.pth'
-PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/ycb/pose_model_35_0.016540854830511494.pth'
-PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/ycb/pose_refine_model_146_0.013003259555032592.pth'
+
+PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + 'trained_models/pretrained_ycb/pose_model_26_0.012863246640872631.pth'
+PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + 'trained_models/pretrained_ycb/pose_refine_model_69_0.009449292959118935.pth'
 
 #######################################
 ### YCB
@@ -50,9 +51,10 @@ EVAL_FOLDER_DF_ITERATIVE = DENSEFUSION_ROOT_PATH + 'tools/YCB/matlab/results/df_
 CLASSES_FILE   = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/classes.txt'
 CLASS_IDS_FILE = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/class_ids.txt'
 
+# OG_TRAIN_FILE = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/train_data_list.txt'
+# OG_TEST_FILE  = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/test_data_list.txt'
 TRAIN_FILE = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/train_data_list.txt'
-TEST_FILE  = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/test_data_list.txt'
-# TEST_FILE  = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/keyframe.txt'
+TEST_FILE  = DENSEFUSION_ROOT_PATH + 'datasets/ycb/dataset_config/keyframe.txt'
 
 YCB_TOOLBOX_CONFIG = DENSEFUSION_ROOT_PATH + 'YCB_Video_toolbox/results_PoseCNN_RSS2018/'
 
@@ -94,6 +96,10 @@ YMAP = np.array([[i for i in range(HEIGHT)] for j in range(WIDTH)])
 
 #######################################
 #######################################
+
+NUM_IMAGES = 50000
+NUM_TRAIN  = NUM_IMAGES
+NUM_VAL    = 2949
 
 NUM_PT = 500
 NUM_PT_MESH_SMALL = 500

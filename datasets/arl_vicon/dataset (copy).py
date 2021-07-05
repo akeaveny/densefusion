@@ -44,7 +44,7 @@ class PoseDataset(data.Dataset):
         print(self.path)
 
         self.num_pt = num_pt
-        self.root = config.ROOT_DATA_PATH
+        self.root = root
         self.add_noise = add_noise
         self.noise_trans = noise_trans
 
@@ -54,7 +54,7 @@ class PoseDataset(data.Dataset):
 
         self.list = []
         self.real = []
-        self.syn = []
+        # self.syn = []
         input_file = open(self.path)
         while 1:
             input_line = input_file.readline()
@@ -62,21 +62,18 @@ class PoseDataset(data.Dataset):
                 break
             if input_line[-1:] == '\n':
                 input_line = input_line[:-1]
-            _is_syn = input_line.split(self.root)[1].split('/')[0] == 'Syn'
-            if _is_syn:
-                self.syn.append(input_line)
-            else:
-                self.real.append(input_line)
+            self.real.append(input_line)
+            # self.syn.append(input_line)
             self.list.append(input_line)
         input_file.close()
 
         self.length = len(self.list)
         self.len_real = len(self.real)
-        self.len_syn = len(self.syn)
+        # self.len_syn = len(self.syn)
 
         print("Loaded: ", len(self.list))
         print("Real Images: ", len(self.real))
-        print("SYN Images: ", len(self.syn))
+        # print("SYN Images: ", len(self.syn))
 
         ##################################
         # IMGAUG
@@ -105,12 +102,14 @@ class PoseDataset(data.Dataset):
         print("************** LOADED DATASET! **************")
 
     def __getitem__(self, index):
+        # print("index:", index)
+        # print("Real:", self.real[index])
 
         ##################################
         # init
         ##################################
 
-        image_addr = self.list[index].rstrip()
+        image_addr = self.real[index].rstrip()
         dataset_dir = image_addr.split('rgb/')[0]
         image_num = image_addr.split('rgb/')[-1]
 
@@ -119,12 +118,18 @@ class PoseDataset(data.Dataset):
         label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
         meta_addr = dataset_dir + 'meta/' + image_num + config.META_EXT
 
-        img = np.array(self.trancolor(Image.open(img_addr))) if self.add_noise else np.array(Image.open(img_addr))
+        img = Image.open(img_addr)
         depth = np.array(Image.open(depth_addr))
         label = np.array(Image.open(label_addr))
         meta = scio.loadmat(meta_addr)
 
-        _is_syn = image_addr.split(self.root)[1].split('/')[0] == 'Syn'
+        ##################################
+        # IMGAUG
+        ##################################
+
+        if self.add_noise:
+            img = self.trancolor(img)
+        img = np.array(img)
 
         ##################################
         ### RESIZE & CROP
@@ -137,42 +142,6 @@ class PoseDataset(data.Dataset):
         img = helper_utils.crop(pil_img=img, crop_size=config.CROP_SIZE, is_img=True)
         label = helper_utils.crop(pil_img=label, crop_size=config.CROP_SIZE)
         depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
-
-        ####################
-        # Add Noise
-        ####################
-
-        mask_back = ma.getmaskarray(ma.masked_equal(label, 0))
-
-        add_front = False
-        if self.add_noise:
-            for k in range(5):
-                # selecting random images
-                image_addr = random.choice(self.syn).rstrip()
-                dataset_dir = image_addr.split('rgb/')[0]
-                image_num = image_addr.split('rgb/')[-1]
-                _img_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
-                _label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
-                # loading random images
-                front = np.array(self.trancolor(Image.open(_img_addr).convert("RGB")))
-                front = cv2.resize(front, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-                front = helper_utils.crop(pil_img=front, crop_size=config.CROP_SIZE, is_img=True)
-                front = np.transpose(front, (2, 0, 1))
-                f_label = np.array(Image.open(_label_addr))
-                f_label = cv2.resize(f_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
-                f_label = helper_utils.crop(pil_img=f_label, crop_size=config.CROP_SIZE)
-                front_label = np.unique(f_label).tolist()[1:]
-                for f_i in front_label:
-                    mk = ma.getmaskarray(ma.masked_not_equal(f_label, f_i))
-                    if f_i == front_label[0]:
-                        mask_front = mk
-                    else:
-                        mask_front = mask_front * mk
-                t_label = label * mask_front
-                if len(t_label.nonzero()[0]) > 1000:
-                    label = t_label
-                    add_front = True
-                    break
 
         ##################################
         # select random obj id
@@ -197,76 +166,15 @@ class PoseDataset(data.Dataset):
             if len(mask_depth.nonzero()[0]) > self.minimum_num_pt:
                 break
 
-        # # todo (visualize): RGB ROIs
+        # todo (visualize): RGB ROIs
+        # cv2_img = helper_utils.convert_16_bit_depth_to_8_bit(mask_depth.copy())
+        # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_depth.png'
+        # # cv2.imwrite(img_name, cv2.applyColorMap(cv2_img, cv2.COLORMAP_JET))
+        # cv2.imwrite(img_name, cv2_img)
+        # todo (visualize): Depth ROIs
         # cv2_img = mask_rgb.copy()
         # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_rgb.png'
         # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
-        # # todo (visualize): DEPTH ROIs
-        # cv2_img = helper_utils.convert_16_bit_depth_to_8_bit(mask_depth.copy())
-        # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_depth.png'
-        # cv2.imwrite(img_name, cv2_img)
-        # # cv2.imwrite(img_name, cv2.applyColorMap(cv2_img, cv2.COLORMAP_JET))
-
-        ##################################
-        # BBOX
-        ##################################
-
-        x1, y1, x2, y2 = get_obj_bbox(label, obj_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
-        # print("y1, y2, x1, x2: ", y1, y2, x1, x2)
-
-        # # todo (visualize): bbox
-        # cv2_img = np.array(Image.open(img_addr))
-        # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
-        # img_name = config.TEST_DENSEFUSION_FOLDER + 'bbox.png'
-        # cv2.rectangle(cv2_img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-        # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
-
-        ##################################
-        # IMGAUG
-        ##################################
-
-        img = np.transpose(np.array(img)[:, :, :3], (2, 0, 1))[:, y1:y2, x1:x2]
-
-        if _is_syn:
-            is_blank_background = False
-            while not is_blank_background:
-                # selecting random images
-                image_addr = random.choice(self.real).rstrip()
-                dataset_dir = image_addr.split('rgb/')[0]
-                image_num = image_addr.split('rgb/')[-1]
-                _img_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
-                _label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
-                # loading random images
-                back = np.array(self.trancolor(Image.open(_img_addr).convert("RGB")))
-                back = cv2.resize(back, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-                back = helper_utils.crop(pil_img=back, crop_size=config.CROP_SIZE, is_img=True)
-                back = np.transpose(back, (2, 0, 1))[:, y1:y2, x1:x2]
-                back_label = np.array(Image.open(_label_addr))[y1:y2, x1:x2]
-                back_label = cv2.resize(back_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
-                back_label = helper_utils.crop(pil_img=back_label, crop_size=config.CROP_SIZE)
-                back_obj_ids = np.unique(np.array(back_label)).tolist()
-                # print('is_blank_background: ', is_blank_background, ', back_obj_ids: ', back_obj_ids)
-                if len(back_obj_ids) == 1:
-                    is_blank_background = True
-                    # print('is_blank_background: ', is_blank_background, ', back_obj_ids: ', back_obj_ids)
-            img_masked = back * mask_back[y1:y2, x1:x2] + np.transpose(mask_rgb, (2, 0, 1))[:, y1:y2, x1:x2]
-        else:
-            img_masked = img
-
-        if self.add_noise and add_front:
-            img_masked = img_masked * mask_front[y1:y2, x1:x2] + front[:, y1:y2, x1:x2] * ~(mask_front[y1:y2, x1:x2])
-
-        if _is_syn:
-            img_masked = img_masked + np.random.normal(loc=self.noise_img_loc, scale=self.noise_img_scale, size=img_masked.shape)
-
-        # # todo (visualize): RGB ROIs
-        # cv2_img = np.transpose(img_masked, (1, 2, 0)).astype(np.float32).copy()
-        # img_name = config.TEST_DENSEFUSION_FOLDER + 'imgaug_img.png'
-        # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
-        # cv2_img = mask_depth[y1:y2, x1:x2].astype(np.int32).copy()
-        # img_name = config.TEST_DENSEFUSION_FOLDER + 'imgaug_depth.png'
-        # cv2.imwrite(img_name, cv2_img)
 
         ##################################
         # META
@@ -293,7 +201,7 @@ class PoseDataset(data.Dataset):
         obj_rotation = meta['obj_rotation_' + np.str(obj_meta_idx)]
         obj_translation = meta['obj_translation_' + np.str(obj_meta_idx)] # in [m]
 
-        # # todo (visualize): gt pose
+        # todo (visualize): gt pose
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
@@ -301,6 +209,21 @@ class PoseDataset(data.Dataset):
         # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
         # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt.png'
         # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
+
+        ##################################
+        # BBOX
+        ##################################
+
+        x1, y1, x2, y2 = get_obj_bbox(label, obj_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
+        # print("y1, y2, x1, x2: ", y1, y2, x1, x2)
+
+        # todo (visualize): bbox
+        # cv2_img = np.array(Image.open(img_addr))
+        # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+        # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
+        # img_name = config.TEST_DENSEFUSION_FOLDER + 'bbox.png'
+        # cv2.rectangle(cv2_img, (x1, y1), (x2, y2), (255, 0, 0), 2)
+        # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
         ##################################
         # Select Region of Interest
@@ -316,6 +239,7 @@ class PoseDataset(data.Dataset):
         else:
             choose = np.pad(choose, (0, self.num_pt - len(choose)), 'wrap')
 
+        img_masked = np.transpose(np.array(img)[:, :, :3], (2, 0, 1))[:, y1:y2, x1:x2]
         depth_masked = depth[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)
         xmap_masked = self.xmap[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)
         ymap_masked = self.ymap[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)
@@ -334,7 +258,7 @@ class PoseDataset(data.Dataset):
         if self.add_noise:
             cloud = np.add(cloud, translation_noise)
 
-        # # todo (visualize): pointcloud_from_depth
+        # todo (visualize): pointcloud_from_depth
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
@@ -360,7 +284,7 @@ class PoseDataset(data.Dataset):
         else:
             target = np.add(target, obj_translation)
 
-        # # todo (visualize): gt pose from object mesh
+        # todo (visualize): gt pose from object mesh
         # cv2_img = np.array(Image.open(img_addr))
         # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)

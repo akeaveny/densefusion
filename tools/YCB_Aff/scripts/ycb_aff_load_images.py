@@ -24,7 +24,7 @@ def main():
 
     # select random test images
     np.random.seed(0)
-    num_files = 25
+    num_files = 250
     random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
     image_files = np.array(image_files)[random_idx]
     print("Chosen Files: {}".format(len(image_files)))
@@ -40,6 +40,20 @@ def main():
         rgb      = np.array(Image.open(rgb_addr))
         depth    = np.array(Image.open(depth_addr))
         label    = np.array(Image.open(label_addr))
+
+        ##################################
+        ### RESIZE
+        ##################################
+
+        rgb = cv2.resize(rgb, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+        depth = cv2.resize(depth, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+        label = cv2.resize(label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+
+        ##################################
+        ##################################
+
+        color_label = ycb_aff_dataset_utils.colorize_aff_mask(label)
+        color_label = cv2.addWeighted(rgb, 0.35, color_label, 0.65, 0)
 
         #####################
         # DEPTH INFO
@@ -58,14 +72,9 @@ def main():
         # PLOTTING
         #####################
 
-        rgb = cv2.resize(rgb, config.RESIZE)
-        depth = cv2.resize(depth, config.RESIZE)
-        label = cv2.resize(label, config.RESIZE)
-        color_label = ycb_aff_dataset_utils.colorize_aff_mask(label)
-
         cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
         cv2.imshow('depth', depth)
-        cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
+        # cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
         cv2.imshow('label', cv2.cvtColor(color_label, cv2.COLOR_BGR2RGB))
 
         cv2.waitKey(0)

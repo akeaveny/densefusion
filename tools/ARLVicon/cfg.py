@@ -21,12 +21,15 @@ VAL_FILE   = ROOT_PATH + 'datasets/arl_vicon/dataset_config/data_lists/val_list.
 TEST_FILE  = ROOT_PATH + 'datasets/arl_vicon/dataset_config/data_lists/test_list.txt'
 
 # Trained models
-# PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_vicon/real_and_syn/pose_model_6_0.011263955466539667.pth'
-# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_vicon/real_and_syn/pose_refine_model_405_0.003478866712918838.pth'
-PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_vicon/real/pose_model_12_0.012762044926652751.pth'
-PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_vicon/real/pose_refine_model_445_0.004616367177121292.pth'
-# PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_vicon/syn/pose_model_4_0.012262837926803601.pth'
-# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_vicon/syn/pose_refine_model_343_0.0036996149466232914.pth'
+PRE_TRAINED_MODEL        = '/data/Akeaveny/weights/DenseFusion/arl_vicon/add_noise_real_and_syn/pose_model_5_0.010691592060480147.pth'
+PRE_TRAINED_REFINE_MODEL = '/data/Akeaveny/weights/DenseFusion/arl_vicon/add_noise_real_and_syn/pose_refine_model_11_0.0075820345303884915.pth'
+
+# PRE_TRAINED_MODEL        = '/data/Akeaveny/weights/DenseFusion/arl_vicon/real/pose_model_12_0.012762044926652751.pth'
+# PRE_TRAINED_REFINE_MODEL = '/data/Akeaveny/weights/DenseFusion/arl_vicon/real/pose_refine_model_445_0.004616367177121292.pth'
+# PRE_TRAINED_MODEL        = '/data/Akeaveny/weights/DenseFusion/arl_vicon/real_and_syn/pose_model_current.pth'
+# PRE_TRAINED_REFINE_MODEL = '/data/Akeaveny/weights/DenseFusion/arl_vicon/real_and_syn/pose_refine_model_current.pth'
+# PRE_TRAINED_MODEL        = '/data/Akeaveny/weights/DenseFusion/arl_vicon/syn/pose_model_current.pth'
+# PRE_TRAINED_REFINE_MODEL = '/data/Akeaveny/weights/DenseFusion/arl_vicon/syn/pose_refine_model_current.pth'
 
 # MATLAB
 EVAL_FOLDER_GT           = ROOT_PATH + 'tools/ARLVicon/matlab/results/gt'
@@ -101,13 +104,13 @@ IMG_STD    = [0.229, 0.224, 0.225]
 
 NORM = transforms.Normalize(mean=IMG_MEAN, std=IMG_STD)
 
-NUM_PT = 1000
-
 NUM_PT_MIN = 50
+
+NUM_PT = 500
 NUM_PT_MESH_SMALL = 500
 NUM_PT_MESH_LARGE = 800
 
-REFINE_ITERATIONS = 2 # 2
+REFINE_ITERATIONS = 4 # 2
 BATCH_SIZE = 1
 
 

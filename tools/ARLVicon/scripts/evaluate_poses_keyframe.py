@@ -85,7 +85,7 @@ def main():
 
     # select random test images
     # np.random.seed(0)
-    # num_files = 25
+    # num_files = 100
     # random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
     # image_files = np.array(image_files)[random_idx]
     # print("Chosen Files: {}".format(len(image_files)))
@@ -211,10 +211,9 @@ def main():
                     # MASK
                     ##################################
 
-                    mask_label = ma.getmaskarray(ma.masked_equal(label, obj_id))
+                    mask_label = ma.getmaskarray(ma.masked_equal(label, obj_id)).astype(np.uint8)
                     mask_rgb = np.repeat(mask_label, 3).reshape(label.shape[0], label.shape[1], -1) * rgb
-                    # mask_depth = mask_label * ma.getmaskarray(ma.masked_not_equal(depth, 0))
-                    mask_depth = mask_label * depth
+                    mask = mask_label * depth
 
                     ##################################
                     # BBOX
@@ -245,8 +244,8 @@ def main():
                     # Select Region of Interest
                     ##################################
 
-                    choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
-
+                    choose = mask[y1:y2, x1:x2].flatten().nonzero()[0]
+                    print('\tchoose: {}'.format(len(choose)))
                     if len(choose) > config.NUM_PT:
                         c_mask = np.zeros(len(choose), dtype=int)
                         c_mask[:config.NUM_PT] = 1
@@ -255,28 +254,19 @@ def main():
                     else:
                         choose = np.pad(choose, (0, config.NUM_PT - len(choose)), 'wrap')
 
-                    rgb_masked = np.transpose(np.array(rgb)[:, :, :3], (2, 0, 1))[:, y1:y2, x1:x2]
+                    img_masked = np.transpose(np.array(rgb)[:, :, :3], (2, 0, 1))[:, y1:y2, x1:x2]
                     depth_masked = depth[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)
                     xmap_masked = config.XMAP[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)
                     ymap_masked = config.YMAP[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)
                     choose = np.array([choose])
 
-                    ######################################
-                    # create point cloud from depth image
-                    ######################################
+                    _img_masked = img_masked.copy()
+                    _depth_masked = depth[y1:y2, x1:x2]
 
                     pt2 = depth_masked / config.CAMERA_SCALE
                     pt0 = (ymap_masked - config.CAM_CX) * pt2 / config.CAM_FX
                     pt1 = (xmap_masked - config.CAM_CY) * pt2 / config.CAM_FY
                     cloud = np.concatenate((pt0, pt1, pt2), axis=1)
-
-                    ######################################
-                    ######################################
-
-                    img_masked = np.array(rgb)[:, :, :3]
-                    img_masked = np.transpose(img_masked, (2, 0, 1))
-                    # y1:y2, x1:x2
-                    img_masked = img_masked[:, y1:y2, x1:x2]
 
                     cloud = torch.from_numpy(cloud.astype(np.float32))
                     choose = torch.LongTensor(choose.astype(np.int32))
@@ -302,11 +292,34 @@ def main():
                     pred_t = pred_t.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
                     points = cloud.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
 
+                    print('\tidx:{}, pred c:{:.3f}'.format(index[0].item(), pred_c[0][which_max[0]].item()))
+
                     my_r = pred_r[0][which_max[0]].view(-1).cpu().data.numpy()
                     my_t = (points + pred_t)[which_max[0]].view(-1).cpu().data.numpy()
                     my_pred = np.append(my_r, my_t)
                     # TODO: MATLAB EVAL
                     pose_est_df_wo_refine.append(my_pred.tolist())
+
+                    ############################
+                    # Error Metrics
+                    ############################
+
+                    obj_r = quaternion_matrix(my_r)[0:3, 0:3]
+                    obj_t = my_t
+
+                    T_pred, R_pred = obj_t, obj_r
+                    T_gt, R_gt = target_t, target_r
+
+                    # ADD-S
+                    pred = np.dot(cld[obj_id], R_pred)
+                    pred = np.add(pred, T_pred)
+                    target = np.dot(cld[obj_id], R_gt)
+                    target = np.add(target, T_gt)
+                    tree = KDTree(pred)
+                    dist, ind = tree.query(target)
+                    ADD_S = np.mean(dist)
+
+                    print("\tNO REFINE, ADD-S: {:.2f} [cm]".format(ADD_S * 100))
 
                     for ite in range(0, config.REFINE_ITERATIONS):
                         T = Variable(torch.from_numpy(my_t.astype(np.float32))).cuda().view(1, 3).repeat(config.NUM_PT, 1).contiguous().view(1, config.NUM_PT, 3)
@@ -333,6 +346,28 @@ def main():
                         my_pred = np.append(my_r_final, my_t_final)
                         my_r = my_r_final
                         my_t = my_t_final
+
+                        ############################
+                        # Error Metrics
+                        ############################
+
+                        obj_r = quaternion_matrix(my_r)[0:3, 0:3]
+                        obj_t = my_t
+
+                        T_pred, R_pred = obj_t, obj_r
+                        T_gt, R_gt = target_t, target_r
+
+                        # ADD-S
+                        pred = np.dot(cld[obj_id], R_pred)
+                        pred = np.add(pred, T_pred)
+                        target = np.dot(cld[obj_id], R_gt)
+                        target = np.add(target, T_gt)
+                        tree = KDTree(pred)
+                        dist, ind = tree.query(target)
+                        ADD_S = np.mean(dist)
+
+                        print("\tREFINE: {}, ADD-S: {:.2f} [cm]".format(ite+1, ADD_S * 100))
+
                     # TODO: MATLAB EVAL
                     pose_est_df_iterative.append(my_pred.tolist())
 
@@ -362,18 +397,6 @@ def main():
                     T_pred, R_pred = obj_t, obj_r
                     T_gt, R_gt = target_t, target_r
 
-                    # ADD
-                    pred = np.dot(cld[obj_id], R_pred)
-                    pred = np.add(pred, T_pred)
-                    target = np.dot(cld[obj_id], R_gt)
-                    target = np.add(target, T_gt)
-                    ADD = np.mean(np.linalg.norm(pred - target, axis=1))
-
-                    # ADD-S
-                    tree = KDTree(pred)
-                    dist, ind = tree.query(target)
-                    ADD_S = np.mean(dist)
-
                     # translation
                     T_error = np.linalg.norm(T_pred - T_gt)
 
@@ -383,8 +406,6 @@ def main():
                     error = np.arccos(error_cos)
                     R_error = 180.0 * error / np.pi
 
-                    print("\tADD: {:.2f} [cm]".format(ADD * 100))  # [cm]
-                    print("\tADD-S: {:.2f} [cm]".format(ADD_S * 100))
                     print("\tT: {:.2f} [cm]".format(T_error * 100))  # [cm]
                     print("\tRot: {:.2f} [deg]".format(R_error))
 
@@ -399,6 +420,10 @@ def main():
             #####################
             # depth = helper_utils.convert_16_bit_depth_to_8_bit(depth)
             # color_label = vicon_dataset_utils.colorize_obj_mask(label)
+
+            # cv2.imshow('masked_img', cv2.cvtColor(np.transpose(_img_masked, (1, 2, 0)), cv2.COLOR_BGR2RGB))
+            # cv2.imshow('masked_rgb', cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB))
+            # cv2.imshow('masked_depth', helper_utils.convert_16_bit_depth_to_8_bit(mask))
 
             # cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
             # cv2.imshow('depth', depth)

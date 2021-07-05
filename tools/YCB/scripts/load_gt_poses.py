@@ -46,9 +46,9 @@ def main():
     # select random test images
     np.random.seed(0)
     num_files = 250
-    random_idx = np.random.choice(np.arange(0, int(16187), 1), size=int(num_files), replace=False) # ONLY REAL
+    # random_idx = np.random.choice(np.arange(0, int(16187), 1), size=int(num_files), replace=False) # ONLY REAL
     # random_idx = np.random.choice(np.arange(int(16187+1), int(len(image_files)), 1), size=int(num_files), replace=False) # ONLY SYN
-    # random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
+    random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
     image_files = np.array(image_files)[random_idx]
     print("Chosen Files: {}".format(len(image_files)))
 
@@ -68,6 +68,9 @@ def main():
         rgb = np.array(Image.open(rgb_addr))
         depth = np.array(Image.open(depth_addr))
         label = np.array(Image.open(label_addr))
+
+        if rgb.shape[-1] == 4:
+            rgb = rgb[:, :, :3]
 
         #######################################
         #######################################
@@ -120,8 +123,11 @@ def main():
                 # 6-DoF Pose
                 #######################################
 
-                target_r = meta['poses'][:, :, idx][:, 0:3]
-                target_t = np.array([meta['poses'][:, :, idx][:, 3:4].flatten()])
+                target_r = np.array(meta['poses'][:, :, idx][:, 0:3], dtype=np.float64)
+                target_t = np.array([meta['poses'][:, :, idx][:, 3:4].flatten()], dtype=np.float64)
+
+                print(f'target_r: {target_r.dtype}')
+                print(f'target_t: {target_t.dtype}')
 
                 #######################################
                 # MASK
@@ -153,9 +159,6 @@ def main():
                 # OBJ: 6-DoF Pose
                 #######################################
                 obj_color = ycb_dataset_utils.obj_color_map(obj_id)
-
-                cam_mat = np.array([[cam_fx, 0, cam_cx], [0, cam_fy, cam_cy], [0, 0, 1]])
-                cam_dist = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
 
                 # project points
                 imgpts, jac = cv2.projectPoints(cld[obj_id] * 1e3, target_r, target_t * 1e3, cam_mat, cam_dist)
@@ -192,7 +195,7 @@ def main():
         cv2_obj_img = cv2.resize(cv2_obj_img, config.RESIZE)
 
         # cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
-        # cv2.imshow('depth', depth)
+        cv2.imshow('depth', depth)
         # cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
         # cv2.imshow('label', cv2.cvtColor(color_label, cv2.COLOR_BGR2RGB))
         cv2.imshow('cv2_obj_img', cv2.cvtColor(cv2_obj_img, cv2.COLOR_BGR2RGB))

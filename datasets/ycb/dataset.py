@@ -20,7 +20,7 @@ import scipy.io as scio
 class PoseDataset(data.Dataset):
     def __init__(self, mode, num_pt, add_noise, root, noise_trans, refine):
         if mode == 'train':
-            self.path = 'datasets/ycb/dataset_config/real_train_data_list.txt'
+            self.path = 'datasets/ycb/dataset_config/train_data_list.txt'
         elif mode == 'test':
             self.path = 'datasets/ycb/dataset_config/test_data_list.txt'
         self.num_pt = num_pt
@@ -95,6 +95,8 @@ class PoseDataset(data.Dataset):
         self.front_num = 2
 
         print(len(self.list))
+        print("Real: ", self.len_real)
+        print("Syn: ", self.len_syn)
 
     def __getitem__(self, index):
         img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
@@ -116,27 +118,27 @@ class PoseDataset(data.Dataset):
         mask_back = ma.getmaskarray(ma.masked_equal(label, 0))
 
         add_front = False
-        # if self.add_noise:
-        #     for k in range(5):
-        #         seed = random.choice(self.syn)
-        #         front = np.array(self.trancolor(Image.open('{0}/{1}-color.png'.format(self.root, seed)).convert("RGB")))
-        #         front = np.transpose(front, (2, 0, 1))
-        #         f_label = np.array(Image.open('{0}/{1}-label.png'.format(self.root, seed)))
-        #         front_label = np.unique(f_label).tolist()[1:]
-        #         if len(front_label) < self.front_num:
-        #             continue
-        #         front_label = random.sample(front_label, self.front_num)
-        #         for f_i in front_label:
-        #             mk = ma.getmaskarray(ma.masked_not_equal(f_label, f_i))
-        #             if f_i == front_label[0]:
-        #                 mask_front = mk
-        #             else:
-        #                 mask_front = mask_front * mk
-        #         t_label = label * mask_front
-        #         if len(t_label.nonzero()[0]) > 1000:
-        #             label = t_label
-        #             add_front = True
-        #             break
+        if self.add_noise:
+            for k in range(5):
+                seed = random.choice(self.real)
+                front = np.array(self.trancolor(Image.open('{0}/{1}-color.png'.format(self.root, seed)).convert("RGB")))
+                front = np.transpose(front, (2, 0, 1))
+                f_label = np.array(Image.open('{0}/{1}-label.png'.format(self.root, seed)))
+                front_label = np.unique(f_label).tolist()[1:]
+                if len(front_label) < self.front_num:
+                    continue
+                front_label = random.sample(front_label, self.front_num)
+                for f_i in front_label:
+                    mk = ma.getmaskarray(ma.masked_not_equal(f_label, f_i))
+                    if f_i == front_label[0]:
+                        mask_front = mk
+                    else:
+                        mask_front = mask_front * mk
+                t_label = label * mask_front
+                if len(t_label.nonzero()[0]) > 1000:
+                    label = t_label
+                    add_front = True
+                    break
 
         obj = meta['cls_indexes'].flatten().astype(np.int32)
 

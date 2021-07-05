@@ -115,19 +115,21 @@ def load_obj_ply_files():
     class_obj_part_IDs = np.loadtxt(class_obj_part_id_file, dtype=np.int32)
 
     for class_ID in class_IDs:
-        print("\n*** Mapping Object: ID:{}, Name: {} ***".format(class_ID, obj_classes[int(class_ID) - 1]))
+        print("\n*** Mapping Object: ID:{}, Name: {}, cld:{} ***".format(class_ID, obj_classes[int(class_ID) - 1], len(cld[class_ID])))
         obj_part_ids = affpose_dataset_utils.map_obj_id_to_obj_part_ids(class_ID)
         for obj_part_id in obj_part_ids:
-            print("\tObject Part: ID:{}, Name: {}".format(obj_part_id, obj_part_classes[int(obj_part_id) - 1]))
+            print("\tObject Part: ID:{}, Name: {}, cld:{}".format(obj_part_id, obj_part_classes[int(obj_part_id) - 1], len(cld_obj_part_centered[obj_part_id])))
     print("")
 
     ##################################
     # TRAIN
     ##################################
 
-    class_obj_part_file = open(config.OBJ_PART_CLASSES_FILE_TRAIN)
+    class_obj_part_file = open(config.OBJ_PART_CLASSES_FILE)
+    # class_obj_part_file = open(config.OBJ_PART_CLASSES_FILE_TRAIN)
     obj_part_classes = np.loadtxt(class_obj_part_file, dtype=np.str)
 
+    # class_obj_part_id_file = open(config.OBJ_PART_CLASS_IDS_FILE)
     class_obj_part_id_file = open(config.OBJ_PART_CLASS_IDS_FILE_TRAIN)
     class_obj_part_IDs = np.loadtxt(class_obj_part_id_file, dtype=np.int32)
 

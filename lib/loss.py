@@ -66,8 +66,6 @@ def loss_calculation(pred_r, pred_t, pred_c, target, model_points, idx, points, 
     how_max, which_max = torch.max(pred_c, 1)
     dis = dis.view(bs, num_p)
 
-    print("how_max: {:.5f}".format(how_max.detach().clone().cpu().numpy()[0]))
-
     t = ori_t[which_max[0]] + points[which_max[0]]
     points = points.view(1, bs * num_p, 3)
 
@@ -79,7 +77,11 @@ def loss_calculation(pred_r, pred_t, pred_c, target, model_points, idx, points, 
     ori_t = t.repeat(num_point_mesh, 1).contiguous().view(1, num_point_mesh, 3)
     new_target = torch.bmm((new_target - ori_t), ori_base).contiguous()
 
-    # print('------------> ', dis[0][which_max[0]].item(), pred_c[0][which_max[0]].item(), idx[0].item())
+    # print("idx: {}, how_max: {:.5f}".format(idx.detach().clone().cpu().numpy()[0][0], how_max.detach().clone().cpu().numpy()[0]))
+
+    print('------------> idx:{}, pred c:{:.3f}, dis:{:.3f} '.format(idx[0].item(),
+                                                            pred_c[0][which_max[0]].item(),
+                                                            dis[0][which_max[0]].item()))
     del knn
     return loss, dis[0][which_max[0]], new_points.detach(), new_target.detach()
 

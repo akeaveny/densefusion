@@ -61,26 +61,9 @@ class PoseDataset(data.Dataset):
         self.len_real = len(self.real)
         self.len_syn = len(self.syn)
 
-        class_file = open('datasets/ycb/dataset_config/classes.txt')
-        class_id = 1
-        self.cld = {}
-        while 1:
-            class_input = class_file.readline()
-            if not class_input:
-                break
-
-            input_file = open('{0}/models/{1}/points.xyz'.format(self.root, class_input[:-1]))
-            self.cld[class_id] = []
-            while 1:
-                input_line = input_file.readline()
-                if not input_line:
-                    break
-                input_line = input_line[:-1].split(' ')
-                self.cld[class_id].append([float(input_line[0]), float(input_line[1]), float(input_line[2])])
-            self.cld[class_id] = np.array(self.cld[class_id])
-            input_file.close()
-
-            class_id += 1
+        self.cld, self.cld_obj_centered, self.cld_obj_part_centered, \
+        self.obj_classes, self.obj_part_classes, \
+        self.obj_ids, self.TRAIN_OBJ_PART_IDS = load_obj_part_ply_files()
 
         self.cam_cx_1 = 312.9869
         self.cam_cy_1 = 241.3109
@@ -106,12 +89,10 @@ class PoseDataset(data.Dataset):
         self.refine = refine
         self.front_num = 2
 
-        print(len(self.list))
-
     def __getitem__(self, index):
         img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
         depth = np.array(Image.open('{0}/{1}-depth.png'.format(self.root, self.list[index])))
-        label = np.array(Image.open('{0}/{1}-label.png'.format(self.root, self.list[index])))
+        label = np.array(Image.open('{0}/{1}-obj_part_label.png'.format(self.root, self.list[index])))
         meta = scio.loadmat('{0}/{1}-meta.mat'.format(self.root, self.list[index]))
 
         if self.list[index][:8] != 'data_syn' and int(self.list[index][5:9]) >= 60:
@@ -133,7 +114,7 @@ class PoseDataset(data.Dataset):
                 seed = random.choice(self.syn)
                 front = np.array(self.trancolor(Image.open('{0}/{1}-color.png'.format(self.root, seed)).convert("RGB")))
                 front = np.transpose(front, (2, 0, 1))
-                f_label = np.array(Image.open('{0}/{1}-label.png'.format(self.root, seed)))
+                f_label = np.array(Image.open('{0}/{1}-obj_part_label.png'.format(self.root, seed)))
                 front_label = np.unique(f_label).tolist()[1:]
                 if len(front_label) < self.front_num:
                     continue
@@ -150,12 +131,23 @@ class PoseDataset(data.Dataset):
                     add_front = True
                     break
 
-        obj = meta['cls_indexes'].flatten().astype(np.int32)
+        obj_ids = meta['cls_indexes'].flatten().astype(np.int32)
+
+        obj_part_ids = []
+        for obj_id in obj_ids:
+            _obj_part_ids = ycb_aff_dataset_utils.map_obj_ids_to_obj_part_ids(obj_id)
+            for _obj_part_id in _obj_part_ids:
+                if _obj_part_id in self.TRAIN_OBJ_PART_IDS:
+                    obj_part_ids.append(_obj_part_id)
+
+        print('label: ', np.unique(label)[1:])
+        print('obj_part_ids: ', obj_part_ids)
 
         while 1:
-            idx = np.random.randint(0, len(obj))
+            obj_part_id = obj_part_ids[np.random.randint(0, len(obj_part_ids))]
+            obj_id = ycb_aff_dataset_utils.map_obj_part_ids_to_obj_id(obj_part_id)
             mask_depth = ma.getmaskarray(ma.masked_not_equal(depth, 0))
-            mask_label = ma.getmaskarray(ma.masked_equal(label, obj[idx]))
+            mask_label = ma.getmaskarray(ma.masked_equal(label, obj_id))
             mask = mask_label * mask_depth
             if len(mask.nonzero()[0]) > self.minimum_num_pt:
                 break
@@ -163,7 +155,25 @@ class PoseDataset(data.Dataset):
         if self.add_noise:
             img = self.trancolor(img)
 
+        #######################################
+        # meta
+        #######################################
+
+        obj_part_id_idx = str(1000 + obj_part_id)[1:]
+
+        target_r = meta['obj_part_rot_' + np.str(obj_part_id_idx)]
+        target_t = meta['obj_part_trans__' + np.str(obj_part_id_idx)]
+
+        # obj_part_bbox = meta['obj_part_bbox_' + np.str(obj_part_id_idx)].flatten()
+        # x1, y1, x2, y2 = obj_part_bbox[0], obj_part_bbox[1], obj_part_bbox[2], obj_part_bbox[3]
+        # cmin, rmin, cmax, rmax = obj_part_bbox[0], obj_part_bbox[1], obj_part_bbox[2], obj_part_bbox[3]
+
+        #######################################
+        # meta
+        #######################################
+
         rmin, rmax, cmin, cmax = get_bbox(mask_label)
+
         img = np.transpose(np.array(img)[:, :, :3], (2, 0, 1))[:, rmin:rmax, cmin:cmax]
 
         if self.list[index][:8] == 'data_syn':
@@ -181,15 +191,10 @@ class PoseDataset(data.Dataset):
         if self.list[index][:8] == 'data_syn':
             img_masked = img_masked + np.random.normal(loc=0.0, scale=7.0, size=img_masked.shape)
 
-        # p_img = np.transpose(img_masked, (1, 2, 0))
-        # scipy.misc.imsave('temp/{0}_input.png'.format(index), p_img)
-        # scipy.misc.imsave('temp/{0}_label.png'.format(index), mask[rmin:rmax, cmin:cmax].astype(np.int32))
-
-        target_r = meta['poses'][:, :, idx][:, 0:3]
-        target_t = np.array([meta['poses'][:, :, idx][:, 3:4].flatten()])
         add_t = np.array([random.uniform(-self.noise_trans, self.noise_trans) for i in range(3)])
 
         choose = mask[rmin:rmax, cmin:cmax].flatten().nonzero()[0]
+        # print("choose: ", len(choose))
         if len(choose) > self.num_pt:
             c_mask = np.zeros(len(choose), dtype=int)
             c_mask[:self.num_pt] = 1
@@ -216,12 +221,12 @@ class PoseDataset(data.Dataset):
         #    fw.write('{0} {1} {2}\n'.format(it[0], it[1], it[2]))
         # fw.close()
 
-        dellist = [j for j in range(0, len(self.cld[obj[idx]]))]
+        dellist = [j for j in range(0, len(self.cld_obj_part_centered[obj_part_id]))]
         if self.refine:
-            dellist = random.sample(dellist, len(self.cld[obj[idx]]) - self.num_pt_mesh_large)
+            dellist = random.sample(dellist, len(self.cld_obj_part_centered[obj_part_id]) - self.num_pt_mesh_large)
         else:
-            dellist = random.sample(dellist, len(self.cld[obj[idx]]) - self.num_pt_mesh_small)
-        model_points = np.delete(self.cld[obj[idx]], dellist, axis=0)
+            dellist = random.sample(dellist, len(self.cld_obj_part_centered[obj_part_id]) - self.num_pt_mesh_small)
+        model_points = np.delete(self.cld_obj_part_centered[obj_part_id], dellist, axis=0)
 
         # fw = open('temp/{0}_model_points.xyz'.format(index), 'w')
         # for it in model_points:
@@ -243,44 +248,51 @@ class PoseDataset(data.Dataset):
         # PROJECT TO SCREEN
         #######################################
         # import cv2
-        # test_folder = '/data/Akeaveny/Datasets/YCB_Video_Dataset/test_densefusion/'
+        # test_folder = '/data/Akeaveny/Datasets/YCB_Affordance_Dataset/test_densefusion/'
+        #
+        # p_img = np.transpose(img_masked, (1, 2, 0))
+        # scipy.misc.imsave('{}/img_masked.png'.format(test_folder), p_img)
+        # scipy.misc.imsave('{}/label.png'.format(test_folder), mask[rmin:rmax, cmin:cmax].astype(np.int32))
+        #
+        # # todo (visualize): bbox
+        # cv2_img = np.array(self.trancolor(Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))))
+        # img_name = test_folder + 'bbox.png'
+        # cv2.rectangle(cv2_img, (cmin, rmin), (cmax, rmax), (255, 0, 0), 2)
+        # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
         #
         # cam_mat = np.array([[cam_fx, 0, cam_cx], [0, cam_fy, cam_cy], [0, 0, 1]])
         # dist = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
         #
-        # cam_rotation4 = target_r[0]
-        # cam_translation = target_t[0]
+        # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
+        # imgpts, jac = cv2.projectPoints(cloud*1e3, np.eye(3), np.zeros(shape=target_t.shape), cam_mat, dist)
+        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
+        # temp_folder = test_folder + 'pose_pointcloud_from_depth.png'
+        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
         #
         # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
-        # imgpts, jac = cv2.projectPoints(cloud*1e2, np.eye(3), np.zeros(shape=cam_translation.shape), cam_mat, dist)
+        # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=target_t.shape), cam_mat, dist)
         # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
-        # temp_folder = test_folder + 'cv2.cloud.png'
-        # cv2.imwrite(temp_folder, cv2_img)
+        # temp_folder = test_folder + 'pose_gt_target.png'
+        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
         #
         # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
-        # imgpts, jac = cv2.projectPoints(target, np.eye(3), np.zeros(shape=cam_translation.shape), cam_mat, dist)
+        # imgpts, jac = cv2.projectPoints(model_points*1e3, target_r, target_t*1e3, cam_mat, dist)
         # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
-        # temp_folder = test_folder + 'cv2.target.png'
-        # cv2.imwrite(temp_folder, cv2_img)
+        # temp_folder = test_folder + 'pose_model_points.png'
+        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
         #
         # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
-        # imgpts, jac = cv2.projectPoints(model_points*1e2, cam_rotation4, cam_translation*1e2, cam_mat, dist)
+        # imgpts, jac = cv2.projectPoints(self.cld_obj_part_centered[obj_part_id]*1e3, target_r, target_t*1e3, cam_mat, dist)
         # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
-        # temp_folder = test_folder + 'cv2.model_points.png'
-        # cv2.imwrite(temp_folder, cv2_img)
-        #
-        # cv2_img = Image.open('{0}/{1}-color.png'.format(self.root, self.list[index]))
-        # imgpts, jac = cv2.projectPoints(self.cld[obj[idx]]*1e2, cam_rotation4, cam_translation*1e2, cam_mat, dist)
-        # cv2_img = cv2.polylines(np.array(cv2_img), np.int32([np.squeeze(imgpts)]), True, (0, 255, 255))
-        # temp_folder = test_folder + 'cv2.1.self.cld.png'
-        # cv2.imwrite(temp_folder, cv2_img)
+        # temp_folder = test_folder + 'pose_gt.png'
+        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
         return torch.from_numpy(cloud.astype(np.float32)), \
                torch.LongTensor(choose.astype(np.int32)), \
                self.norm(torch.from_numpy(img_masked.astype(np.float32))), \
                torch.from_numpy(target.astype(np.float32)), \
                torch.from_numpy(model_points.astype(np.float32)), \
-               torch.LongTensor([int(obj[idx]) - 1])
+               torch.LongTensor([int(obj_id) - 1])
 
     def __len__(self):
         return self.length

@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 import scipy.io as scio
 from scipy.spatial.transform import Rotation as R
 
+from sklearn.neighbors import KDTree
+
 import torch
 import torch.nn as nn
 import torch.nn.parallel
@@ -94,7 +96,7 @@ def main():
 
     for image_idx, image_addr in enumerate(image_files):
 
-        image_addr = image_addr.rstrip() # 'data/' + image_addr.rstrip()
+        image_addr = 'data/' + image_addr.rstrip()
 
         rgb_addr = config.DATASET_ROOT_PATH + image_addr + config.RGB_EXT
         depth_addr = config.DATASET_ROOT_PATH + image_addr + config.DEPTH_EXT
@@ -165,8 +167,8 @@ def main():
 
                 gt_idx = gt_to_pred_idxs[gt_to_pred_idx]
                 gt_obj_id = gt_obj_ids[gt_idx]
-                print("pred\t idx:{},\t class id:{}".format(pred_idx, pred_obj_id))
-                print("gt  \t idx:{},\t class id:{}".format(gt_idx, gt_obj_id))
+                # print("pred\t idx:{},\t class id:{}".format(pred_idx, pred_obj_id))
+                # print("gt  \t idx:{},\t class id:{}".format(gt_idx, gt_obj_id))
                 gt_to_pred_idx += 1
 
                 ############################
@@ -247,6 +249,11 @@ def main():
                     how_max, which_max = torch.max(pred_c, 1)
                     pred_t = pred_t.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
                     points = cloud.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
+
+                    print('\tidx:{}, pred c:{:.3f}, how_max: {:3f}'.format(index[0].item(),
+                                                                           pred_c[0][which_max[0]].item(),
+                                                                           how_max.detach().clone().cpu().numpy()[0],
+                                                                           ))
 
                     my_r = pred_r[0][which_max[0]].view(-1).cpu().data.numpy()
                     my_t = (points + pred_t)[which_max[0]].view(-1).cpu().data.numpy()
@@ -359,6 +366,39 @@ def main():
                     cv2_densefusion = cv2.line(cv2_densefusion, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), color, 3)
 
                     ############################
+                    # Error Metrics
+                    ############################
+
+                    T_pred, R_pred = densefusion_trans, densefusion_rot
+                    T_gt, R_gt = gt_trans, gt_rot
+
+                    # ADD
+                    pred = np.dot(cld[gt_obj_id], R_pred)
+                    pred = np.add(pred, T_pred)
+                    target = np.dot(cld[gt_obj_id], R_gt)
+                    target = np.add(target, T_gt)
+                    ADD = np.mean(np.linalg.norm(pred - target, axis=1))
+
+                    # ADD-S
+                    tree = KDTree(pred)
+                    dist, ind = tree.query(target)
+                    ADD_S = np.mean(dist)
+
+                    # translation
+                    T_error = np.linalg.norm(T_pred - T_gt)
+
+                    # rot
+                    error_cos = 0.5 * (np.trace(R_pred @ np.linalg.inv(R_gt)) - 1.0)
+                    error_cos = min(1.0, max(-1.0, error_cos))
+                    error = np.arccos(error_cos)
+                    R_error = 180.0 * error / np.pi
+
+                    print("\tADD: {:.2f} [cm]".format(ADD * 100))  # [cm]
+                    print("\tADD-S: {:.2f} [cm]".format(ADD_S * 100))
+                    print("\tT: {:.2f} [cm]".format(T_error * 100))  # [cm]
+                    print("\tRot: {:.2f} [deg]".format(R_error))
+
+                    ############################
                     ############################
 
                 except:
@@ -373,7 +413,7 @@ def main():
         cv2.imshow('cv2_gt_pose', cv2.cvtColor(cv2_gt_pose, cv2.COLOR_BGR2RGB))
         cv2.imshow('cv2_pose_cnn', cv2.cvtColor(cv2_pose_cnn, cv2.COLOR_BGR2RGB))
         cv2.imshow('cv2_densefusion', cv2.cvtColor(cv2_densefusion, cv2.COLOR_BGR2RGB))
-        cv2.waitKey(1)
+        cv2.waitKey(0)
 
         ############################
         ############################

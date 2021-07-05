@@ -143,6 +143,54 @@ def map_obj_ids_to_obj_part_ids(object_id):
         print(" --- Object ID does not map to Object Parts --- ")
         exit(1)
 
+def map_obj_part_ids_to_obj_id(obj_part_id):
+
+    if obj_part_id in np.array([1]):            # 002_master_chef_can_16k
+        return 1
+    elif obj_part_id in np.array([2]):          # 003_cracker_box_16k
+        return 2
+    elif obj_part_id in np.array([3]):          # 004_sugar_box_16k
+        return 3
+    elif obj_part_id in np.array([4]):          # 005_tomato_soup_can_16k
+        return 4
+    elif obj_part_id in np.array([5]):          # 006_mustard_bottle_16k
+        return 5
+    elif obj_part_id in np.array([6]):          # 007_tuna_fish_can_16k
+        return 6
+    elif obj_part_id in np.array([7]):          # 008_pudding_box_16k
+        return 7
+    elif obj_part_id in np.array([8]):          # 009_gelatin_box_16k
+        return 8
+    elif obj_part_id in np.array([9]):          # 010_potted_meat_can_16k
+        return 9
+    elif obj_part_id in np.array([10]):         # 011_banana_16k
+        return 10
+    elif obj_part_id in np.array([11, 12, 13]): # 019_pitcher_base_16k
+        return 11
+    elif obj_part_id in np.array([14]):         # 021_bleach_cleanser_16k
+        return 12
+    elif obj_part_id in np.array([15, 16]):     # 024_bowl_16k
+        return 13
+    elif obj_part_id in np.array([17, 18, 19]): # 025_mug_16k
+        return 14
+    elif obj_part_id in np.array([20, 21, 22]): # 035_power_drill_16k
+        return 15
+    elif obj_part_id in np.array([23]):        # 036_wood_block_16k
+        return 16
+    elif obj_part_id in np.array([24, 25]):    # 037_scissors_16k
+        return 17
+    elif obj_part_id in np.array([26]):        # 040_large_marker_16k
+        return 18
+    elif obj_part_id in np.array([27, 28]):    # 051_large_clamp_16k
+        return 19
+    elif obj_part_id in np.array([29, 30]):    # 052_extra_large_clamp_16k
+        return 20
+    elif obj_part_id in np.array([31]):       # 061_foam_brick_16k
+        return 21
+    else:
+        print(" --- Object ID does not map to Object Parts --- ")
+        exit(1)
+
 ##################################
 ##################################
 

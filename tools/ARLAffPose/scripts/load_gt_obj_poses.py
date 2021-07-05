@@ -43,15 +43,14 @@ def main():
     ##################################
     ##################################
 
-    # image_files = open('{}'.format(config.TRAIN_FILE), "r")
-    image_files = open('{}'.format(config.VAL_FILE), "r")
+    image_files = open('{}'.format(config.TRAIN_FILE), "r")
     # image_files = open('{}'.format(config.TEST_FILE), "r")
     image_files = image_files.readlines()
     print("Loaded Files: {}".format(len(image_files)))
 
     # select random test images
     np.random.seed(0)
-    num_files = 25
+    num_files = 250
     random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
     image_files = np.array(image_files)[random_idx]
     print("Chosen Files: {}".format(len(image_files)))
@@ -100,8 +99,14 @@ def main():
         #####################
         #####################
 
-        cv2_bbox_img = rgb.copy()
-        cv2_obj_img = rgb.copy()
+        color_obj_label = affpose_dataset_utils.colorize_obj_mask(label)
+        color_obj_label = cv2.addWeighted(rgb, 0.5, color_obj_label, 0.5, 0)
+
+        #####################
+        #####################
+
+        cv2_bbox_img = color_obj_label.copy()
+        cv2_obj_img = color_obj_label.copy()
 
         ##################################
         # META
@@ -110,6 +115,15 @@ def main():
         # gt pose
         meta_addr = dataset_dir + 'meta/' + image_num + config.META_EXT
         meta = scio.loadmat(meta_addr)
+
+        # ARL
+        CAM_CX = meta['cam_cx'].flatten()[0] * config.X_SCALE
+        CAM_CY = meta['cam_cy'].flatten()[0] * config.Y_SCALE
+        CAM_FX = meta['cam_fx'].flatten()[0]
+        CAM_FY = meta['cam_fy'].flatten()[0]
+
+        CAM_MAT = np.array([[CAM_FX, 0, CAM_CX], [0, CAM_FY, CAM_CY], [0, 0, 1]])
+        CAM_DIST = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
 
         #####################
         #####################
@@ -136,16 +150,15 @@ def main():
                 target_t = meta['obj_translation_' + np.str(obj_meta_idx)]
 
                 # projecting 3D model to 2D image
-                imgpts, jac = cv2.projectPoints(cld[obj_id] * 1e3, target_r, target_t * 1e3, config.CAM_MAT, config.CAM_DIST)
+                imgpts, jac = cv2.projectPoints(cld[obj_id] * 1e3, target_r, target_t * 1e3, CAM_MAT, CAM_DIST)
                 cv2_obj_img = cv2.polylines(cv2_obj_img, helper_utils.sort_imgpts(imgpts), True, obj_color)
 
                 # modify YCB objects rotation matrix
                 _target_r = affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, target_r.copy())
-
                 # draw pose
                 rotV, _ = cv2.Rodrigues(_target_r)
                 points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-                axisPoints, _ = cv2.projectPoints(points, rotV, target_t * 1e3, config.CAM_MAT, config.CAM_DIST)
+                axisPoints, _ = cv2.projectPoints(points, rotV, target_t * 1e3, CAM_MAT, CAM_DIST)
                 cv2_obj_img = cv2.line(cv2_obj_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
                 cv2_obj_img = cv2.line(cv2_obj_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
                 cv2_obj_img = cv2.line(cv2_obj_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
@@ -173,6 +186,7 @@ def main():
                 mask_label = ma.getmaskarray(ma.masked_equal(label.copy(), obj_id))
                 mask_depth = mask_label * depth
 
+                img_masked = np.transpose(np.array(rgb)[:, :, :3], (2, 0, 1))[:, y1:y2, x1:x2]
                 choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
                 print("\tchoose: ", len(choose))
                 if len(choose) != 0:
@@ -195,12 +209,10 @@ def main():
         # PLOTTING
         #####################
 
-        color_label = affpose_dataset_utils.colorize_obj_mask(label)
-
         cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
         cv2.imshow('depth', depth)
-        cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
-        cv2.imshow('label', cv2.cvtColor(color_label, cv2.COLOR_BGR2RGB))
+        # cv2.imshow('heatmap', cv2.applyColorMap(depth, cv2.COLORMAP_JET))
+        cv2.imshow('label', cv2.cvtColor(color_obj_label, cv2.COLOR_BGR2RGB))
         cv2.imshow('gt_pose', cv2.cvtColor(cv2_obj_img, cv2.COLOR_BGR2RGB))
 
         cv2.waitKey(0)

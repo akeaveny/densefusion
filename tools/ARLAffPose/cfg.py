@@ -17,12 +17,14 @@ OBJ_PART_CLASSES_FILE_TRAIN   = ROOT_PATH + 'datasets/arl_affpose/dataset_config
 OBJ_PART_CLASS_IDS_FILE_TRAIN = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_ids_train.txt'
 
 TRAIN_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/train_list.txt'
-VAL_FILE   = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/val_list.txt'
+VAL_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/val_list.txt'
 TEST_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/test_list.txt'
 
 # Trained models
-# PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_vicon_retrain/pose_model_6_0.011263955466539667.pth'
-# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_vicon_retrain/pose_refine_model_93_0.006630927582543332.pth'
+# PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_model_33_0.01290217461439487.pth'
+# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_refine_model_93_0.008955978338087865.pth'
+PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_model_22_0.01227916889064539.pth'
+PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_refine_model_28_0.012106233616648617.pth'
 
 # MATLAB
 EVAL_FOLDER_GT           = ROOT_PATH + 'tools/ARLAffPose/matlab/results/gt'
@@ -34,7 +36,9 @@ EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/df_itera
 #######################################
 
 ROOT_DATA_PATH = '/data/Akeaveny/Datasets/ARLAffPose/'
-TEST_DENSEFUSION_FOLDER = ROOT_DATA_PATH + 'test_densefuion/'
+TEST_DENSEFUSION_FOLDER = ROOT_DATA_PATH + 'test_densefusion/'
+
+SELECT_EVERY_ITH_FRAME = 5 # similar to YCB-Video Dataset
 
 # REAL
 DATA_DIRECTORY       = ROOT_DATA_PATH + 'Real/'
@@ -59,59 +63,71 @@ META_EXT           = '_meta.mat'
 # ZED CAMERA
 #######################################
 
+CAMERA_SCALE = 1000
+
 WIDTH, HEIGHT = 1280, 720
 ORIGINAL_SIZE = (WIDTH, HEIGHT)
 RESIZE        = (int(WIDTH/1), int(HEIGHT/1))
-CROP_SIZE     = (int(640), int(480)) # (int(640), int(480)) or (int(1280), int(720))
+CROP_SIZE     = (int(640), int(640)) # (int(640), int(640)) or (int(1280), int(720))
 WIDTH, HEIGHT = CROP_SIZE[0], CROP_SIZE[1]
-MIN_SIZE = MAX_SIZE = 640
+MIN_SIZE = np.min([WIDTH, HEIGHT])
+MAX_SIZE = np.max([WIDTH, HEIGHT])
 
 _step = 40
 BORDER_LIST = np.arange(start=0, stop=np.max([WIDTH, HEIGHT])+_step, step=_step)
 
-X_SCALE = CROP_SIZE[0] / ORIGINAL_SIZE[0]
-Y_SCALE = CROP_SIZE[1] / ORIGINAL_SIZE[1]
-
-CAMERA_SCALE = 1000
-
-# Real
-# CAM_CX = 652.26074
-# CAM_CY = 335.50336
-CAM_CX = 652.26074 * X_SCALE
-CAM_CY = 335.50336 * Y_SCALE
-CAM_FX = 680.72644
-CAM_FY = 680.72644
-
-# Syn
-# CAM_CX = 653.5618286132812
-# CAM_CY = 338.541748046875
-# # CAM_CX = 653.5618286132812 * X_SCALE
-# # CAM_CY = 338.541748046875  * Y_SCALE
-# CAM_FX = 682.7849731445312
-# CAM_FY = 682.7849731445312
-
 XMAP = np.array([[j for i in range(WIDTH)] for j in range(HEIGHT)])
 YMAP = np.array([[i for i in range(WIDTH)] for j in range(HEIGHT)])
 
-CAM_MAT = np.array([[CAM_FX, 0, CAM_CX], [0, CAM_FY, CAM_CY], [0, 0, 1]])
-CAM_DIST = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+X_SCALE = CROP_SIZE[0] / ORIGINAL_SIZE[0]
+Y_SCALE = CROP_SIZE[1] / ORIGINAL_SIZE[1]
+
+# Real
+# CAM_CX = 652.26074 * X_SCALE
+# CAM_CY = 335.50336 * Y_SCALE
+# CAM_FX = 680.72644
+# CAM_FY = 680.72644
+
+# Syn
+# CAM_CX = 653.5618286132812 * X_SCALE
+# CAM_CY = 338.541748046875  * Y_SCALE
+# CAM_FX = 682.7849731445312
+# CAM_FY = 682.7849731445312
+
+# # ARL
+# CAM_CX = 615.583 * X_SCALE
+# CAM_CY = 359.161 * Y_SCALE
+# CAM_FX = 739.436
+# CAM_FY = 739.436
+
+# CAM_MAT = np.array([[CAM_FX, 0, CAM_CX], [0, CAM_FY, CAM_CY], [0, 0, 1]])
+# CAM_DIST = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
 
 #######################################
 #######################################
 
-NUM_OBJECTS = 11
+NUM_IMAGES = 90000
+NUM_TRAIN  = NUM_IMAGES
+NUM_TEST    = 1500
+
+NUM_OBJECTS = 11 # 11 or 25
 SYM_OBJECTS = [1, 4, 7, 11]
 
-IMG_MEAN   = [0.485, 0.456, 0.406]
-IMG_STD    = [0.229, 0.224, 0.225]
+# REAL
+IMG_MEAN   = [103.15870247/255, 102.75600649/255, 83.28931782/255]
+IMG_STD    = [57.65692223/255, 64.30550654/255, 45.79033007/255]
 
-NORM = transforms.Normalize(mean=IMG_MEAN, std=IMG_STD)
+# REAL AND SYN
+# IMG_MEAN   = [132.08893337/255, 103.38624212/255, 84.43098558/255]
+# IMG_STD    = [46.52742011/255, 54.07110987/255, 39.97097183/255]
 
 NUM_PT = 500
 
 NUM_PT_MIN = 50
-NUM_PT_MESH_SMALL = 500
-NUM_PT_MESH_LARGE = 800
+NUM_PT_MESH_SMALL = 250 # 500
+NUM_PT_MESH_LARGE = 500 # 2600
+
+FRONT_NUM = 2
 
 REFINE_ITERATIONS = 2
 BATCH_SIZE = 1

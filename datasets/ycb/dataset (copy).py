@@ -116,27 +116,27 @@ class PoseDataset(data.Dataset):
         mask_back = ma.getmaskarray(ma.masked_equal(label, 0))
 
         add_front = False
-        if self.add_noise:
-            for k in range(5):
-                seed = random.choice(self.syn)
-                front = np.array(self.trancolor(Image.open('{0}/{1}-color.png'.format(self.root, seed)).convert("RGB")))
-                front = np.transpose(front, (2, 0, 1))
-                f_label = np.array(Image.open('{0}/{1}-label.png'.format(self.root, seed)))
-                front_label = np.unique(f_label).tolist()[1:]
-                if len(front_label) < self.front_num:
-                    continue
-                front_label = random.sample(front_label, self.front_num)
-                for f_i in front_label:
-                    mk = ma.getmaskarray(ma.masked_not_equal(f_label, f_i))
-                    if f_i == front_label[0]:
-                        mask_front = mk
-                    else:
-                        mask_front = mask_front * mk
-                t_label = label * mask_front
-                if len(t_label.nonzero()[0]) > 1000:
-                    label = t_label
-                    add_front = True
-                    break
+        # if self.add_noise:
+        #     for k in range(5):
+        #         seed = random.choice(self.syn)
+        #         front = np.array(self.trancolor(Image.open('{0}/{1}-color.png'.format(self.root, seed)).convert("RGB")))
+        #         front = np.transpose(front, (2, 0, 1))
+        #         f_label = np.array(Image.open('{0}/{1}-label.png'.format(self.root, seed)))
+        #         front_label = np.unique(f_label).tolist()[1:]
+        #         if len(front_label) < self.front_num:
+        #             continue
+        #         front_label = random.sample(front_label, self.front_num)
+        #         for f_i in front_label:
+        #             mk = ma.getmaskarray(ma.masked_not_equal(f_label, f_i))
+        #             if f_i == front_label[0]:
+        #                 mask_front = mk
+        #             else:
+        #                 mask_front = mask_front * mk
+        #         t_label = label * mask_front
+        #         if len(t_label.nonzero()[0]) > 1000:
+        #             label = t_label
+        #             add_front = True
+        #             break
 
         obj = meta['cls_indexes'].flatten().astype(np.int32)
 
