@@ -21,15 +21,18 @@ VAL_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/val_list
 TEST_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/test_list.txt'
 
 # Trained models
-# PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_model_33_0.01290217461439487.pth'
-# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_refine_model_93_0.008955978338087865.pth'
+PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_model_33_0.01290217461439487.pth'
+PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_refine_model_108_0.008444265270099394.pth'
 PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_model_22_0.01227916889064539.pth'
-PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_refine_model_28_0.012106233616648617.pth'
+PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_refine_model_119_0.00866128712542505.pth'
 
 # MATLAB
-EVAL_FOLDER_GT           = ROOT_PATH + 'tools/ARLAffPose/matlab/results/gt'
-EVAL_FOLDER_DF_WO_REFINE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/df_wo_refine'
-EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/df_iterative'
+OBJ_EVAL_FOLDER_GT           = ROOT_PATH + 'tools/ARLAffPose/matlab/results/obj/gt'
+OBJ_EVAL_FOLDER_DF_WO_REFINE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/obj/df_wo_refine'
+OBJ_EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/obj/df_iterative'
+AFF_EVAL_FOLDER_GT           = ROOT_PATH + 'tools/ARLAffPose/matlab/results/aff/gt'
+AFF_EVAL_FOLDER_DF_WO_REFINE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/aff/df_wo_refine'
+AFF_EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/aff/df_iterative'
 
 #######################################
 # Dataset Prelims
@@ -38,7 +41,7 @@ EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/df_itera
 ROOT_DATA_PATH = '/data/Akeaveny/Datasets/ARLAffPose/'
 TEST_DENSEFUSION_FOLDER = ROOT_DATA_PATH + 'test_densefusion/'
 
-SELECT_EVERY_ITH_FRAME = 5 # similar to YCB-Video Dataset
+SELECT_EVERY_ITH_FRAME = 3 # similar to YCB-Video Dataset
 
 # REAL
 DATA_DIRECTORY       = ROOT_DATA_PATH + 'Real/'
@@ -129,8 +132,10 @@ NUM_PT_MESH_LARGE = 500 # 2600
 
 FRONT_NUM = 2
 
-REFINE_ITERATIONS = 2
+REFINE_ITERATIONS = 4
 BATCH_SIZE = 1
+
+PRED_C_THRESHOLD = 0.0
 
 
 

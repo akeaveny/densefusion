@@ -201,8 +201,15 @@ class PoseDataset(data.Dataset):
             if len(mask_depth.nonzero()[0]) > self.minimum_num_pt:
                 break
 
+        # todo (visualize): Mask Augmentation
+        # cv2.imshow('img', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        # cv2.imshow('mask_rgb', cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB))
+        # color_mask = affpose_dataset_utils.colorize_obj_mask(label)
+        # cv2.imshow('color_mask', cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))
+        # cv2.waitKey(0)
+
         # # todo (visualize): RGB ROIs
-        # cv2_img = mask_rgb.copy()
+        #cv2_img = mask_rgb.copy()
         # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_rgb.png'
         # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
         # # todo (visualize): DEPTH ROIs

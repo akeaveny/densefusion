@@ -151,7 +151,7 @@ def obj_color_map(idx):
     elif idx == 19:
         return (255, 51, 196)
     elif idx == 20:
-        return (288, 121, 51)
+        return (255, 121, 51)
     elif idx == 21:
         return (255, 51, 138)
     else:

@@ -140,8 +140,8 @@ class PoseDataset(data.Dataset):
                 if _obj_part_id in self.TRAIN_OBJ_PART_IDS:
                     obj_part_ids.append(_obj_part_id)
 
-        print('label: ', np.unique(label)[1:])
-        print('obj_part_ids: ', obj_part_ids)
+        # print('label: ', np.unique(label)[1:])
+        # print('obj_part_ids: ', obj_part_ids)
 
         while 1:
             obj_part_id = obj_part_ids[np.random.randint(0, len(obj_part_ids))]

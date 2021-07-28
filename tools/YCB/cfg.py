@@ -8,11 +8,10 @@ import torchvision.transforms as transforms
 
 DENSEFUSION_ROOT_PATH = '/home/akeaveny/git/DenseFusion/'
 
-# PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_model_26_0.012863246640872631.pth'
-# PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + '/trained_models/pretrained_ycb/pose_refine_model_69_0.009449292959118935.pth'
-
-PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + 'trained_models/pretrained_ycb/pose_model_26_0.012863246640872631.pth'
-PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + 'trained_models/pretrained_ycb/pose_refine_model_69_0.009449292959118935.pth'
+PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + 'trained_models/ycb/densefusion/pose_model_26_0.012863246640872631.pth'
+PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + 'trained_models/ycb/densefusion/pose_refine_model_69_0.009449292959118935.pth'
+# PRE_TRAINED_MODEL = DENSEFUSION_ROOT_PATH + 'trained_models/ycb/real_and_syn/pose_model_27_0.012961520093793814.pth'
+# PRE_TRAINED_REFINE_MODEL = DENSEFUSION_ROOT_PATH + 'trained_models/ycb/real_and_syn/pose_refine_model_93_0.009422253060541326.pth'
 
 #######################################
 ### YCB

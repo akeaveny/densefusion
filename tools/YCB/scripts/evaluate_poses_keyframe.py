@@ -155,6 +155,7 @@ def main():
         class_ids_list = []
         pose_est_gt = []
         pose_est_posecnn = []
+        pose_est_c = []
         pose_est_df_wo_refine = []
         pose_est_df_iterative = []
 
@@ -250,14 +251,16 @@ def main():
                     pred_t = pred_t.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
                     points = cloud.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
 
+                    _how_max = how_max.detach().clone().cpu().numpy()[0]
                     print('\tidx:{}, pred c:{:.3f}, how_max: {:3f}'.format(index[0].item(),
                                                                            pred_c[0][which_max[0]].item(),
-                                                                           how_max.detach().clone().cpu().numpy()[0],
+                                                                           _how_max,
                                                                            ))
 
                     my_r = pred_r[0][which_max[0]].view(-1).cpu().data.numpy()
                     my_t = (points + pred_t)[which_max[0]].view(-1).cpu().data.numpy()
                     my_pred = np.append(my_r, my_t)
+                    pose_est_c.append(_how_max)
                     pose_est_df_wo_refine.append(my_pred.tolist())
 
                     for ite in range(0, config.REFINE_ITERATIONS):
@@ -403,6 +406,7 @@ def main():
 
                 except:
                     print("DenseFusion Detector Lost Ojbect:{0} at No.{1} keyframe".format(obj_classes[int(pred_obj_id) - 1], image_idx))
+                    pose_est_c.append(0)
                     pose_est_df_wo_refine.append([0.0 for i in range(7)])
                     pose_est_df_iterative.append([0.0 for i in range(7)])
 
@@ -410,10 +414,10 @@ def main():
         ### PLOTTING
         ############################
 
-        cv2.imshow('cv2_gt_pose', cv2.cvtColor(cv2_gt_pose, cv2.COLOR_BGR2RGB))
-        cv2.imshow('cv2_pose_cnn', cv2.cvtColor(cv2_pose_cnn, cv2.COLOR_BGR2RGB))
-        cv2.imshow('cv2_densefusion', cv2.cvtColor(cv2_densefusion, cv2.COLOR_BGR2RGB))
-        cv2.waitKey(0)
+        # cv2.imshow('cv2_gt_pose', cv2.cvtColor(cv2_gt_pose, cv2.COLOR_BGR2RGB))
+        # cv2.imshow('cv2_pose_cnn', cv2.cvtColor(cv2_pose_cnn, cv2.COLOR_BGR2RGB))
+        # cv2.imshow('cv2_densefusion', cv2.cvtColor(cv2_densefusion, cv2.COLOR_BGR2RGB))
+        # cv2.waitKey(0)
 
         ############################
         ############################
@@ -423,9 +427,9 @@ def main():
         scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_POSECNN, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_posecnn})
         scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
-                     {"class_ids": class_ids_list, 'poses': pose_est_df_wo_refine})
+                     {"class_ids": class_ids_list, 'confidence': pose_est_c, 'poses': pose_est_df_wo_refine})
         scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
-                     {"class_ids": class_ids_list, 'poses': pose_est_df_iterative})
+                     {"class_ids": class_ids_list, 'confidence': pose_est_c, 'poses': pose_est_df_iterative})
 
         print("******************* Finish {0}/{1} keyframes *******************".format(image_idx+1, len(image_files)))
 

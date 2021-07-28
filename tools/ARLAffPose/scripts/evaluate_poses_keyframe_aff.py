@@ -46,7 +46,7 @@ from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from
 from tools.ARLAffPose.utils import helper_utils
 
 from tools.ARLAffPose import cfg as config
-from tools.ARLAffPose.utils.dataset import affpose_dataset_utils # affpose_dataset_utils
+from tools.ARLAffPose.utils.dataset import affpose_dataset_utils
 
 from tools.ARLAffPose.utils.pose.load_obj_ply_files import load_obj_ply_files
 from tools.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
@@ -56,15 +56,15 @@ from tools.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
 def main():
 
-    files = glob.glob(config.EVAL_FOLDER_GT + '/*')
+    files = glob.glob(config.AFF_EVAL_FOLDER_GT + '/*')
     for file in files:
         os.remove(file)
 
-    files = glob.glob(config.EVAL_FOLDER_DF_WO_REFINE + '/*')
+    files = glob.glob(config.AFF_EVAL_FOLDER_DF_WO_REFINE + '/*')
     for file in files:
         os.remove(file)
 
-    files = glob.glob(config.EVAL_FOLDER_DF_ITERATIVE + '/*')
+    files = glob.glob(config.AFF_EVAL_FOLDER_DF_ITERATIVE + '/*')
     for file in files:
         os.remove(file)
 
@@ -99,12 +99,12 @@ def main():
     image_files = image_files.readlines()
     print("Loaded Files: {}".format(len(image_files)))
 
-    # select random test images
-    np.random.seed(0)
-    num_files = len(image_files)
-    random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
-    image_files = np.array(image_files)[random_idx]
-    print("Chosen Files: {}".format(len(image_files)))
+    # # select random test images
+    # np.random.seed(0)
+    # num_files = len(image_files)
+    # random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
+    # image_files = np.array(image_files)[random_idx]
+    # print("Chosen Files: {}".format(len(image_files)))
 
     ##################################
     ##################################
@@ -130,7 +130,7 @@ def main():
         rgb = np.array(Image.open(rgb_addr))[..., :3]
         depth = np.array(Image.open(depth_addr))
         obj_label = np.array(Image.open(obj_label_addr))
-        obj_part_label = np.array(Image.open(obj_part_label_addr))
+        # obj_part_label = np.array(Image.open(obj_part_label_addr))
         aff_label = np.array(Image.open(aff_label_addr))
 
         ##################################
@@ -140,14 +140,21 @@ def main():
         rgb = cv2.resize(rgb, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         depth = cv2.resize(depth, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         obj_label = cv2.resize(obj_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
-        obj_part_label = cv2.resize(obj_part_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+        # obj_part_label = cv2.resize(obj_part_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
         aff_label = cv2.resize(aff_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
 
         rgb = helper_utils.crop(pil_img=rgb, crop_size=config.CROP_SIZE, is_img=True)
         depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
         obj_label = helper_utils.crop(pil_img=obj_label, crop_size=config.CROP_SIZE)
-        obj_part_label = helper_utils.crop(pil_img=obj_part_label, crop_size=config.CROP_SIZE)
+        # obj_part_label = helper_utils.crop(pil_img=obj_part_label, crop_size=config.CROP_SIZE)
         aff_label = helper_utils.crop(pil_img=aff_label, crop_size=config.CROP_SIZE)
+
+        #####################
+        #####################
+
+        # test with predicted masks.
+        obj_part_label_addr = dataset_dir + 'pred_aff/' + image_num + '_obj_part.png'
+        obj_part_label = np.array(Image.open(obj_part_label_addr))
 
         #####################
         #####################
@@ -192,6 +199,7 @@ def main():
         # TODO: MATLAB EVAL
         class_ids_list = []
         pose_est_gt = []
+        pose_est_c = []
         pose_est_df_wo_refine = []
         pose_est_df_iterative = []
 
@@ -214,9 +222,6 @@ def main():
                         aff_id = affpose_dataset_utils.map_obj_part_id_to_aff_id(obj_part_id)
                         aff_color = affpose_dataset_utils.aff_color_map(aff_id)
                         print(f"\tAff: {aff_id}, {obj_part_classes[int(obj_part_id) - 1]}")
-
-                        # TODO: MATLAB EVAL
-                        class_ids_list.append(obj_id)
 
                         ##################################
                         # BBOX
@@ -257,10 +262,8 @@ def main():
                         target_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
                         target_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]
 
-                        # # TODO: MATLAB EVAL
                         gt_quart = quaternion_from_matrix(target_r)
                         my_pred = np.append(np.array(gt_quart), np.array(target_t))
-                        pose_est_gt.append(my_pred.tolist())
 
                         #######################################
                         # 6-DOF POSE
@@ -356,16 +359,22 @@ def main():
                             pred_t = pred_t.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
                             points = cloud.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
 
+                            _how_max = how_max.detach().clone().cpu().numpy()[0]
                             print('\tidx:{}, pred c:{:.3f}, how_max: {:3f}'.format(index[0].item(),
                                                                                    pred_c[0][which_max[0]].item(),
-                                                                                   how_max.detach().clone().cpu().numpy()[0],
+                                                                                   _how_max,
                                                                                    ))
 
                             my_r = pred_r[0][which_max[0]].view(-1).cpu().data.numpy()
                             my_t = (points + pred_t)[which_max[0]].view(-1).cpu().data.numpy()
                             my_pred = np.append(my_r, my_t)
+
                             # TODO: MATLAB EVAL
-                            pose_est_df_wo_refine.append(my_pred.tolist())
+                            if _how_max > config.PRED_C_THRESHOLD:
+                                class_ids_list.append(obj_id)
+                                pose_est_c.append(_how_max)
+                                pose_est_gt.append(my_pred.tolist())
+                                pose_est_df_wo_refine.append(my_pred.tolist())
 
                             ############################
                             # Error Metrics
@@ -436,7 +445,8 @@ def main():
                                 print("\tADD-S: {:.2f} [cm]".format(ADD_S * 100))
 
                             # TODO: MATLAB EVAL
-                            pose_est_df_iterative.append(my_pred.tolist())
+                            if _how_max > config.PRED_C_THRESHOLD:
+                                pose_est_df_iterative.append(my_pred.tolist())
 
                             obj_part_r = quaternion_matrix(my_r)[0:3, 0:3]
                             obj_part_t = my_t
@@ -501,6 +511,7 @@ def main():
                         except ZeroDivisionError: # ZeroDivisionError
                             print("DenseFusion Detector Lost keyframe ..")
                             # TODO: MATLAB EVAL
+                            pose_est_c.append(0)
                             pose_est_df_wo_refine.append([0.0 for i in range(7)])
                             pose_est_df_iterative.append([0.0 for i in range(7)])
 
@@ -517,12 +528,14 @@ def main():
         # TODO: MATLAB EVAL
         ############################
 
-        scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_GT, '%04d' % image_idx),
+        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_GT, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_gt})
-        scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
-                     {"class_ids": class_ids_list, 'poses': pose_est_df_wo_refine})
-        scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
-                     {"class_ids": class_ids_list, 'poses': pose_est_df_iterative})
+        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
+                     {"class_ids": class_ids_list,
+                      'confidence': pose_est_c, 'poses': pose_est_df_wo_refine})
+        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
+                     {"class_ids": class_ids_list,
+                      'confidence': pose_est_c, 'poses': pose_est_df_iterative})
 
         print("*** Finished {0}/{1} keyframes ***\n".format(image_idx + 1, len(image_files)))
 

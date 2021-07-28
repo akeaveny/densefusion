@@ -56,15 +56,15 @@ from tools.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
 def main():
 
-    files = glob.glob(config.EVAL_FOLDER_GT + '/*')
+    files = glob.glob(config.OBJ_EVAL_FOLDER_GT + '/*')
     for file in files:
         os.remove(file)
 
-    files = glob.glob(config.EVAL_FOLDER_DF_WO_REFINE + '/*')
+    files = glob.glob(config.OBJ_EVAL_FOLDER_DF_WO_REFINE + '/*')
     for file in files:
         os.remove(file)
 
-    files = glob.glob(config.EVAL_FOLDER_DF_ITERATIVE + '/*')
+    files = glob.glob(config.OBJ_EVAL_FOLDER_DF_ITERATIVE + '/*')
     for file in files:
         os.remove(file)
 
@@ -100,11 +100,11 @@ def main():
     print("Loaded Files: {}".format(len(image_files)))
 
     # select random test images
-    np.random.seed(0)
-    num_files = len(image_files)/10
-    random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
-    image_files = np.array(image_files)[random_idx]
-    print("Chosen Files: {}".format(len(image_files)))
+    # np.random.seed(0)
+    # num_files = len(image_files)/10
+    # random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
+    # image_files = np.array(image_files)[random_idx]
+    # print("Chosen Files: {}".format(len(image_files)))
 
     ##################################
     ##################################
@@ -127,9 +127,7 @@ def main():
 
         rgb = np.array(Image.open(rgb_addr))[..., :3]
         depth = np.array(Image.open(depth_addr))
-        obj_label = np.array(Image.open(obj_label_addr))
-
-        helper_utils.print_depth_info(depth)
+        # obj_label = np.array(Image.open(obj_label_addr))
 
         ##################################
         ### RESIZE & CROP
@@ -137,11 +135,18 @@ def main():
 
         rgb = cv2.resize(rgb, config.RESIZE, interpolation=cv2.INTER_CUBIC)
         depth = cv2.resize(depth, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        obj_label = cv2.resize(obj_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+        # obj_label = cv2.resize(obj_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
 
         rgb = helper_utils.crop(pil_img=rgb, crop_size=config.CROP_SIZE, is_img=True)
         depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
-        obj_label = helper_utils.crop(pil_img=obj_label, crop_size=config.CROP_SIZE)
+        # obj_label = helper_utils.crop(pil_img=obj_label, crop_size=config.CROP_SIZE)
+
+        #####################
+        #####################
+
+        # test with predicted masks.
+        obj_label_addr = dataset_dir + 'pred_obj/' + image_num + '_pred.png'
+        obj_label = np.array(Image.open(obj_label_addr))
 
         #####################
         #####################
@@ -180,6 +185,7 @@ def main():
         # TODO: MATLAB EVAL
         class_ids_list = []
         pose_est_gt = []
+        pose_est_c = []
         pose_est_df_wo_refine = []
         pose_est_df_iterative = []
 
@@ -190,9 +196,6 @@ def main():
             if obj_id in label_obj_ids:
                 obj_color = affpose_dataset_utils.obj_color_map(obj_id)
                 print("Object: ID:{}, Name:{}".format(obj_id, obj_classes[int(obj_id) - 1]))
-
-                # TODO: MATLAB EVAL
-                class_ids_list.append(obj_id)
 
                 ##################################
                 # BBOX
@@ -227,10 +230,8 @@ def main():
                 target_r = meta['obj_rotation_' + np.str(obj_id_idx)]
                 target_t = meta['obj_translation_' + np.str(obj_id_idx)]
 
-                # # TODO: MATLAB EVAL
                 gt_quart = quaternion_from_matrix(target_r)
                 my_pred = np.append(np.array(gt_quart), np.array(target_t))
-                pose_est_gt.append(my_pred.tolist())
 
                 #######################################
                 # 6-DOF POSE
@@ -240,7 +241,7 @@ def main():
 
                 # projecting 3D model to 2D image
                 imgpts, jac = cv2.projectPoints(obj_cld * 1e3, target_r, target_t * 1e3, CAM_MAT, CAM_DIST)
-                cv2_gt_img = cv2.polylines(cv2_gt_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
+                # cv2_gt_img = cv2.polylines(cv2_gt_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
 
                 # draw pose
                 # modify YCB objects rotation matrix
@@ -322,16 +323,22 @@ def main():
                     pred_t = pred_t.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
                     points = cloud.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
 
+                    _how_max = how_max.detach().clone().cpu().numpy()[0]
                     print('\tidx:{}, pred c:{:.3f}, how_max: {:3f}'.format(index[0].item(),
                                                                            pred_c[0][which_max[0]].item(),
-                                                                           how_max.detach().clone().cpu().numpy()[0],
+                                                                           _how_max,
                                                                            ))
 
                     my_r = pred_r[0][which_max[0]].view(-1).cpu().data.numpy()
                     my_t = (points + pred_t)[which_max[0]].view(-1).cpu().data.numpy()
                     my_pred = np.append(my_r, my_t)
+
                     # TODO: MATLAB EVAL
-                    pose_est_df_wo_refine.append(my_pred.tolist())
+                    if _how_max > config.PRED_C_THRESHOLD:
+                        class_ids_list.append(obj_id)
+                        pose_est_gt.append(my_pred.tolist())
+                        pose_est_c.append(_how_max)
+                        pose_est_df_wo_refine.append(my_pred.tolist())
 
                     ############################
                     # Error Metrics
@@ -402,7 +409,8 @@ def main():
                         print("\tADD-S: {:.2f} [cm]".format(ADD_S * 100))
 
                     # TODO: MATLAB EVAL
-                    pose_est_df_iterative.append(my_pred.tolist())
+                    if _how_max > config.PRED_C_THRESHOLD:
+                        pose_est_df_iterative.append(my_pred.tolist())
 
                     obj_r = quaternion_matrix(my_r)[0:3, 0:3]
                     obj_t = my_t
@@ -415,7 +423,7 @@ def main():
 
                     # projecting 3D model to 2D image
                     imgpts, jac = cv2.projectPoints(obj_cld * 1e3, obj_r, obj_t * 1e3, CAM_MAT, CAM_DIST)
-                    cv2_pred_img = cv2.polylines(cv2_pred_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
+                    # cv2_pred_img = cv2.polylines(cv2_pred_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
 
                     # modify YCB objects rotation matrix
                     _obj_r = affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, obj_r.copy())
@@ -467,6 +475,7 @@ def main():
                 except ZeroDivisionError: # ZeroDivisionError
                     print("DenseFusion Detector Lost keyframe ..")
                     # TODO: MATLAB EVAL
+                    pose_est_c.append(0)
                     pose_est_df_wo_refine.append([0.0 for i in range(7)])
                     pose_est_df_iterative.append([0.0 for i in range(7)])
 
@@ -483,12 +492,14 @@ def main():
         # TODO: MATLAB EVAL
         ############################
 
-        scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_GT, '%04d' % image_idx),
+        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_GT, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_gt})
-        scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
-                     {"class_ids": class_ids_list, 'poses': pose_est_df_wo_refine})
-        scio.savemat('{0}/{1}.mat'.format(config.EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
-                     {"class_ids": class_ids_list, 'poses': pose_est_df_iterative})
+        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
+                     {"class_ids": class_ids_list,
+                      'confidence': pose_est_c, 'poses': pose_est_df_wo_refine})
+        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
+                     {"class_ids": class_ids_list,
+                      'confidence': pose_est_c, 'poses': pose_est_df_iterative})
 
         print("*** Finished {0}/{1} keyframes ***\n".format(image_idx + 1, len(image_files)))
 
