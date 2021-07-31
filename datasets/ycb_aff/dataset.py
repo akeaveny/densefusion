@@ -1,5 +1,6 @@
 import torch.utils.data as data
 from PIL import Image
+import cv2
 import os
 import os.path
 import torch
@@ -81,7 +82,7 @@ class PoseDataset(data.Dataset):
         self.trancolor = transforms.ColorJitter(0.2, 0.2, 0.2, 0.05)
         self.noise_img_loc = 0.0
         self.noise_img_scale = 7.0
-        self.minimum_num_pt = 50
+        self.minimum_num_pt = 25
         self.norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         self.symmetry_obj_idx = [12, 15, 18, 19, 20]
         self.num_pt_mesh_small = 500
@@ -147,7 +148,7 @@ class PoseDataset(data.Dataset):
             obj_part_id = obj_part_ids[np.random.randint(0, len(obj_part_ids))]
             obj_id = ycb_aff_dataset_utils.map_obj_part_ids_to_obj_id(obj_part_id)
             mask_depth = ma.getmaskarray(ma.masked_not_equal(depth, 0))
-            mask_label = ma.getmaskarray(ma.masked_equal(label, obj_id))
+            mask_label = ma.getmaskarray(ma.masked_equal(label, obj_part_id))
             mask = mask_label * mask_depth
             if len(mask.nonzero()[0]) > self.minimum_num_pt:
                 break
@@ -190,6 +191,13 @@ class PoseDataset(data.Dataset):
 
         if self.list[index][:8] == 'data_syn':
             img_masked = img_masked + np.random.normal(loc=0.0, scale=7.0, size=img_masked.shape)
+
+        # TODO (visualize): Mask Augmentation
+        # _img_masked = np.array(img_masked).copy()
+        # cv2.imshow('img_masked', cv2.cvtColor(_img_masked, cv2.COLOR_BGR2RGB))
+        # color_mask = ycb_aff_dataset_utils.colorize_obj_mask(label)
+        # cv2.imshow('color_mask', cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))
+        # cv2.waitKey(0)
 
         add_t = np.array([random.uniform(-self.noise_trans, self.noise_trans) for i in range(3)])
 

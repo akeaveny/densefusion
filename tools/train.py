@@ -129,8 +129,8 @@ def main():
     elif opt.dataset == 'arl_affpose':
         opt.num_objects = 11
         opt.num_points = 1000
-        opt.outf = 'trained_models/arl_affpose_obj/real_and_syn_v2'
-        opt.log_dir = 'experiments/logs/arl_affpose_obj/real_and_syn_v2'
+        opt.outf = 'trained_models/arl_affpose_obj/real_and_syn_v3'
+        opt.log_dir = 'experiments/logs/arl_affpose_obj/real_and_syn_v3'
         output_results = 'check_arl_affpose.txt'
         opt.repeat_epoch = 1
 
@@ -148,6 +148,9 @@ def main():
         opt.log_dir = 'experiments/logs/arl_affpose_aff/real_and_syn_v2'
         output_results = 'check_arl_affpose.txt'
         opt.repeat_epoch = 1
+
+        opt.start_epoch = 2
+        opt.resume_posenet = 'pose_model_1_0.05418891796214043.pth'
 
     else:
         assert 'Unknown dataset'

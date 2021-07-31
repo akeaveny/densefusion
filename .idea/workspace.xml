@@ -3,23 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="fef67ee5-702b-4651-9b94-1d0cb15fd781" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_config/data_lists/test_list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_config/data_lists/test_list.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_config/data_lists/train_list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_config/data_lists/train_list.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_config/data_lists/val_list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_config/data_lists/val_list.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_obj.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_obj.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datasets/ycb_aff/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ycb_aff/dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/ARLAffPose/cfg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/evaluate_poses_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/globals.m" beforeDir="false" afterPath="$PROJECT_DIR$/tools/ARLAffPose/matlab/globals.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/plot_accuracy_keyframe.m" beforeDir="false" afterPath="$PROJECT_DIR$/tools/ARLAffPose/matlab/plot_accuracy_keyframe.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/evaluate_poses_keyframe_aff.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/ARLAffPose/scripts/evaluate_poses_keyframe_aff.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/evaluate_poses_keyframe_obj.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/ARLAffPose/scripts/evaluate_poses_keyframe_obj.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/format_data_for_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/ARLAffPose/scripts/format_data_for_training.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/cfg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/matlab/results_keyframe.mat" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/matlab/results_keyframe.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/evaluate_poses_keyframe.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/scripts/evaluate_poses_keyframe.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/utils/dataset/ycb_dataset_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/YCB/utils/dataset/ycb_dataset_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -100,6 +87,9 @@
       <module name="DenseFusion" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/MaskRCNNTorch/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
       <option name="IS_MODULE_SDK" value="false" />
@@ -241,7 +231,12 @@
       <workItem from="1626759660026" duration="2917000" />
       <workItem from="1627061002480" duration="3088000" />
       <workItem from="1627317799437" duration="16013000" />
-      <workItem from="1627447627447" duration="740000" />
+      <workItem from="1627447627447" duration="1092000" />
+      <workItem from="1627489268819" duration="2026000" />
+      <workItem from="1627521015065" duration="1158000" />
+      <workItem from="1627529352517" duration="680000" />
+      <workItem from="1627607550203" duration="56000" />
+      <workItem from="1627661965177" duration="2232000" />
     </task>
     <servers />
   </component>
@@ -277,15 +272,15 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/DenseFusion$evaluate_poses_keyframe.coverage" NAME="evaluate_poses_keyframe Coverage Results" MODIFIED="1621544855997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_obj_poses.coverage" NAME="load_gt_obj_poses Coverage Results" MODIFIED="1624811884034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$format_data_for_training.coverage" NAME="format_data_for_training Coverage Results" MODIFIED="1624990995178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_obj_part_poses.coverage" NAME="load_gt_obj_part_poses Coverage Results" MODIFIED="1624811909442" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_poses.coverage" NAME="load_gt_poses Coverage Results" MODIFIED="1624535317151" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$train.coverage" NAME="train Coverage Results" MODIFIED="1624886874297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
-    <SUITE FILE_PATH="coverage/DenseFusion$evaluate_poses_keyframe_obj.coverage" NAME="evaluate_poses_keyframe Coverage Results" MODIFIED="1624819596354" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLVicon/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$ycb_aff_load_images.coverage" NAME="ycb_aff_load_images Coverage Results" MODIFIED="1621115523660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB_Aff/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$ycb_aff_load_gt_poses.coverage" NAME="ycb_aff_load_gt_poses Coverage Results" MODIFIED="1624906203254" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB_Aff/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$check_confidence_scores.coverage" NAME="check_confidence_scores Coverage Results" MODIFIED="1627356767583" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$ycb_aff_load_gt_poses.coverage" NAME="ycb_aff_load_gt_poses Coverage Results" MODIFIED="1624906203254" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB_Aff/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_obj_poses.coverage" NAME="load_gt_obj_poses Coverage Results" MODIFIED="1624811884034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_poses.coverage" NAME="load_gt_poses Coverage Results" MODIFIED="1624535317151" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$evaluate_poses_keyframe_obj.coverage" NAME="evaluate_poses_keyframe Coverage Results" MODIFIED="1624819596354" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLVicon/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$evaluate_poses_keyframe.coverage" NAME="evaluate_poses_keyframe Coverage Results" MODIFIED="1621544855997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_obj_part_poses.coverage" NAME="load_gt_obj_part_poses Coverage Results" MODIFIED="1624811909442" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$ycb_aff_load_images.coverage" NAME="ycb_aff_load_images Coverage Results" MODIFIED="1621115523660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB_Aff/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$train.coverage" NAME="train Coverage Results" MODIFIED="1624886874297" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
   </component>
 </project>

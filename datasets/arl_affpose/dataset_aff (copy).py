@@ -40,11 +40,11 @@ class PoseDataset(data.Dataset):
         if mode == 'train':
             self.path = config.TRAIN_FILE
         elif mode == 'test':
-            self.path = config.TEST_FILE
+            self.path = config.VAL_FILE
         print(self.path)
 
         self.num_pt = num_pt
-        self.root = root
+        self.root = config.ROOT_DATA_PATH
         self.add_noise = add_noise
         self.noise_trans = noise_trans
 
@@ -54,7 +54,7 @@ class PoseDataset(data.Dataset):
 
         self.list = []
         self.real = []
-        # self.syn = []
+        self.syn = []
         input_file = open(self.path)
         while 1:
             input_line = input_file.readline()
@@ -62,18 +62,21 @@ class PoseDataset(data.Dataset):
                 break
             if input_line[-1:] == '\n':
                 input_line = input_line[:-1]
-            self.real.append(input_line)
-            # self.syn.append(input_line)
+            _is_syn = input_line.split(self.root)[1].split('/')[0] == 'Syn'
+            if _is_syn:
+                self.syn.append(input_line)
+            else:
+                self.real.append(input_line)
             self.list.append(input_line)
         input_file.close()
 
         self.length = len(self.list)
         self.len_real = len(self.real)
-        # self.len_syn = len(self.syn)
+        self.len_syn = len(self.syn)
 
         print("Loaded: ", len(self.list))
         print("Real Images: ", len(self.real))
-        # print("SYN Images: ", len(self.syn))
+        print("SYN Images: ", len(self.syn))
 
         ##################################
         # IMGAUG
@@ -90,51 +93,39 @@ class PoseDataset(data.Dataset):
         ##################################
 
         self.symmetry_obj_idx = config.SYM_OBJECTS
-        self.minimum_num_pt = config.NUM_PT_MIN
+        self.minimum_num_pt = 25 # config.NUM_PT_MIN
         self.num_pt_mesh_small = config.NUM_PT_MESH_SMALL
         self.num_pt_mesh_large = config.NUM_PT_MESH_LARGE
         self.refine = refine
+        self.front_num = config.FRONT_NUM
 
         self.cld, self.cld_obj_centered, self.cld_obj_part_centered, \
         self.obj_classes, self.obj_part_classes, \
         self.obj_ids, self.obj_part_ids = load_obj_ply_files()
 
-        #     cld, cld_obj_centered, cld_obj_part_centered, \
-        #     obj_classes, obj_part_classes, \
-        #     train_obj_ids, train_obj_part_ids = load_obj_ply_files()
-
         print("************** LOADED DATASET! **************")
 
     def __getitem__(self, index):
-        # print("index:", index)
-        # print("Real:", self.real[index])
 
         ##################################
         # init
         ##################################
 
-        image_addr = self.real[index].rstrip()
+        image_addr = self.list[index].rstrip()
         dataset_dir = image_addr.split('rgb/')[0]
         image_num = image_addr.split('rgb/')[-1]
 
         img_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
         depth_addr = dataset_dir + 'depth/' + image_num + config.DEPTH_EXT
-        # obj_label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
         obj_part_label_addr = dataset_dir + 'masks_obj_part/' + image_num + config.OBJ_PART_LABEL_EXT
         meta_addr = dataset_dir + 'meta/' + image_num + config.META_EXT
 
-        img = Image.open(img_addr)
+        img = np.array(self.trancolor(Image.open(img_addr))) if self.add_noise else np.array(Image.open(img_addr))
         depth = np.array(Image.open(depth_addr))
         obj_part_label = np.array(Image.open(obj_part_label_addr))
         meta = scio.loadmat(meta_addr)
 
-        ##################################
-        # IMGAUG
-        ##################################
-
-        if self.add_noise:
-            img = self.trancolor(img)
-        img = np.array(img)
+        _is_syn = image_addr.split(self.root)[1].split('/')[0] == 'Syn'
 
         ##################################
         ### RESIZE & CROP
@@ -147,6 +138,45 @@ class PoseDataset(data.Dataset):
         img = helper_utils.crop(pil_img=img, crop_size=config.CROP_SIZE, is_img=True)
         obj_part_label = helper_utils.crop(pil_img=obj_part_label, crop_size=config.CROP_SIZE)
         depth = helper_utils.crop(pil_img=depth, crop_size=config.CROP_SIZE)
+
+        ####################
+        # Add Noise
+        ####################
+
+        mask_back = ma.getmaskarray(ma.masked_equal(obj_part_label, 0))
+
+        add_front = False
+        if self.add_noise:
+            for k in range(5):
+                # selecting random images
+                image_addr = random.choice(self.syn).rstrip()
+                dataset_dir = image_addr.split('rgb/')[0]
+                image_num = image_addr.split('rgb/')[-1]
+                _img_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
+                _label_addr = dataset_dir + 'masks_obj_part/' + image_num + config.OBJ_PART_LABEL_EXT
+                # loading random images
+                front = np.array(self.trancolor(Image.open(_img_addr).convert("RGB")))
+                front = cv2.resize(front, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+                front = helper_utils.crop(pil_img=front, crop_size=config.CROP_SIZE, is_img=True)
+                front = np.transpose(front, (2, 0, 1))
+                f_label = np.array(Image.open(_label_addr))
+                f_label = cv2.resize(f_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+                f_label = helper_utils.crop(pil_img=f_label, crop_size=config.CROP_SIZE)
+                front_label = np.unique(f_label).tolist()[1:]
+                if len(front_label) < self.front_num:
+                    continue
+                front_label = random.sample(front_label, self.front_num)
+                for f_i in front_label:
+                    mk = ma.getmaskarray(ma.masked_not_equal(f_label, f_i))
+                    if f_i == front_label[0]:
+                        mask_front = mk
+                    else:
+                        mask_front = mask_front * mk
+                t_label = obj_part_label * mask_front
+                if len(t_label.nonzero()[0]) > 1000:
+                    obj_part_label = t_label
+                    add_front = True
+                    break
 
         ##################################
         # select random obj id
@@ -164,59 +194,22 @@ class PoseDataset(data.Dataset):
             obj_id = affpose_dataset_utils.map_obj_part_id_to_obj_id(obj_part_id)
             mask_label = ma.getmaskarray(ma.masked_equal(obj_part_label, obj_part_id))
             mask_rgb = np.repeat(mask_label, 3).reshape(obj_part_label.shape[0], obj_part_label.shape[1], -1) * img
+            # mask_depth = mask_label * ma.getmaskarray(ma.masked_not_equal(depth, 0))
             mask_depth = mask_label * depth
             # WE NEED AT LEAST minimum_num_pt ON DEPTH IMAGE
             # print("Obj ID:{}, Depth Image Pointcloud:{}".format(obj_part_id, len(mask_depth.nonzero()[0])))
             if len(mask_depth.nonzero()[0]) > self.minimum_num_pt:
                 break
 
-        # print("self: ", self.obj_part_ids)
-        # print("label: ", label_obj_part_ids)
-        # print("obj_id: ", obj_id)
-        # print("obj_part_id: ", obj_part_id)
-
         # # todo (visualize): RGB ROIs
-        # cv2_img = helper_utils.convert_16_bit_depth_to_8_bit(mask_depth.copy())
-        # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_depth.png'
-        # cv2.imwrite(img_name, cv2_img)
-        # # todo (visualize): Depth ROIs
         # cv2_img = mask_rgb.copy()
         # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_rgb.png'
         # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
-
-        ##################################
-        # META
-        ##################################
-
-        self.xmap = config.XMAP
-        self.ymap = config.YMAP
-
-        cam_scale = config.CAMERA_SCALE # 1000 for depth [mm] to [m]
-        cam_cx = meta['cam_cx'].flatten()[0] * config.X_SCALE
-        cam_cy = meta['cam_cy'].flatten()[0] * config.Y_SCALE
-        cam_fx = meta['cam_fx'].flatten()[0]
-        cam_fy = meta['cam_fy'].flatten()[0]
-
-        cam_mat = np.array([[cam_fx, 0, cam_cx], [0, cam_fy, cam_cy], [0, 0, 1]])
-        cam_distortion = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
-
-        ##################################
-        # GT POSE
-        ##################################
-
-        obj_part_id_idx = str(1000 + obj_part_id)[1:]
-
-        obj_part_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
-        obj_part_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]    # in [m]
-
-        # # todo (visualize): gt pose
-        # cv2_img = np.array(Image.open(img_addr))
-        # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
-        # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
-        # imgpts, jac = cv2.projectPoints(self.cld_obj_part_centered[obj_part_id] * 1e3, obj_part_r, obj_part_t * 1e3, cam_mat, cam_distortion)
-        # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
-        # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt.png'
-        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
+        # # todo (visualize): DEPTH ROIs
+        # cv2_img = helper_utils.convert_16_bit_depth_to_8_bit(mask_depth.copy())
+        # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_depth.png'
+        # cv2.imwrite(img_name, cv2_img)
+        # # cv2.imwrite(img_name, cv2.applyColorMap(cv2_img, cv2.COLORMAP_JET))
 
         ##################################
         # BBOX
@@ -234,6 +227,87 @@ class PoseDataset(data.Dataset):
         # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
 
         ##################################
+        # IMGAUG
+        ##################################
+
+        img = np.transpose(np.array(img)[:, :, :3], (2, 0, 1))[:, y1:y2, x1:x2]
+
+        if _is_syn:
+            is_blank_background = False
+            while not is_blank_background:
+                # selecting random images
+                image_addr = random.choice(self.real).rstrip()
+                dataset_dir = image_addr.split('rgb/')[0]
+                image_num = image_addr.split('rgb/')[-1]
+                _img_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
+                _label_addr = dataset_dir + 'masks_obj_part/' + image_num + config.OBJ_PART_LABEL_EXT
+                # loading random images
+                back = np.array(self.trancolor(Image.open(_img_addr).convert("RGB")))
+                back = cv2.resize(back, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+                back = helper_utils.crop(pil_img=back, crop_size=config.CROP_SIZE, is_img=True)
+                back = np.transpose(back, (2, 0, 1))[:, y1:y2, x1:x2]
+                back_label = np.array(Image.open(_label_addr))[y1:y2, x1:x2]
+                back_label = cv2.resize(back_label, config.RESIZE, interpolation=cv2.INTER_NEAREST)
+                back_label = helper_utils.crop(pil_img=back_label, crop_size=config.CROP_SIZE)
+                back_obj_ids = np.unique(np.array(back_label)).tolist()
+                # print('is_blank_background: ', is_blank_background, ', back_obj_ids: ', back_obj_ids)
+                if len(back_obj_ids) == 1:
+                    is_blank_background = True
+                    # print('is_blank_background: ', is_blank_background, ', back_obj_ids: ', back_obj_ids)
+            img_masked = back * mask_back[y1:y2, x1:x2] + np.transpose(mask_rgb, (2, 0, 1))[:, y1:y2, x1:x2]
+        else:
+            img_masked = img
+
+        if self.add_noise and add_front:
+            img_masked = img_masked * mask_front[y1:y2, x1:x2] + front[:, y1:y2, x1:x2] * ~(mask_front[y1:y2, x1:x2])
+
+        if _is_syn:
+            img_masked = img_masked + np.random.normal(loc=self.noise_img_loc, scale=self.noise_img_scale,
+                                                       size=img_masked.shape)
+
+        # # todo (visualize): RGB ROIs
+        # cv2_img = np.transpose(img_masked, (1, 2, 0)).astype(np.float32).copy()
+        # img_name = config.TEST_DENSEFUSION_FOLDER + 'imgaug_img.png'
+        # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
+        # cv2_img = mask_depth[y1:y2, x1:x2].astype(np.int32).copy()
+        # img_name = config.TEST_DENSEFUSION_FOLDER + 'imgaug_depth.png'
+        # cv2.imwrite(img_name, cv2_img)
+
+        ##################################
+        # META
+        ##################################
+
+        self.xmap = config.XMAP
+        self.ymap = config.YMAP
+
+        cam_scale = config.CAMERA_SCALE  # 1000 for depth [mm] to [m]
+        cam_cx = meta['cam_cx'].flatten()[0] * config.X_SCALE
+        cam_cy = meta['cam_cy'].flatten()[0] * config.Y_SCALE
+        cam_fx = meta['cam_fx'].flatten()[0]
+        cam_fy = meta['cam_fy'].flatten()[0]
+
+        cam_mat = np.array([[cam_fx, 0, cam_cx], [0, cam_fy, cam_cy], [0, 0, 1]])
+        cam_distortion = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+
+        ##################################
+        # GT POSE
+        ##################################
+
+        obj_part_id_idx = str(1000 + obj_part_id)[1:]
+
+        obj_part_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
+        obj_part_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]  # in [m]
+
+        # # todo (visualize): gt pose
+        # cv2_img = np.array(Image.open(img_addr))
+        # cv2_img = cv2.resize(cv2_img, config.RESIZE, interpolation=cv2.INTER_CUBIC)
+        # cv2_img = helper_utils.crop(pil_img=cv2_img, crop_size=config.CROP_SIZE, is_img=True)
+        # imgpts, jac = cv2.projectPoints(self.cld_obj_part_centered[obj_part_id] * 1e3, obj_part_r, obj_part_t * 1e3, cam_mat, cam_distortion)
+        # cv2_img = cv2.polylines(np.array(cv2_img), helper_utils.sort_imgpts(imgpts), True, (0, 255, 255))
+        # temp_folder = config.TEST_DENSEFUSION_FOLDER + 'pose_gt.png'
+        # cv2.imwrite(temp_folder, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
+
+        ##################################
         # Select Region of Interest
         ##################################
 
@@ -247,7 +321,6 @@ class PoseDataset(data.Dataset):
         else:
             choose = np.pad(choose, (0, self.num_pt - len(choose)), 'wrap')
 
-        img_masked = np.transpose(np.array(img)[:, :, :3], (2, 0, 1))[:, y1:y2, x1:x2]
         depth_masked = depth[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)
         xmap_masked = self.xmap[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)
         ymap_masked = self.ymap[y1:y2, x1:x2].flatten()[choose][:, np.newaxis].astype(np.float32)

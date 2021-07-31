@@ -483,10 +483,10 @@ def main():
         # PLOTTING
         #####################
 
-        cv2.imshow('gt_pose', cv2.cvtColor(cv2_gt_img, cv2.COLOR_BGR2RGB))
-        cv2.imshow('pred_pose', cv2.cvtColor(cv2_pred_img, cv2.COLOR_BGR2RGB))
-
-        cv2.waitKey(1)
+        # cv2.imshow('gt_pose', cv2.cvtColor(cv2_gt_img, cv2.COLOR_BGR2RGB))
+        # cv2.imshow('pred_pose', cv2.cvtColor(cv2_pred_img, cv2.COLOR_BGR2RGB))
+        #
+        # cv2.waitKey(1)
 
         ############################
         # TODO: MATLAB EVAL

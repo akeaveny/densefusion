@@ -93,7 +93,7 @@ class PoseDataset(data.Dataset):
         ##################################
 
         self.symmetry_obj_idx = config.SYM_OBJECTS
-        self.minimum_num_pt = config.NUM_PT_MIN
+        self.minimum_num_pt = 25 # config.NUM_PT_MIN
         self.num_pt_mesh_small = config.NUM_PT_MESH_SMALL
         self.num_pt_mesh_large = config.NUM_PT_MESH_LARGE
         self.refine = refine

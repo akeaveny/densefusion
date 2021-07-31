@@ -21,10 +21,15 @@ VAL_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/val_list
 TEST_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/test_list.txt'
 
 # Trained models
-PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_model_33_0.01290217461439487.pth'
-PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_refine_model_108_0.008444265270099394.pth'
-PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_model_22_0.01227916889064539.pth'
-PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_refine_model_119_0.00866128712542505.pth'
+# PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_model_33_0.01290217461439487.pth'
+# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_refine_model_108_0.008444265270099394.pth'
+PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v2/pose_model_18_0.012826319938234909.pth'
+PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v2/pose_refine_model_40_0.010957605547299796.pth'
+# PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_model_22_0.01227916889064539.pth'
+# PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_refine_model_119_0.00866128712542505.pth'
+PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v2/pose_model_14_0.012333551328883181.pth'
+PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v2/pose_refine_model_27_0.010844891724854883.pth'
+
 
 # MATLAB
 OBJ_EVAL_FOLDER_GT           = ROOT_PATH + 'tools/ARLAffPose/matlab/results/obj/gt'
