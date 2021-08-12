@@ -1,8 +1,5 @@
 import numpy as np
 
-import torch
-import torchvision.transforms as transforms
-
 #######################################
 # DenseFusion
 #######################################
@@ -13,23 +10,22 @@ CLASSES_FILE   = ROOT_PATH + 'datasets/arl_affpose/dataset_config/classes.txt'
 CLASS_IDS_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/classes_ids.txt'
 OBJ_PART_CLASSES_FILE   = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes.txt'
 OBJ_PART_CLASS_IDS_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_ids.txt'
-OBJ_PART_CLASSES_FILE_TRAIN   = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_train.txt'
-OBJ_PART_CLASS_IDS_FILE_TRAIN = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_ids_train.txt'
+OBJ_PART_CLASSES_FILE_TRAIN   = OBJ_PART_CLASSES_FILE # ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_train.txt'
+OBJ_PART_CLASS_IDS_FILE_TRAIN = OBJ_PART_CLASS_IDS_FILE # ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_ids_train.txt'
 
 TRAIN_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/train_list.txt'
 VAL_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/val_list.txt'
 TEST_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/test_list.txt'
 
 # Trained models
-# PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_model_33_0.01290217461439487.pth'
-# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn/pose_refine_model_108_0.008444265270099394.pth'
-PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v2/pose_model_18_0.012826319938234909.pth'
-PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v2/pose_refine_model_40_0.010957605547299796.pth'
-# PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_model_22_0.01227916889064539.pth'
-# PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn/pose_refine_model_119_0.00866128712542505.pth'
-PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v2/pose_model_14_0.012333551328883181.pth'
-PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v2/pose_refine_model_27_0.010844891724854883.pth'
-
+# PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v2/pose_model_18_0.012826319938234909.pth'
+# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v2/pose_refine_model_43_0.01054153353055539.pth'
+PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_model_18_0.012060843364452012.pth'
+PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_refine_model_37_0.010551110985974044.pth'
+# PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v2/pose_model_14_0.012333551328883181.pth'
+# PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v2/pose_refine_model_27_0.010844891724854883.pth'
+PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v3/pose_model_16_0.012952367823778796.pth'
+PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v3/pose_refine_model_55_0.010159908071935377.pth'
 
 # MATLAB
 OBJ_EVAL_FOLDER_GT           = ROOT_PATH + 'tools/ARLAffPose/matlab/results/obj/gt'
@@ -46,7 +42,7 @@ AFF_EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'tools/ARLAffPose/matlab/results/aff/
 ROOT_DATA_PATH = '/data/Akeaveny/Datasets/ARLAffPose/'
 TEST_DENSEFUSION_FOLDER = ROOT_DATA_PATH + 'test_densefusion/'
 
-SELECT_EVERY_ITH_FRAME = 3 # similar to YCB-Video Dataset
+SELECT_EVERY_ITH_FRAME = 3  # similar to YCB-Video Dataset
 
 # REAL
 DATA_DIRECTORY       = ROOT_DATA_PATH + 'Real/'
@@ -118,7 +114,8 @@ NUM_IMAGES = 90000
 NUM_TRAIN  = NUM_IMAGES
 NUM_TEST    = 1500
 
-NUM_OBJECTS = 11 # 11 or 25
+NUM_OBJECTS = 11
+NUM_OBJECTS_PARTS = 25
 SYM_OBJECTS = [1, 4, 7, 11]
 
 # REAL

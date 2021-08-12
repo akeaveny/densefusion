@@ -72,12 +72,12 @@ def main():
     ## DENSEFUSION
     ##################################
 
-    estimator = PoseNet(num_points=config.NUM_PT, num_obj=config.NUM_OBJECTS)
+    estimator = PoseNet(num_points=config.NUM_PT, num_obj=config.NUM_OBJECTS_PARTS)
     estimator.cuda()
     estimator.load_state_dict(torch.load(config.PRE_TRAINED_AFF_MODEL))
     estimator.eval()
 
-    refiner = PoseRefineNet(num_points=config.NUM_PT, num_obj=config.NUM_OBJECTS)
+    refiner = PoseRefineNet(num_points=config.NUM_PT, num_obj=config.NUM_OBJECTS_PARTS)
     refiner.cuda()
     refiner.load_state_dict(torch.load(config.PRE_TRAINED_AFF_REFINE_MODEL))
     refiner.eval()
@@ -99,13 +99,6 @@ def main():
     image_files = image_files.readlines()
     print("Loaded Files: {}".format(len(image_files)))
 
-    # # select random test images
-    # np.random.seed(0)
-    # num_files = len(image_files)
-    # random_idx = np.random.choice(np.arange(0, int(len(image_files)), 1), size=int(num_files), replace=False)
-    # image_files = np.array(image_files)[random_idx]
-    # print("Chosen Files: {}".format(len(image_files)))
-
     ##################################
     ##################################
 
@@ -124,7 +117,7 @@ def main():
         rgb_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
         depth_addr = dataset_dir + 'depth/' + image_num + config.DEPTH_EXT
         obj_label_addr = dataset_dir + 'masks_obj/' + image_num + config.OBJ_LABEL_EXT
-        obj_part_label_addr = dataset_dir + 'masks_obj_part/' + image_num + config.OBJ_PART_LABEL_EXT
+        # obj_part_label_addr = dataset_dir + 'masks_obj_part/' + image_num + config.OBJ_PART_LABEL_EXT
         aff_label_addr = dataset_dir + 'masks_aff/' + image_num + config.AFF_LABEL_EXT
 
         rgb = np.array(Image.open(rgb_addr))[..., :3]
@@ -187,13 +180,11 @@ def main():
         CAM_MAT = np.array([[CAM_FX, 0, CAM_CX], [0, CAM_FY, CAM_CY], [0, 0, 1]])
         CAM_DIST = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
 
-
         ##################################
         ##################################
 
         obj_ids = np.array(meta['object_class_ids']).flatten()
         label_obj_ids = np.unique(obj_label)[1:]
-
         label_obj_part_ids = np.unique(obj_part_label)[1:]
 
         # TODO: MATLAB EVAL
@@ -302,7 +293,7 @@ def main():
                             ##################################
 
                             choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
-                            # print(f'choose:{len(choose)}')
+                            print(f'\tmask: {np.count_nonzero(mask_label)}, choose:{len(choose)}')
 
                             if len(choose) > config.NUM_PT:
                                 c_mask = np.zeros(len(choose), dtype=int)
@@ -338,7 +329,7 @@ def main():
                             cloud = torch.from_numpy(cloud.astype(np.float32))
                             choose = torch.LongTensor(choose.astype(np.int32))
                             img_masked = img_norm(torch.from_numpy(img_masked.astype(np.float32)))
-                            index = torch.LongTensor([obj_id - 1]) # TODO: obj part or obj_part_id
+                            index = torch.LongTensor([obj_part_id - 1]) # TODO: obj part or obj_part_id
 
                             cloud = Variable(cloud).cuda()
                             choose = Variable(choose).cuda()
@@ -371,7 +362,7 @@ def main():
 
                             # TODO: MATLAB EVAL
                             if _how_max > config.PRED_C_THRESHOLD:
-                                class_ids_list.append(obj_id)
+                                class_ids_list.append(obj_part_id)
                                 pose_est_c.append(_how_max)
                                 pose_est_gt.append(my_pred.tolist())
                                 pose_est_df_wo_refine.append(my_pred.tolist())

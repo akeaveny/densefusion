@@ -47,8 +47,8 @@ from datasets.arl_affpose.dataset_aff import PoseDataset as PoseDataset_arl_affp
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default = '', help='ycb or linemod')
 parser.add_argument('--dataset_root', type=str, default ='', help='dataset root dir (''YCB_Video_Dataset'' or ''Linemod_preprocessed'')')
-parser.add_argument('--batch_size', type=int, default = 8, help='batch size')
-parser.add_argument('--workers', type=int, default = 8, help='number of data loading workers')
+parser.add_argument('--batch_size', type=int, default = 1, help='batch size')
+parser.add_argument('--workers', type=int, default = 1, help='number of data loading workers')
 parser.add_argument('--lr', default=0.0001, help='learning rate')
 parser.add_argument('--lr_rate', default=0.3, help='learning rate decay rate')
 parser.add_argument('--w', default=0.015, help='learning rate')
@@ -109,9 +109,6 @@ def main():
         output_results = 'check_ycb.txt'
         opt.repeat_epoch = 1 #number of repeat times for one epoch training
 
-        opt.start_epoch = 14
-        opt.resume_posenet = 'pose_model_13_0.017310122700588744.pth'
-
     elif opt.dataset == 'elevator':
         opt.num_objects = 1
         opt.num_points = 250
@@ -137,20 +134,24 @@ def main():
         opt.w = 0.017
         opt.iteration = 4
 
-        # opt.start_epoch = 105
-        # opt.resume_posenet = 'pose_model_22_0.01227916889064539.pth'
-        # opt.resume_refinenet = 'pose_refine_model_104_0.009031141290031748.pth'
+        opt.start_epoch = 26
+        opt.resume_posenet = 'pose_model_18_0.012060843364452012.pth'
+        opt.resume_refinenet = 'pose_refine_model_25_0.011975645643366726.pth'
 
     elif opt.dataset == 'arl_affpose_aff':
-        opt.num_objects = 11
+        opt.num_objects = 25 # 11
         opt.num_points = 1000
-        opt.outf = 'trained_models/arl_affpose_aff/real_and_syn_v2'
-        opt.log_dir = 'experiments/logs/arl_affpose_aff/real_and_syn_v2'
+        opt.outf = 'trained_models/arl_affpose_aff/real_and_syn_v3'
+        opt.log_dir = 'experiments/logs/arl_affpose_aff/real_and_syn_v3'
         output_results = 'check_arl_affpose.txt'
         opt.repeat_epoch = 1
 
-        opt.start_epoch = 2
-        opt.resume_posenet = 'pose_model_1_0.05418891796214043.pth'
+        opt.w = 0.017
+        opt.iteration = 4
+
+        opt.start_epoch = 40
+        opt.resume_posenet = 'pose_model_16_0.012952367823778796.pth'
+        opt.resume_refinenet = 'pose_refine_model_39_0.01199668780097741.pth'
 
     else:
         assert 'Unknown dataset'

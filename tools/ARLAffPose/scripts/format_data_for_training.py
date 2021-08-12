@@ -22,7 +22,7 @@ real_gt_label_addr = config.DATA_DIRECTORY_TRAIN + 'rgb/' + '*' + config.RGB_EXT
 real_files = np.sort(np.array(glob.glob(real_gt_label_addr)))
 # TODO: selecting every ith images.
 total_idx = np.arange(0, len(real_files), config.SELECT_EVERY_ITH_FRAME)
-real_files = np.array(real_files)[total_idx]
+real_files = np.sort(np.array(real_files)[total_idx])
 print('Loaded {} Images'.format(len(real_files)))
 
 # syn
@@ -30,10 +30,10 @@ syn_gt_label_addr = config.SYN_DATA_DIRECTORY_TRAIN + 'rgb/' + '*' + config.RGB_
 syn_train_files = np.sort(np.array(glob.glob(syn_gt_label_addr)))
 syn_gt_label_addr = config.SYN_DATA_DIRECTORY_VAL + 'rgb/' + '*' + config.RGB_EXT
 syn_val_files = np.sort(np.array(glob.glob(syn_gt_label_addr)))
-syn_files = np.array(np.hstack([syn_train_files, syn_val_files]))
+syn_files = np.sort(np.array(np.hstack([syn_train_files, syn_val_files])))
 # TODO: selecting every ith images.
 total_idx = np.arange(0, len(syn_files), config.SELECT_EVERY_ITH_FRAME*2)
-syn_files = np.array(syn_files)[total_idx]
+syn_files = np.sort(np.array(syn_files)[total_idx])
 print('Loaded {} Images'.format(len(syn_files)))
 
 # combined
@@ -57,9 +57,9 @@ print('\n-------- VAL --------')
 # real
 real_gt_label_addr = config.DATA_DIRECTORY_VAL + 'rgb/' + '*' + config.RGB_EXT
 real_files = np.sort(np.array(glob.glob(real_gt_label_addr)))
-# selecting every ith images.
+# TODO: selecting every ith images.
 total_idx = np.arange(0, len(real_files), config.SELECT_EVERY_ITH_FRAME*2)
-files = np.array(real_files)[total_idx]
+files = np.sort(np.array(real_files)[total_idx])
 print("Chosen Val: {}".format(len(files)))
 
 f_val = open(config.VAL_FILE, 'w')

@@ -109,6 +109,8 @@ class PoseDataset(data.Dataset):
 
         mask_back = ma.getmaskarray(ma.masked_equal(label, 0))
 
+        print('label: ', np.unique(label)[1:])
+
         add_front = False
         if self.add_noise:
             for k in range(5):
@@ -132,6 +134,10 @@ class PoseDataset(data.Dataset):
                     add_front = True
                     break
 
+        print('noisy label: ', np.unique(label)[1:])
+        if self.add_noise:
+            print('addr: {0}/{1}-obj_part_label.png'.format(self.root, seed))
+
         obj_ids = meta['cls_indexes'].flatten().astype(np.int32)
 
         obj_part_ids = []
@@ -141,8 +147,8 @@ class PoseDataset(data.Dataset):
                 if _obj_part_id in self.TRAIN_OBJ_PART_IDS:
                     obj_part_ids.append(_obj_part_id)
 
-        # print('label: ', np.unique(label)[1:])
-        # print('obj_part_ids: ', obj_part_ids)
+        print('obj_ids: ', obj_ids)
+        print('obj_part_ids: ', obj_part_ids)
 
         while 1:
             obj_part_id = obj_part_ids[np.random.randint(0, len(obj_part_ids))]
@@ -153,6 +159,9 @@ class PoseDataset(data.Dataset):
             if len(mask.nonzero()[0]) > self.minimum_num_pt:
                 break
 
+        print('obj_part_id: ', obj_part_id)
+        print('len(mask.nonzero()[0]): ', len(mask.nonzero()[0]))
+
         if self.add_noise:
             img = self.trancolor(img)
 
@@ -162,8 +171,8 @@ class PoseDataset(data.Dataset):
 
         obj_part_id_idx = str(1000 + obj_part_id)[1:]
 
-        target_r = meta['obj_part_rot_' + np.str(obj_part_id_idx)]
-        target_t = meta['obj_part_trans__' + np.str(obj_part_id_idx)]
+        target_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
+        target_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]
 
         # obj_part_bbox = meta['obj_part_bbox_' + np.str(obj_part_id_idx)].flatten()
         # x1, y1, x2, y2 = obj_part_bbox[0], obj_part_bbox[1], obj_part_bbox[2], obj_part_bbox[3]
