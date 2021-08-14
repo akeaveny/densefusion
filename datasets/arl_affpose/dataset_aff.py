@@ -92,7 +92,7 @@ class PoseDataset(data.Dataset):
         # 3D models
         ##################################
 
-        self.symmetry_obj_idx = config.SYM_OBJECTS
+        self.symmetry_obj_idx = config.SYM_AFF_OBJECTS
         self.minimum_num_pt = 25 # config.NUM_PT_MIN
         self.num_pt_mesh_small = config.NUM_PT_MESH_SMALL
         self.num_pt_mesh_large = config.NUM_PT_MESH_LARGE

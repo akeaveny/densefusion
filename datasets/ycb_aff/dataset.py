@@ -82,9 +82,9 @@ class PoseDataset(data.Dataset):
         self.trancolor = transforms.ColorJitter(0.2, 0.2, 0.2, 0.05)
         self.noise_img_loc = 0.0
         self.noise_img_scale = 7.0
-        self.minimum_num_pt = 25
+        self.minimum_num_pt = 50
         self.norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        self.symmetry_obj_idx = [12, 15, 18, 19, 20]
+        self.symmetry_obj_idx = [14, 20, 21, 22, 26, 27, 28, 29, 30]  # [12, 15, 18, 19, 20]
         self.num_pt_mesh_small = 500
         self.num_pt_mesh_large = 2600
         self.refine = refine
@@ -109,7 +109,7 @@ class PoseDataset(data.Dataset):
 
         mask_back = ma.getmaskarray(ma.masked_equal(label, 0))
 
-        print('label: ', np.unique(label)[1:])
+        # print('label: ', np.unique(label)[1:])
 
         add_front = False
         if self.add_noise:
@@ -134,9 +134,9 @@ class PoseDataset(data.Dataset):
                     add_front = True
                     break
 
-        print('noisy label: ', np.unique(label)[1:])
-        if self.add_noise:
-            print('addr: {0}/{1}-obj_part_label.png'.format(self.root, seed))
+        # print('noisy label: ', np.unique(label)[1:])
+        # if self.add_noise:
+        #     print('addr: {0}/{1}-obj_part_label.png'.format(self.root, seed))
 
         obj_ids = meta['cls_indexes'].flatten().astype(np.int32)
 
@@ -147,8 +147,8 @@ class PoseDataset(data.Dataset):
                 if _obj_part_id in self.TRAIN_OBJ_PART_IDS:
                     obj_part_ids.append(_obj_part_id)
 
-        print('obj_ids: ', obj_ids)
-        print('obj_part_ids: ', obj_part_ids)
+        # print('obj_ids: ', obj_ids)
+        # print('obj_part_ids: ', obj_part_ids)
 
         while 1:
             obj_part_id = obj_part_ids[np.random.randint(0, len(obj_part_ids))]
@@ -159,8 +159,8 @@ class PoseDataset(data.Dataset):
             if len(mask.nonzero()[0]) > self.minimum_num_pt:
                 break
 
-        print('obj_part_id: ', obj_part_id)
-        print('len(mask.nonzero()[0]): ', len(mask.nonzero()[0]))
+        # print('obj_part_id: ', obj_part_id)
+        # print('len(mask.nonzero()[0]): ', len(mask.nonzero()[0]))
 
         if self.add_noise:
             img = self.trancolor(img)
@@ -309,7 +309,7 @@ class PoseDataset(data.Dataset):
                self.norm(torch.from_numpy(img_masked.astype(np.float32))), \
                torch.from_numpy(target.astype(np.float32)), \
                torch.from_numpy(model_points.astype(np.float32)), \
-               torch.LongTensor([int(obj_id) - 1])
+               torch.LongTensor([int(obj_part_id) - 1])
 
     def __len__(self):
         return self.length

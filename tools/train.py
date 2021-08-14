@@ -47,8 +47,8 @@ from datasets.arl_affpose.dataset_aff import PoseDataset as PoseDataset_arl_affp
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default = '', help='ycb or linemod')
 parser.add_argument('--dataset_root', type=str, default ='', help='dataset root dir (''YCB_Video_Dataset'' or ''Linemod_preprocessed'')')
-parser.add_argument('--batch_size', type=int, default = 1, help='batch size')
-parser.add_argument('--workers', type=int, default = 1, help='number of data loading workers')
+parser.add_argument('--batch_size', type=int, default = 8, help='batch size')
+parser.add_argument('--workers', type=int, default = 8, help='number of data loading workers')
 parser.add_argument('--lr', default=0.0001, help='learning rate')
 parser.add_argument('--lr_rate', default=0.3, help='learning rate decay rate')
 parser.add_argument('--w', default=0.015, help='learning rate')
@@ -101,8 +101,8 @@ def main():
         # opt.resume_refinenet = 'pose_refine_model_77_0.009985599185401848.pth'
 
     elif opt.dataset == 'ycb_aff':
-        opt.num_objects = 21 #number of object classes in the dataset
-        opt.num_points = 500 #number of points on the input pointcloud
+        opt.num_objects = 31 # number of object classes in the dataset
+        opt.num_points = 1000 # number of points on the input pointcloud
         opt.dataset_root = '/data/Akeaveny/Datasets/YCB_Affordance_Dataset'
         opt.outf = 'trained_models/ycb_aff/real_and_syn'      # folder to save trained models
         opt.log_dir = 'experiments/logs/ycb_aff/real_and_syn' # folder to save logs
