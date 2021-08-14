@@ -3,98 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="fef67ee5-702b-4651-9b94-1d0cb15fd781" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/ycb_aff/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ycb_aff/dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/.idea/ARLViconDatasetUtils.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/cfg.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/evaluate_aff_poses_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/evaluate_obj_poses_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/get_aff_statistics.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/get_obj_statistics.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/globals.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/matlab/plot_accuracy_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/check_aff_confidence_scores.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/check_obj_confidence_scores.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/evaluate_poses_keyframe_aff.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/evaluate_poses_keyframe_obj.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/format_data_for_training.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/load_gt_obj_part_poses.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/scripts/load_gt_obj_poses.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/utils/bbox/extract_bboxs_from_label.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/utils/dataset/affpose_dataset_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/utils/helper_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/utils/pose/create_pointcloud_from_depth.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/utils/pose/load_camera_pose.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/utils/pose/load_obj_6dof_pose.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLAffPose/utils/pose/load_obj_ply_files.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/.idea/ARLViconDatasetUtils.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/cfg.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/matlab/evaluate_poses_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/matlab/globals.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/matlab/plot_accuracy_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/scripts/evaluate_poses_keyframe.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/scripts/format_data_for_training.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/scripts/load_gt_poses.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/utils/bbox/extract_bboxs_from_label.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/utils/dataset/vicon_dataset_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/utils/helper_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/utils/pose/load_obj_6dof_pose.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/ARLVicon/utils/pose/load_obj_ply_files.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/Elevator/cfg.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/Elevator/scripts/format_data_for_training.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/Elevator/scripts/load_gt_poses.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/Elevator/utils/bbox/extract_bboxs_from_label.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/Elevator/utils/dataset/elavator_dataset_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/Elevator/utils/helper_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/Elevator/utils/pose/load_obj_6dof_pose.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/Elevator/utils/pose/load_obj_ply_files.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/cfg.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/matlab/evaluate_poses_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/matlab/globals.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/matlab/plot_accuracy_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/matlab/posecnn_evaluate_poses_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/matlab/posecnn_plot_accuracy_keyframe.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/matlab/results_keyframe.mat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/check_confidence_scores.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/evaluate_poses_keyframe.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/format_data_for_training.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/load_gt_images.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/scripts/load_gt_poses.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/utils/bbox/extract_bboxs_from_label.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/utils/dataset/ycb_dataset_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/utils/helper_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB/utils/pose/load_obj_ply_files.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/cfg.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/dataset_config/ycb/class_ids.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/dataset_config/ycb/classes.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/dataset_config/ycb/obj_part_class_ids.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/dataset_config/ycb/obj_part_classes.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/dataset_config/ycb/test_data_list.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/dataset_config/ycb/train_data_list.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/scripts/ycb_aff_load_gt_poses.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/scripts/ycb_aff_load_images.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/utils/bbox/extract_bboxs_from_label.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/utils/dataset/ycb_aff_dataset_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/utils/helper_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/utils/pose/load_obj_part_ply_files.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/YCB_Aff/utils/pose/load_obj_ply_files.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/utils/draw_learning_curve.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/utils/image_mean.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/utils/ycb_evaluate_poses_keyframe.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/utils/ycb_plot_accuracy_keyframe.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_aff.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_aff.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -311,7 +220,7 @@
       <workItem from="1628732587899" duration="606000" />
       <workItem from="1628777848315" duration="2556000" />
       <workItem from="1628821596982" duration="3966000" />
-      <workItem from="1628959395984" duration="22805000" />
+      <workItem from="1628959395984" duration="24184000" />
     </task>
     <servers />
   </component>

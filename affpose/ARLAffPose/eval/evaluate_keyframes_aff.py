@@ -149,7 +149,8 @@ def main():
         for idx, obj_id in enumerate(obj_ids):
             if obj_id in np.unique(obj_label):
                 obj_color = arl_affpose_dataset_utils.obj_color_map(obj_id)
-                print("Object: ID:{}, Name:{}".format(obj_id, dataloader.obj_classes[int(obj_id) - 1]))
+                obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
+                print("Object: ID:{}, Name: {}".format(obj_id, obj_name))
 
                 #######################################
                 # ITERATE OVER OBJ PARTS
@@ -159,8 +160,8 @@ def main():
                 for obj_part_id in obj_part_ids:
                     if obj_part_id in np.unique(obj_part_label):
                         obj_part_id = int(obj_part_id)
+                        obj_part_name = "{:<30}".format(dataloader.obj_part_classes[int(obj_part_id) - 1])
                         aff_id = arl_affpose_dataset_utils.map_obj_part_id_to_aff_id(obj_part_id)
-                        print("Object Part ID: {}, Namw: {}".format(obj_part_id, dataloader.obj_part_classes[int(obj_part_id) - 1]))
 
                         #######################################
                         # ground truth.
@@ -192,6 +193,7 @@ def main():
 
                             choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
                             obj_choose = len(choose.copy())
+                            print("\tObject Part: {} \t Choose: {}".format(obj_part_name, obj_choose))
 
                             if len(choose) > config.NUM_PT:
                                 c_mask = np.zeros(len(choose), dtype=int)
