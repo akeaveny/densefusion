@@ -53,9 +53,11 @@ from affpose.ARLAffPose.eval import eval_utils
 #######################################
 #######################################
 
-DELETE_OLD_RESULTS = False
-SELECT_RANDOM_IMAGES = False
+DELETE_OLD_RESULTS = True
+
+SELECT_RANDOM_IMAGES = True
 NUM_IMAGES = 100
+
 VISUALIZE_AND_GET_ERROR_METRICS = False
 PROJECT_MESH_ON_IMAGE = False
 
@@ -172,10 +174,6 @@ def main():
                         gt_obj_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]
                         obj_occlusion = meta['obj_part_occlusion' + str(obj_part_id_idx)]
 
-                        # TODO: MATLAB EVAL
-                        class_ids_list.append(obj_part_id)
-                        occlusion_list.append(obj_occlusion)
-
                         #####################
                         #####################
 
@@ -195,7 +193,9 @@ def main():
                             obj_choose = len(choose.copy())
                             print("\tObject Part: {} \t Choose: {}".format(obj_part_name, obj_choose))
 
-                            if len(choose) > config.NUM_PT:
+                            if len(choose) == 0:
+                                raise ZeroDivisionError
+                            elif len(choose) > config.NUM_PT:
                                 c_mask = np.zeros(len(choose), dtype=int)
                                 c_mask[:config.NUM_PT] = 1
                                 np.random.shuffle(c_mask)
@@ -270,6 +270,8 @@ def main():
 
                             # TODO: MATLAB EVAL
                             if how_max > config.PRED_C_THRESHOLD:
+                                class_ids_list.append(obj_part_id)
+                                occlusion_list.append(obj_occlusion)
                                 pose_est_gt.append(my_pred.tolist())
                                 pose_est_df_wo_refine.append(my_pred.tolist())
                                 choose_list.append(obj_choose)
@@ -374,11 +376,11 @@ def main():
         # TODO: MATLAB EVAL
         ############################
 
-        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_GT, '%04d' % image_idx),
+        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_GT, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_gt})
-        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
+        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_df_wo_refine})
-        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
+        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_df_iterative})
 
         ############################

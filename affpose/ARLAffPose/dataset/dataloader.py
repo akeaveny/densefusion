@@ -49,13 +49,14 @@ class ARLAffPose():
         # Load Images
         ##################################
 
-        assert split == 'train' or split == 'val' or split == 'test'
+        self.split = split
+        assert self.split == 'train' or self.split == 'val' or self.split == 'test'
 
-        if split == 'train':
+        if self.split == 'train':
             image_files = open('{}'.format(config.TRAIN_FILE), "r")
-        elif split == 'val':
+        elif self.split == 'val':
             image_files = open('{}'.format(config.VAL_FILE), "r")
-        elif split == 'test':
+        elif self.split == 'test':
             image_files = open('{}'.format(config.TEST_FILE), "r")
         self.img_files = np.sort(np.array(image_files.readlines()))
         print("Loaded Files: {}".format(len(self.img_files)))
@@ -106,6 +107,19 @@ class ARLAffPose():
         aff_label = helper_utils.crop(pil_img=aff_label, crop_size=config.CROP_SIZE)
 
         ##################################
+        # Load PRED masks
+        ##################################
+
+        if self.split == 'test':
+            obj_label_addr = dataset_dir + 'pred_obj/' + image_num + config.TEST_OBJ_PRED_EXT
+            obj_part_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PART_PRED_EXT
+            aff_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PRED_EXT
+
+            obj_label = np.array(Image.open(obj_label_addr))
+            obj_part_label = np.array(Image.open(obj_part_label_addr))
+            aff_label = np.array(Image.open(aff_label_addr))
+
+        ##################################
         # CAMERA
         ##################################
 
@@ -129,16 +143,21 @@ class ARLAffPose():
         # Image utils
         #####################
 
-        # Label
+        # OBJ
         colour_obj_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_label)
         colour_obj_label = cv2.addWeighted(rgb, 0.35, colour_obj_label, 0.65, 0)
 
         # Img to draw 6-DoF Pose.
         cv2_obj_pose_img = colour_obj_label.copy()
 
-        # Label
+        # AFF
         colour_aff_label = arl_affpose_dataset_utils.colorize_aff_mask(aff_label)
         colour_aff_label = cv2.addWeighted(rgb, 0.35, colour_aff_label, 0.65, 0)
+
+        # OBJ PART
+        # obj_label = arl_affpose_dataset_utils.convert_obj_part_mask_to_obj_mask(obj_part_label)
+        # colour_obj_part_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_label)
+        # colour_obj_part_label = cv2.addWeighted(rgb, 0.35, colour_obj_part_label, 0.65, 0)
 
         # Img to draw 6-DoF Pose.
         cv2_obj_part_pose_img = colour_aff_label.copy()
@@ -175,8 +194,13 @@ class ARLAffPose():
         #######################################
 
         obj_ids = np.array(meta['object_class_ids']).flatten()
+        label_obj_ids = np.unique(obj_label)[1:]
+        label_obj_part_ids = np.unique(obj_part_label)[1:]
+        if verbose:
+            print('GT obj id: {},\nPred obj id: {},\tPred obj part ids: {}'
+                  .format(obj_ids, label_obj_ids, label_obj_part_ids))
         for idx, obj_id in enumerate(obj_ids):
-            if obj_id in np.unique(obj_label):
+            if obj_id in label_obj_ids:
                 obj_id = int(obj_id)
                 if verbose:
                     print("\tObject: {}, {}".format(obj_id, self.obj_classes[int(obj_id) - 1]))
@@ -192,7 +216,6 @@ class ARLAffPose():
                 ##################################
                 # OCCLUSION
                 ##################################
-
 
                 obj_occlusion_label = np.zeros(shape=(config.OG_HEIGHT, config.OG_WIDTH), dtype=np.uint8)
                 obj_part_occlusion_label = np.zeros(shape=(config.OG_HEIGHT, config.OG_WIDTH), dtype=np.uint8)
@@ -213,25 +236,25 @@ class ARLAffPose():
                 if verbose:
                     print('\tobj_part_ids:{}'.format(obj_part_ids))
                 for obj_part_id in obj_part_ids:
-                    if obj_part_id in np.unique(obj_part_label):
+                    if obj_part_id in label_obj_part_ids:
                         obj_part_id = int(obj_part_id)
                         aff_id = arl_affpose_dataset_utils.map_obj_part_id_to_aff_id(obj_part_id)
                         if verbose:
                             print("\t\tAff: {}, {}".format(aff_id, self.obj_part_classes[int(obj_part_id) - 1]))
-    
+
                         #######################################
                         # OBJECT POSE
                         #######################################
-    
+
                         # projecting 3D model to 2D image
                         obj_centered = self.cld_obj_centered[obj_part_id]
                         imgpts, jac = cv2.projectPoints(obj_centered * 1e3, obj_r, obj_t * 1e3, self.cam_mat, self.cam_dist)
                         if project_mesh_on_image:
                             cv2_obj_pose_img = cv2.polylines(cv2_obj_pose_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
-    
+
                         # modify YCB objects rotation matrix
                         _obj_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, obj_r.copy())
-    
+
                         # draw pose
                         rotV, _ = cv2.Rodrigues(_obj_r)
                         points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
@@ -262,31 +285,31 @@ class ARLAffPose():
                         # OBJECT PART AFF CENTERED
                         #######################################
                         aff_color = arl_affpose_dataset_utils.aff_color_map(aff_id)
-    
+
                         obj_part_centered = self.cld_obj_part_centered[obj_part_id]
 
                         obj_part_id_idx = str(1000 + obj_part_id)[1:]
                         obj_part_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
                         obj_part_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]
-    
+
                         #######################################
                         # BBOX
                         #######################################
-                        
+
                         if obj_part_id in arl_affpose_dataset_utils.DRAW_OBJ_PART_POSE:
                             obj_part_x1, obj_part_y1, obj_part_x2, obj_part_y2 = get_obj_bbox(obj_part_label.copy(), obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
                             cv2_obj_part_pose_img = cv2.rectangle(cv2_obj_part_pose_img, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), aff_color, 2)
                             depth_8bit = cv2.rectangle(depth_8bit, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), 128, 2)
-    
+
                         ######################################
                         # 6-DOF POSE
                         #######################################
-    
+
                         # draw model
                         obj_parts_imgpts, jac = cv2.projectPoints(obj_part_centered * 1e3, obj_part_r, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
                         if project_mesh_on_image:
                             cv2_obj_part_pose_img = cv2.polylines(cv2_obj_part_pose_img, np.int32([np.squeeze(obj_parts_imgpts)]), False, aff_color)
-    
+
                         if obj_part_id in arl_affpose_dataset_utils.DRAW_OBJ_PART_POSE:
                             # modify YCB objects rotation matrix
                             _obj_part_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, obj_part_r.copy())
@@ -328,7 +351,7 @@ class ARLAffPose():
                 masked_obj_occlusion_label = np.ma.getmaskarray(np.ma.masked_equal(obj_occlusion_label, obj_id)).astype(np.uint8)
                 expected_points = np.count_nonzero(masked_obj_occlusion_label)
 
-                obj_occlusion = 1 - actual_points / expected_points
+                obj_occlusion = 1 - actual_points / (expected_points+1)
                 # TODO: standardize occlusion to 1.
                 obj_occlusion = max(obj_occlusion, 0.0)
                 # print('obj_occlusion: {:.3f}'.format(obj_occlusion))
@@ -351,7 +374,7 @@ class ARLAffPose():
                         masked_obj_part_occlusion_label = np.ma.getmaskarray(np.ma.masked_equal(obj_part_occlusion_label, obj_part_id)).astype(np.uint8)
                         expected_points = np.count_nonzero(masked_obj_part_occlusion_label)
 
-                        obj_part_occlusion = 1 - actual_points / expected_points
+                        obj_part_occlusion = 1 - actual_points / (expected_points+1)
                         # TODO: standardize occlusion to 1.
                         obj_part_occlusion = max(obj_part_occlusion, 0.0)
                         # print('obj_part_occlusion: {:.3f}'.format(obj_part_occlusion))

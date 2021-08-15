@@ -18,14 +18,14 @@ import scipy.io as scio
 #######################################
 #######################################
 
-import tools.YCB_Aff.cfg as config
+import affpose.YCB_Aff.cfg as config
 
-from tools.YCB_Aff.utils import helper_utils
-from tools.YCB_Aff.utils.dataset import ycb_aff_dataset_utils
+from affpose.YCB_Aff.utils import helper_utils
+from affpose.YCB_Aff.utils.dataset import ycb_aff_dataset_utils
 
-from tools.YCB_Aff.utils.pose.load_obj_part_ply_files import load_obj_part_ply_files
+from affpose.YCB_Aff.utils.pose.load_obj_part_ply_files import load_obj_part_ply_files
 
-from tools.YCB_Aff.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_part_bbox
+from affpose.YCB_Aff.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_part_bbox
 
 #######################################
 #######################################
@@ -82,9 +82,9 @@ class PoseDataset(data.Dataset):
         self.trancolor = transforms.ColorJitter(0.2, 0.2, 0.2, 0.05)
         self.noise_img_loc = 0.0
         self.noise_img_scale = 7.0
-        self.minimum_num_pt = 50
+        self.minimum_num_pt = 500
         self.norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        self.symmetry_obj_idx = [14, 20, 21, 22, 26, 27, 28, 29, 30]  # [12, 15, 18, 19, 20]
+        self.symmetry_obj_idx = [12, 15, 18, 19, 20]
         self.num_pt_mesh_small = 500
         self.num_pt_mesh_large = 2600
         self.refine = refine
@@ -153,9 +153,11 @@ class PoseDataset(data.Dataset):
         while 1:
             obj_part_id = obj_part_ids[np.random.randint(0, len(obj_part_ids))]
             obj_id = ycb_aff_dataset_utils.map_obj_part_ids_to_obj_id(obj_part_id)
+            obj_name = "{:<25}".format(ycb_aff_dataset_utils.map_obj_id_to_name(obj_id))
             mask_depth = ma.getmaskarray(ma.masked_not_equal(depth, 0))
             mask_label = ma.getmaskarray(ma.masked_equal(label, obj_part_id))
             mask = mask_label * mask_depth
+            print("------------> {} Obj Part:{}\tMasked Depth:{}".format(obj_name, obj_part_id, len(mask_depth.nonzero()[0])))
             if len(mask.nonzero()[0]) > self.minimum_num_pt:
                 break
 
@@ -173,10 +175,6 @@ class PoseDataset(data.Dataset):
 
         target_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
         target_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]
-
-        # obj_part_bbox = meta['obj_part_bbox_' + np.str(obj_part_id_idx)].flatten()
-        # x1, y1, x2, y2 = obj_part_bbox[0], obj_part_bbox[1], obj_part_bbox[2], obj_part_bbox[3]
-        # cmin, rmin, cmax, rmax = obj_part_bbox[0], obj_part_bbox[1], obj_part_bbox[2], obj_part_bbox[3]
 
         #######################################
         # meta
@@ -309,7 +307,7 @@ class PoseDataset(data.Dataset):
                self.norm(torch.from_numpy(img_masked.astype(np.float32))), \
                torch.from_numpy(target.astype(np.float32)), \
                torch.from_numpy(model_points.astype(np.float32)), \
-               torch.LongTensor([int(obj_part_id) - 1])
+               torch.LongTensor([int(obj_id) - 1])
 
     def __len__(self):
         return self.length

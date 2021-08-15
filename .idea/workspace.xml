@@ -3,7 +3,39 @@
   <component name="ChangeListManager">
     <list default="true" id="fef67ee5-702b-4651-9b94-1d0cb15fd781" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/cfg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/dataloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/format_data_for_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/format_data_for_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/test_dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/test_dataloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/eval/eval_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/eval/eval_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_aff.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_aff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_obj.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_obj.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/utils/pose/load_obj_ply_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/utils/pose/load_obj_ply_files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB/scripts/check_confidence_scores.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/YCB/scripts/check_confidence_scores.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/scripts/ycb_aff_load_gt_poses.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/YCB_Aff/scripts/ycb_aff_load_gt_poses.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/scripts/ycb_aff_load_images.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/YCB_Aff/scripts/ycb_aff_load_images.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/utils/bbox/extract_bboxs_from_label.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/YCB_Aff/utils/bbox/extract_bboxs_from_label.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/utils/pose/load_obj_part_ply_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/YCB_Aff/utils/pose/load_obj_part_ply_files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff (copy).py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_obj.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_obj.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_vicon/dataset (copy).py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_vicon/dataset.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_vicon/dataset_config/classes.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_vicon/dataset_config/classes_ids.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_vicon/dataset_config/data_lists/test_list.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_vicon/dataset_config/data_lists/train_list.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_vicon/dataset_config/obj_part_classes.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_vicon/dataset_config/obj_part_classes_ids.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/classes.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/classes_ids.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/test_list.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/train_list.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/elevator/dataset_config/data_lists/val_list.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/ycb_aff/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ycb_aff/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/loss.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,10 +63,10 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframe_aff.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/tools/train.py" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.evaluate_keyframe_aff">
+  <component name="RunManager" selected="Python.format_data_for_training">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="DenseFusion" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -61,6 +93,9 @@
       <module name="DenseFusion" />
       <option name="INTERPRETER_OPTIONS" value="-W ignore" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/AffNet/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/affpose/ARLAffPose/eval" />
       <option name="IS_MODULE_SDK" value="false" />
@@ -114,10 +149,33 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="train" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="DenseFusion" />
+      <option name="INTERPRETER_OPTIONS" value="-W ignore" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/DenseFusion/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/train.py" />
+      <option name="PARAMETERS" value="--dataset=arl_affpose_aff" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.format_data_for_training" />
       <item itemvalue="Python.test_dataloader" />
       <item itemvalue="Python.evaluate_keyframe_aff" />
+      <item itemvalue="Python.train" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -220,7 +278,11 @@
       <workItem from="1628732587899" duration="606000" />
       <workItem from="1628777848315" duration="2556000" />
       <workItem from="1628821596982" duration="3966000" />
-      <workItem from="1628959395984" duration="24184000" />
+      <workItem from="1628959395984" duration="37702000" />
+      <workItem from="1628997725174" duration="10000" />
+      <workItem from="1628998335157" duration="535000" />
+      <workItem from="1629005921088" duration="845000" />
+      <workItem from="1629040760828" duration="9757000" />
     </task>
     <servers />
   </component>
@@ -265,7 +327,7 @@
     <SUITE FILE_PATH="coverage/DenseFusion$evaluate_poses_keyframe.coverage" NAME="evaluate_poses_keyframe Coverage Results" MODIFIED="1621544855997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$load_gt_obj_part_poses.coverage" NAME="load_gt_obj_part_poses Coverage Results" MODIFIED="1624811909442" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$ycb_aff_load_images.coverage" NAME="ycb_aff_load_images Coverage Results" MODIFIED="1621115523660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB_Aff/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$train.coverage" NAME="check_aff_confidence_scores Coverage Results" MODIFIED="1628828566533" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$train.coverage" NAME="train Coverage Results" MODIFIED="1629046160270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/DenseFusion$evaluate_keyframes_obj.coverage" NAME="evaluate_keyframe_aff Coverage Results" MODIFIED="1628980396844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/affpose/ARLAffPose/eval" />
   </component>
 </project>

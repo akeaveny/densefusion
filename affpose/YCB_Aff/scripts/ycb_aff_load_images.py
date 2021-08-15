@@ -7,10 +7,10 @@ from PIL import Image
 #######################################
 #######################################
 
-import tools.YCB_Aff.cfg as config
+import affpose.YCB_Aff.cfg as config
 
-from tools.YCB_Aff.utils import helper_utils
-from tools.YCB_Aff.utils.dataset import ycb_aff_dataset_utils
+from affpose.YCB_Aff.utils import helper_utils
+from affpose.YCB_Aff.utils.dataset import ycb_aff_dataset_utils
 
 #######################################
 #######################################

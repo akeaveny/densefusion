@@ -36,8 +36,6 @@ from tensorboardX import SummaryWriter
 from datasets.ycb.dataset import PoseDataset as PoseDataset_ycb
 from datasets.ycb_aff.dataset import PoseDataset as PoseDataset_ycb_aff
 from datasets.linemod.dataset import PoseDataset as PoseDataset_linemod
-from datasets.elevator.dataset import PoseDataset as PoseDataset_elevator
-from datasets.arl_vicon.dataset import PoseDataset as PoseDataset_arl_vicon
 from datasets.arl_affpose.dataset_obj import PoseDataset as PoseDataset_arl_affpose_obj
 from datasets.arl_affpose.dataset_aff import PoseDataset as PoseDataset_arl_affpose_aff
 
@@ -101,13 +99,17 @@ def main():
         # opt.resume_refinenet = 'pose_refine_model_77_0.009985599185401848.pth'
 
     elif opt.dataset == 'ycb_aff':
-        opt.num_objects = 31 # number of object classes in the dataset
+        opt.num_objects = 21 # number of object classes in the dataset
         opt.num_points = 1000 # number of points on the input pointcloud
         opt.dataset_root = '/data/Akeaveny/Datasets/YCB_Affordance_Dataset'
         opt.outf = 'trained_models/ycb_aff/real_and_syn'      # folder to save trained models
         opt.log_dir = 'experiments/logs/ycb_aff/real_and_syn' # folder to save logs
         output_results = 'check_ycb.txt'
         opt.repeat_epoch = 1 #number of repeat times for one epoch training
+
+        # opt.start_epoch = 5
+        # opt.resume_posenet = 'pose_model_4_0.03322298243018445.pth'
+        # opt.resume_refinenet = 'pose_refine_model_77_0.009985599185401848.pth'
 
     elif opt.dataset == 'elevator':
         opt.num_objects = 1
@@ -139,7 +141,7 @@ def main():
         opt.resume_refinenet = 'pose_refine_model_25_0.011975645643366726.pth'
 
     elif opt.dataset == 'arl_affpose_aff':
-        opt.num_objects = 25 # 11
+        opt.num_objects = 11
         opt.num_points = 1000
         opt.outf = 'trained_models/arl_affpose_aff/real_and_syn_v3'
         opt.log_dir = 'experiments/logs/arl_affpose_aff/real_and_syn_v3'
@@ -147,14 +149,31 @@ def main():
         opt.repeat_epoch = 1
 
         opt.w = 0.017
-        opt.iteration = 4
+        opt.iteration = 2
 
-        opt.start_epoch = 40
-        opt.resume_posenet = 'pose_model_16_0.012952367823778796.pth'
-        opt.resume_refinenet = 'pose_refine_model_39_0.01199668780097741.pth'
+        # opt.start_epoch = 40
+        # opt.resume_posenet = 'pose_model_16_0.012952367823778796.pth'
+        # opt.resume_refinenet = 'pose_refine_model_39_0.01199668780097741.pth'
 
     else:
         assert 'Unknown dataset'
+
+    ######################
+    # TODO: tensorboard
+    ######################
+
+    print('\nlogging run in .. {}\n'.format(opt.log_dir))
+    if not os.path.exists(opt.log_dir):
+        os.makedirs(opt.log_dir)
+
+    if opt.start_epoch == 1:
+        for log in os.listdir(opt.log_dir):
+            os.remove(os.path.join(opt.log_dir, log))
+
+    writer = SummaryWriter(opt.log_dir)
+
+    ######################
+    ######################
 
     estimator = PoseNet(num_points = opt.num_points, num_obj = opt.num_objects)
     estimator.cuda()
@@ -183,10 +202,6 @@ def main():
         dataset = PoseDataset_ycb_aff('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
     elif opt.dataset == 'linemod':
         dataset = PoseDataset_linemod('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
-    elif opt.dataset == 'elevator':
-        dataset = PoseDataset_elevator('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
-    elif opt.dataset == 'arl_vicon':
-        dataset = PoseDataset_arl_vicon('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
     elif opt.dataset == 'arl_affpose':
         dataset = PoseDataset_arl_affpose_obj('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
     elif opt.dataset == 'arl_affpose_aff':
@@ -200,10 +215,6 @@ def main():
         test_dataset = PoseDataset_ycb_aff('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
     elif opt.dataset == 'linemod':
         test_dataset = PoseDataset_linemod('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
-    elif opt.dataset == 'elevator':
-        test_dataset = PoseDataset_elevator('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
-    elif opt.dataset == 'arl_vicon':
-        test_dataset = PoseDataset_arl_vicon('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
     elif opt.dataset == 'arl_affpose':
         test_dataset = PoseDataset_arl_affpose_obj('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
     elif opt.dataset == 'arl_affpose_aff':
@@ -215,26 +226,14 @@ def main():
     opt.num_points_mesh = dataset.get_num_points_mesh()
 
     print('>>>>>>>>----------Dataset loaded!---------<<<<<<<<\nlength of the training set: {0}\nlength of the testing set: {1}\nnumber of sample points on mesh: {2}\nsymmetry object list: {3}'.format(len(dataset), len(test_dataset), opt.num_points_mesh, opt.sym_list))
+    print()
 
     criterion = Loss(opt.num_points_mesh, opt.sym_list)
     criterion_refine = Loss_refine(opt.num_points_mesh, opt.sym_list)
 
     best_test = np.Inf
 
-    if opt.start_epoch == 1:
-        for log in os.listdir(opt.log_dir):
-            os.remove(os.path.join(opt.log_dir, log))
     st_time = time.time()
-
-    ######################
-    # TODO: tensorboard
-    ######################
-    print('\nlogging run in .. {}\n'.format(opt.log_dir))
-
-    if not os.path.exists(opt.log_dir):
-        os.makedirs(opt.log_dir)
-
-    writer = SummaryWriter(opt.log_dir)
 
     ######################
     ######################
@@ -280,7 +279,18 @@ def main():
                                                                  Variable(idx).cuda()
                 pred_r, pred_t, pred_c, emb = estimator(img, points, choose, idx)
                 loss, dis, new_points, new_target = criterion(pred_r, pred_t, pred_c, target, model_points, idx, points, opt.w, opt.refine_start)
-                
+
+                ######################
+                # TODO: tensorboard
+                ######################
+
+                scalar_info = {'train/pred_c/{}'.format(idx.item()): torch.max(pred_c).item()}
+                for key, val in scalar_info.items():
+                    writer.add_scalar(key, val, epoch * len(dataloader) + i)
+
+                ######################
+                ######################
+
                 if opt.refine_start:
                     for ite in range(0, opt.iteration):
                         pred_r, pred_t = refiner(new_points, emb, idx)
@@ -340,6 +350,17 @@ def main():
             pred_r, pred_t, pred_c, emb = estimator(img, points, choose, idx)
             loss, dis, new_points, new_target = criterion(pred_r, pred_t, pred_c, target, model_points, idx, points, opt.w, opt.refine_start)
 
+            ######################
+            # TODO: tensorboard
+            ######################
+
+            scalar_info = {'test/pred_c/{}'.format(idx.item()): torch.max(pred_c).item()}
+            for key, val in scalar_info.items():
+                writer.add_scalar(key, val, epoch * len(testdataloader) + j)
+
+            ######################
+            ######################
+
             if opt.refine_start:
                 for ite in range(0, opt.iteration):
                     pred_r, pred_t = refiner(new_points, emb, idx)
@@ -350,18 +371,19 @@ def main():
 
             test_count += 1
 
+            ######################
+            # TODO: tensorboard
+            ######################
+
+            if test_count != 0 and test_count % 25 == 0:
+                scalar_info = {'loss/test': loss.item(),
+                               'dis/test': test_dis * 100,
+                               }
+                for key, val in scalar_info.items():
+                    writer.add_scalar(key, val, epoch * len(testdataloader) + test_count)
+
         test_dis = test_dis / test_count
         logger.info('Test time {} Epoch {} TEST FINISH Avg dis: {} [cm]'.format(time.strftime("%Hh %Mm %Ss", time.gmtime(time.time() - st_time)), epoch, test_dis * 100))
-
-        ######################
-        # TODO: tensorboard
-        ######################
-
-        if test_count != 0 and test_count % 25 == 0:
-            scalar_info = {'loss/test': loss.item(),
-                           'dis/test': test_dis * 100}
-            for key, val in scalar_info.items():
-                writer.add_scalar(key, val, epoch * len(testdataloader) + test_count)
 
         ######################
         ######################
@@ -391,10 +413,6 @@ def main():
                 dataset = PoseDataset_ycb_aff('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
             elif opt.dataset == 'linemod':
                 dataset = PoseDataset_linemod('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
-            elif opt.dataset == 'elevator':
-                dataset = PoseDataset_elevator('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
-            elif opt.dataset == 'arl_vicon':
-                dataset = PoseDataset_arl_vicon('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
             elif opt.dataset == 'arl_affpose':
                 dataset = PoseDataset_arl_affpose_obj('train', opt.num_points, True, opt.dataset_root, opt.noise_trans, opt.refine_start)
             elif opt.dataset == 'arl_affpose_aff':
@@ -408,10 +426,6 @@ def main():
                 test_dataset = PoseDataset_ycb_aff('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
             elif opt.dataset == 'linemod':
                 test_dataset = PoseDataset_linemod('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
-            elif opt.dataset == 'elevator':
-                test_dataset = PoseDataset_elevator('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
-            elif opt.dataset == 'arl_vicon':
-                test_dataset = PoseDataset_arl_vicon('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
             elif opt.dataset == 'arl_affpose':
                 test_dataset = PoseDataset_arl_affpose_obj('test', opt.num_points, False, opt.dataset_root, 0.0, opt.refine_start)
             elif opt.dataset == 'arl_affpose_aff':
@@ -423,6 +437,7 @@ def main():
             opt.num_points_mesh = dataset.get_num_points_mesh()
 
             print('>>>>>>>>----------Dataset loaded!---------<<<<<<<<\nlength of the training set: {0}\nlength of the testing set: {1}\nnumber of sample points on mesh: {2}\nsymmetry object list: {3}'.format(len(dataset), len(test_dataset), opt.num_points_mesh, opt.sym_list))
+            print()
 
             criterion = Loss(opt.num_points_mesh, opt.sym_list)
             criterion_refine = Loss_refine(opt.num_points_mesh, opt.sym_list)

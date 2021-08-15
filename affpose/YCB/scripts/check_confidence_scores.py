@@ -69,7 +69,7 @@ def main():
               f'\t\t Name: {ycb_dataset_utils.map_obj_id_to_name(obj_id)}')
 
         # plot data.
-        # plt.plot(range(len(row_idxs)), _pred_c, color=color, label=f'{affpose_dataset_utils.map_obj_id_to_name(obj_id)}')
+        # plt.plot(range(len(row_idxs)), _pred_c, color=color, label=f'{arl_affpose_dataset_utils.map_obj_id_to_name(obj_id)}')
         plt.hist(_pred_c, bins=10, color=color, label=f'{ycb_dataset_utils.map_obj_id_to_name(obj_id)}')
     # plt.show()
 

@@ -17,14 +17,14 @@ import argparse
 #######################################
 #######################################
 
-import tools.YCB_Aff.cfg as config
+import affpose.YCB_Aff.cfg as config
 
-from tools.YCB_Aff.utils import helper_utils
-from tools.YCB_Aff.utils.dataset import ycb_aff_dataset_utils
+from affpose.YCB_Aff.utils import helper_utils
+from affpose.YCB_Aff.utils.dataset import ycb_aff_dataset_utils
 
-from tools.YCB_Aff.utils.pose.load_obj_part_ply_files import load_obj_part_ply_files
+from affpose.YCB_Aff.utils.pose.load_obj_part_ply_files import load_obj_part_ply_files
 
-from tools.YCB_Aff.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_part_bbox
+from affpose.YCB_Aff.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_part_bbox
 
 #######################################
 #######################################

@@ -53,11 +53,13 @@ from affpose.ARLAffPose.eval import eval_utils
 #######################################
 #######################################
 
-DELETE_OLD_RESULTS = False
-SELECT_RANDOM_IMAGES = False
+DELETE_OLD_RESULTS = True
+
+SELECT_RANDOM_IMAGES = True
 NUM_IMAGES = 100
+
 VISUALIZE_AND_GET_ERROR_METRICS = False
-PROJECT_MESH_ON_IMAGE = True
+PROJECT_MESH_ON_IMAGE = False
 
 
 def main():
@@ -160,10 +162,6 @@ def main():
                 gt_obj_r = meta['obj_rotation_' + np.str(obj_id_idx)]
                 obj_occlusion = meta['obj_occlusion' + str(obj_id_idx)]
 
-                # TODO: MATLAB EVAL
-                class_ids_list.append(obj_id)
-                occlusion_list.append(obj_occlusion)
-
                 #####################
                 #####################
 
@@ -182,7 +180,9 @@ def main():
                     choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
                     obj_choose = len(choose.copy())
 
-                    if len(choose) > config.NUM_PT:
+                    if len(choose) == 0:
+                        raise ZeroDivisionError
+                    elif len(choose) > config.NUM_PT:
                         c_mask = np.zeros(len(choose), dtype=int)
                         c_mask[:config.NUM_PT] = 1
                         np.random.shuffle(c_mask)
@@ -257,6 +257,8 @@ def main():
 
                     # TODO: MATLAB EVAL
                     if how_max > config.PRED_C_THRESHOLD:
+                        class_ids_list.append(obj_id)
+                        occlusion_list.append(obj_occlusion)
                         pose_est_gt.append(my_pred.tolist())
                         pose_est_df_wo_refine.append(my_pred.tolist())
                         choose_list.append(obj_choose)

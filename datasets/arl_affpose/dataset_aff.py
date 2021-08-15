@@ -19,13 +19,13 @@ import cv2
 #######################################
 #######################################
 
-from tools.ARLAffPose.utils import helper_utils
+from affpose.ARLAffPose.utils import helper_utils
 
-from tools.ARLAffPose import cfg as config
+from affpose.ARLAffPose import cfg as config
 
-from tools.ARLAffPose.utils.dataset import affpose_dataset_utils
-from tools.ARLAffPose.utils.pose.load_obj_ply_files import load_obj_ply_files
-from tools.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
+from affpose.ARLAffPose.dataset import arl_affpose_dataset_utils
+from affpose.ARLAffPose.utils.pose.load_obj_ply_files import load_obj_ply_files
+from affpose.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
 #######################################
 #######################################
@@ -92,8 +92,8 @@ class PoseDataset(data.Dataset):
         # 3D models
         ##################################
 
-        self.symmetry_obj_idx = config.SYM_AFF_OBJECTS
-        self.minimum_num_pt = 25 # config.NUM_PT_MIN
+        self.symmetry_obj_idx = config.SYM_OBJECTS
+        self.minimum_num_pt = config.NUM_PT_MIN
         self.num_pt_mesh_small = config.NUM_PT_MESH_SMALL
         self.num_pt_mesh_large = config.NUM_PT_MESH_LARGE
         self.refine = refine
@@ -103,7 +103,7 @@ class PoseDataset(data.Dataset):
         self.obj_classes, self.obj_part_classes, \
         self.obj_ids, self.obj_part_ids = load_obj_ply_files()
 
-        print("************** LOADED DATASET! **************")
+        print()
 
     def __getitem__(self, index):
 
@@ -191,13 +191,13 @@ class PoseDataset(data.Dataset):
 
         while True:
             obj_part_id = obj_part_ids[np.random.randint(0, len(obj_part_ids))]
-            obj_id = affpose_dataset_utils.map_obj_part_id_to_obj_id(obj_part_id)
+            obj_id = arl_affpose_dataset_utils.map_obj_part_id_to_obj_id(obj_part_id)
+            obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
             mask_label = ma.getmaskarray(ma.masked_equal(obj_part_label, obj_part_id))
             mask_rgb = np.repeat(mask_label, 3).reshape(obj_part_label.shape[0], obj_part_label.shape[1], -1) * img
-            # mask_depth = mask_label * ma.getmaskarray(ma.masked_not_equal(depth, 0))
-            mask_depth = mask_label * depth
+            mask_depth = mask_label * ma.getmaskarray(ma.masked_not_equal(depth, 0))
             # WE NEED AT LEAST minimum_num_pt ON DEPTH IMAGE
-            # print("Obj ID:{}, Depth Image Pointcloud:{}".format(obj_part_id, len(mask_depth.nonzero()[0])))
+            print("------------> {} Obj Part:{}\tMasked Depth:{}".format(obj_name, obj_part_id, len(mask_depth.nonzero()[0])))
             if len(mask_depth.nonzero()[0]) > self.minimum_num_pt:
                 break
 
@@ -382,8 +382,7 @@ class PoseDataset(data.Dataset):
                self.norm(torch.from_numpy(img_masked.astype(np.float32))), \
                torch.from_numpy(target.astype(np.float32)), \
                torch.from_numpy(model_points.astype(np.float32)), \
-               torch.LongTensor([int(obj_part_id) - 1])
-               # torch.LongTensor([int(obj_id) - 1])
+               torch.LongTensor([int(obj_id) - 1])
 
     ######################################
     ######################################

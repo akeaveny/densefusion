@@ -18,6 +18,7 @@ sys.path.append('../../..')
 #######################################
 
 from affpose.ARLAffPose.dataset import dataloader
+from affpose.ARLAffPose.dataset import arl_affpose_dataset_utils
 
 #######################################
 #######################################
@@ -41,13 +42,26 @@ class TestARLAffPoseDataloader(unittest.TestCase):
             #####################
 
             rgb = data["rgb"]
+            obj_label = data["obj_label"]
+            obj_part_label = data["obj_part_label"]
             depth_8bit = data["depth_8bit"]
+
+            #####################
+            #####################
+
+            colour_obj_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_label)
+            colour_obj_label = cv2.addWeighted(rgb, 0.35, colour_obj_label, 0.65, 0)
+
+            obj_part_label = arl_affpose_dataset_utils.convert_obj_part_mask_to_obj_mask(obj_part_label)
+            colour_obj_part_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_part_label)
+            colour_obj_part_label = cv2.addWeighted(rgb, 0.35, colour_obj_part_label, 0.65, 0)
 
             #####################
             # PLOTTING
             #####################
 
-            cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
+            cv2.imshow('colour_obj_label', cv2.cvtColor(colour_obj_label, cv2.COLOR_BGR2RGB))
+            cv2.imshow('colour_obj_part_label', cv2.cvtColor(colour_obj_part_label, cv2.COLOR_BGR2RGB))
             cv2.imshow('depth', depth_8bit)
 
             cv2.waitKey(0)
@@ -55,7 +69,7 @@ class TestARLAffPoseDataloader(unittest.TestCase):
     def load_gt_pose(self):
 
         for image_idx, image_addr in enumerate(self.dataloader.img_files):
-            data = self.dataloader.draw_gt_obj_pose(image_idx, project_mesh_on_image=False)
+            data = self.dataloader.draw_gt_obj_pose(image_idx, project_mesh_on_image=False, verbose=True)
 
             #####################
             #####################

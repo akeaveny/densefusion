@@ -71,7 +71,7 @@ def get_pbj_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c):
     objs_choose = objs_choose[non_zero_idx]
     objs_pred_c = objs_pred_c[non_zero_idx]
 
-    for obj_id in range(1, config.NUM_PARTS + 1):
+    for obj_id in range(1, config.NUM_OBJECTS + 1):
         obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
         # get rows for current obj.
         idxs = np.argwhere(pred_class_ids == obj_id).reshape(-1)

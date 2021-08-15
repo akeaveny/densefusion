@@ -19,13 +19,12 @@ import cv2
 #######################################
 #######################################
 
-from tools.ARLAffPose.utils import helper_utils
+from affpose.ARLAffPose.utils import helper_utils
 
-from tools.ARLAffPose import cfg as config
+from affpose.ARLAffPose import cfg as config
 
-from tools.ARLAffPose.utils.dataset import affpose_dataset_utils
-from tools.ARLAffPose.utils.pose.load_obj_ply_files import load_obj_ply_files
-from tools.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
+from affpose.ARLAffPose.utils.pose.load_obj_ply_files import load_obj_ply_files
+from affpose.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
 #######################################
 #######################################
@@ -204,7 +203,7 @@ class PoseDataset(data.Dataset):
         # todo (visualize): Mask Augmentation
         # cv2.imshow('img', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         # cv2.imshow('mask_rgb', cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB))
-        # color_mask = affpose_dataset_utils.colorize_obj_mask(label)
+        # color_mask = arl_affpose_dataset_utils.colorize_obj_mask(label)
         # cv2.imshow('color_mask', cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))
         # cv2.waitKey(0)
 

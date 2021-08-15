@@ -10,8 +10,8 @@ CLASSES_FILE   = ROOT_PATH + 'datasets/arl_affpose/dataset_config/classes.txt'
 CLASS_IDS_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/classes_ids.txt'
 OBJ_PART_CLASSES_FILE   = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes.txt'
 OBJ_PART_CLASS_IDS_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_ids.txt'
-OBJ_PART_CLASSES_FILE_TRAIN   = OBJ_PART_CLASSES_FILE  # ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_train.txt'
-OBJ_PART_CLASS_IDS_FILE_TRAIN = OBJ_PART_CLASS_IDS_FILE  # ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_ids_train.txt'
+OBJ_PART_CLASSES_FILE_TRAIN   = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_train.txt'
+OBJ_PART_CLASS_IDS_FILE_TRAIN = ROOT_PATH + 'datasets/arl_affpose/dataset_config/obj_part_classes_ids_train.txt'
 
 TRAIN_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/train_list.txt'
 VAL_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/val_list.txt'
@@ -60,6 +60,10 @@ OBJ_PART_LABEL_EXT = '_obj_part_labels.png'
 AFF_LABEL_EXT      = '_aff_label.png'
 META_EXT           = '_meta.mat'
 
+TEST_GT_EXT = "_gt.png"
+TEST_OBJ_PRED_EXT = "_pred.png"
+TEST_OBJ_PART_PRED_EXT = "_obj_part.png"
+
 #######################################
 # ZED CAMERA
 #######################################
@@ -89,17 +93,17 @@ Y_SCALE = CROP_SIZE[1] / ORIGINAL_SIZE[1]
 
 NUM_OBJECTS = 11
 NUM_OBJECTS_PARTS = 25
-SYM_OBJECTS = [1, 4, 7, 11]
-SYM_AFF_OBJECTS = [1, 2, 7, 8, 14, 15, 24, 25]
+SYM_OBJECTS = np.array([1, 7, 11]) - 1
+SYM_AFF_OBJECTS = np.array([1, 5, 15, 24]) - 1
 
 # Real, test images.
 IMG_MEAN   = [164.31746134/255, 157.29184788/255, 139.49621539/255]
 IMG_STD    = [49.55041067/255, 64.919871/255, 64.19674351/255]
 
 NUM_PT = 500
-NUM_PT_MIN = 50
-NUM_PT_MESH_SMALL = 250  # 500
-NUM_PT_MESH_LARGE = 500  # 2600
+NUM_PT_MIN = 500
+NUM_PT_MESH_SMALL = 500
+NUM_PT_MESH_LARGE = 2600
 
 FRONT_NUM = 2
 

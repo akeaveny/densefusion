@@ -3,10 +3,10 @@ import numpy as np
 #######################################
 #######################################
 
-import tools.YCB_Aff.cfg as config
+import affpose.YCB_Aff.cfg as config
 
-from tools.YCB_Aff.utils import helper_utils
-from tools.YCB_Aff.utils.dataset import ycb_aff_dataset_utils
+from affpose.YCB_Aff.utils import helper_utils
+from affpose.YCB_Aff.utils.dataset import ycb_aff_dataset_utils
 
 #######################################
 #######################################
@@ -125,12 +125,10 @@ def load_obj_part_ply_files():
     # TRAIN
     ##################################
 
-    class_obj_part_file = open(config.OBJ_PART_CLASSES_FILE)
-    # class_obj_part_file = open(config.OBJ_PART_CLASSES_FILE_TRAIN)
+    class_obj_part_file = open(config.OBJ_PART_CLASSES_FILE_TRAIN)
     obj_part_classes = np.loadtxt(class_obj_part_file, dtype=np.str)
 
-    class_obj_part_id_file = open(config.OBJ_PART_CLASS_IDS_FILE)
-    # class_obj_part_id_file = open(config.OBJ_PART_CLASS_IDS_FILE_TRAIN)
+    class_obj_part_id_file = open(config.OBJ_PART_CLASS_IDS_FILE_TRAIN)
     class_obj_part_IDs = np.loadtxt(class_obj_part_id_file, dtype=np.int32)
 
     ##################################
