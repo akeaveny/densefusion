@@ -139,6 +139,30 @@ def map_obj_id_to_name(object_id):
         print(" --- Object ID does not map to Object Label --- ")
         exit(1)
 
+def map_aff_id_to_name(aff_id):
+
+    if aff_id == 1:
+        return 'grasp'
+    elif aff_id == 2:
+        return 'screw'
+    elif aff_id == 3:
+        return 'scoop'
+    elif aff_id == 4:
+        return 'pound'
+    elif aff_id == 5:
+        return 'support'
+    elif aff_id == 6:
+        return 'cut'
+    elif aff_id == 7:
+        return 'wrap_grasp'
+    elif aff_id == 8:
+        return 'contain'
+    elif aff_id == 9:
+        return 'clamp'
+    else:
+        print(" --- Aff ID: {} does not map to Affordance --- ".format(aff_id))
+        exit(1)
+
 ##################################
 ##################################
 

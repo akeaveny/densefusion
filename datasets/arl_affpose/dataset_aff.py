@@ -38,9 +38,9 @@ class PoseDataset(data.Dataset):
         ##################################
 
         if mode == 'train':
-            self.path = config.TRAIN_FILE
+            self.path = config.FORMATTED_TRAIN_FILE
         elif mode == 'test':
-            self.path = config.VAL_FILE
+            self.path = config.FORMATTED_VAL_FILE
         print(self.path)
 
         self.num_pt = num_pt

@@ -17,6 +17,10 @@ TRAIN_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/train_l
 VAL_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/val_list.txt'
 TEST_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/test_list.txt'
 
+FORMATTED_TRAIN_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/formatted_train_list.txt'
+FORMATTED_VAL_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/formatted_val_list.txt'
+FORMATTED_TEST_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/formatted_test_list.txt'
+
 # Trained models
 PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_model_18_0.012060843364452012.pth'
 PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_refine_model_37_0.010551110985974044.pth'

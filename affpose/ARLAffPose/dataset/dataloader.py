@@ -33,9 +33,12 @@ class ARLAffPose():
 
     def __init__(self,
                  split='train',
+                 use_pred_masks=False,
                  select_random_images=True,
                  num_images=250,
                  ):
+
+        self.use_pred_masks = use_pred_masks
 
         ###################################
         # Load Ply files
@@ -68,13 +71,14 @@ class ARLAffPose():
             self.img_files = np.array(self.img_files)[random_idx]
             print("Chosen Files: {}".format(len(self.img_files)))
 
-    def get_item(self, image_idx):
+    def get_item(self, image_idx, verbose=False):
 
         image_addr = self.img_files[image_idx].rstrip()
         dataset_dir = image_addr.split('rgb/')[0]
         image_num = image_addr.split('rgb/')[-1]
 
-        print('\nimage:{}/{}, file:{}'.format(image_idx + 1, len(self.img_files), image_addr))
+        if verbose:
+            print('\nimage:{}/{}, file:{}'.format(image_idx + 1, len(self.img_files), image_addr))
 
         rgb_addr = dataset_dir + 'rgb/' + image_num + config.RGB_EXT
         depth_addr = dataset_dir + 'depth/' + image_num + config.DEPTH_EXT
@@ -110,7 +114,7 @@ class ARLAffPose():
         # Load PRED masks
         ##################################
 
-        if self.split == 'test':
+        if self.use_pred_masks == 'test':
             obj_label_addr = dataset_dir + 'pred_obj/' + image_num + config.TEST_OBJ_PRED_EXT
             obj_part_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PART_PRED_EXT
             aff_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PRED_EXT
@@ -202,8 +206,9 @@ class ARLAffPose():
         for idx, obj_id in enumerate(obj_ids):
             if obj_id in label_obj_ids:
                 obj_id = int(obj_id)
+                obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
                 if verbose:
-                    print("\tObject: {}, {}".format(obj_id, self.obj_classes[int(obj_id) - 1]))
+                    print("\tObject: {} Id: {}".format(obj_name, obj_id))
                 obj_color = arl_affpose_dataset_utils.obj_color_map(obj_id)
 
                 obj_meta_idx = str(1000 + obj_id)[1:]
@@ -240,7 +245,7 @@ class ARLAffPose():
                         obj_part_id = int(obj_part_id)
                         aff_id = arl_affpose_dataset_utils.map_obj_part_id_to_aff_id(obj_part_id)
                         if verbose:
-                            print("\t\tAff: {}, {}".format(aff_id, self.obj_part_classes[int(obj_part_id) - 1]))
+                            print("\t\tObj Part Id: {}".format(obj_part_id))
 
                         #######################################
                         # OBJECT POSE
