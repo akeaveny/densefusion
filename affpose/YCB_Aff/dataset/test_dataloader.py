@@ -17,8 +17,8 @@ sys.path.append('../../..')
 #######################################
 #######################################
 
-from affpose.ARLAffPose.dataset import dataloader
-from affpose.ARLAffPose.dataset import arl_affpose_dataset_utils
+from affpose.YCB_Aff.dataset import dataloader
+from affpose.YCB_Aff.dataset import ycb_aff_dataset_utils
 
 #######################################
 #######################################
@@ -29,10 +29,7 @@ class TestARLAffPoseDataloader(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestARLAffPoseDataloader, self).__init__(*args, **kwargs)
         # load real images.
-        self.dataloader = dataloader.ARLAffPose(split='test',
-                                                use_pred_masks=True,
-                                                select_random_images=True,
-                                                num_images=250)
+        self.dataloader = dataloader.YCBAff(split='test', select_random_images=True, num_images=10)
 
     def load_images(self):
 
@@ -44,25 +41,24 @@ class TestARLAffPoseDataloader(unittest.TestCase):
 
             rgb = data["rgb"]
             obj_label = data["obj_label"]
-            obj_part_label = data["obj_part_label"]
+            aff_label = data["aff_label"]
             depth_8bit = data["depth_8bit"]
 
             #####################
             #####################
 
-            colour_obj_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_label)
+            colour_obj_label = ycb_aff_dataset_utils.colorize_obj_mask(obj_label)
             colour_obj_label = cv2.addWeighted(rgb, 0.35, colour_obj_label, 0.65, 0)
 
-            obj_part_label = arl_affpose_dataset_utils.convert_obj_part_mask_to_obj_mask(obj_part_label)
-            colour_obj_part_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_part_label)
-            colour_obj_part_label = cv2.addWeighted(rgb, 0.35, colour_obj_part_label, 0.65, 0)
+            colour_aff_label = ycb_aff_dataset_utils.colorize_aff_mask(aff_label)
+            colour_aff_label = cv2.addWeighted(rgb, 0.35, colour_aff_label, 0.65, 0)
 
             #####################
             # PLOTTING
             #####################
 
             cv2.imshow('colour_obj_label', cv2.cvtColor(colour_obj_label, cv2.COLOR_BGR2RGB))
-            cv2.imshow('colour_obj_part_label', cv2.cvtColor(colour_obj_part_label, cv2.COLOR_BGR2RGB))
+            cv2.imshow('colour_obj_part_label', cv2.cvtColor(colour_aff_label, cv2.COLOR_BGR2RGB))
             cv2.imshow('depth', depth_8bit)
 
             cv2.waitKey(0)

@@ -3,8 +3,8 @@ import numpy as np
 #######################################
 #######################################
 
-from affpose.ARLAffPose import cfg as config
-from affpose.ARLAffPose.dataset import arl_affpose_dataset_utils
+from affpose.YCB_Aff import cfg as config
+from affpose.YCB_Aff.dataset import ycb_aff_dataset_utils
 
 #######################################
 # Error Metrics.
@@ -72,7 +72,7 @@ def get_obj_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c):
     objs_pred_c = objs_pred_c[non_zero_idx]
 
     for obj_id in range(1, config.NUM_OBJECTS + 1):
-        obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
+        obj_name = "{:<15}".format(ycb_aff_dataset_utils.map_obj_id_to_name(obj_id))
         # get rows for current obj.
         idxs = np.argwhere(pred_class_ids == obj_id).reshape(-1)
         occlusion = np.sort(objs_occlusion[idxs])
@@ -93,56 +93,6 @@ def get_obj_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c):
               '\t\tPred C: Min: {:.3f}, '
               'Mean: {:.3f},'
               .format(obj_name,
-                        len(idxs),
-                        np.nanmin(occlusion),
-                        np.nanmean(occlusion),
-                        np.nanmin(choose),
-                        np.nanmean(choose),
-                        np.nanmin(pred_c),
-                        np.nanmean(pred_c),
-              ))
-
-
-def get_pbj_part_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c):
-
-    # flatten arrays.
-    pred_class_ids = pred_class_ids.reshape(-1)
-    objs_occlusion = objs_occlusion.reshape(-1)
-    objs_choose = objs_choose.reshape(-1)
-    objs_pred_c = objs_pred_c.reshape(-1)
-
-    # find non zero idxs.
-    non_zero_idx = np.nonzero(pred_class_ids)
-    pred_class_ids = pred_class_ids[non_zero_idx]
-    objs_occlusion = objs_occlusion[non_zero_idx]
-    objs_choose = objs_choose[non_zero_idx]
-    objs_pred_c = objs_pred_c[non_zero_idx]
-
-    for obj_part_id in range(1, config.NUM_OBJECTS_PARTS + 1):
-        obj_id = arl_affpose_dataset_utils.map_obj_part_id_to_obj_id(obj_part_id)
-        obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
-        # get rows for current obj.
-        idxs = np.argwhere(pred_class_ids == obj_part_id).reshape(-1)
-        occlusion = np.sort(objs_occlusion[idxs])
-        choose = np.sort(objs_choose[idxs])
-        pred_c = np.sort(objs_pred_c[idxs])
-
-        # Add correction to occlusion.
-        if np.less(min(occlusion), 0):
-            occlusion += min(occlusion)
-
-        # print stats.
-        print('Object: {}'
-              'Part Id: {}, '
-              'Num Pred: {},'
-              '\t\tocclusion: Min: {:.5f}, '
-              'Mean: {:.5f},'
-              '\t\tChoose: Min: {:.0f}, '
-              'Mean: {:.0f},'
-              '\t\tPred C: Min: {:.3f}, '
-              'Mean: {:.3f},'
-              .format(obj_name,
-                        obj_part_id,
                         len(idxs),
                         np.nanmin(occlusion),
                         np.nanmean(occlusion),

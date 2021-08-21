@@ -196,9 +196,11 @@ class PoseDataset(data.Dataset):
             mask_label = ma.getmaskarray(ma.masked_equal(obj_part_label, obj_part_id))
             mask_rgb = np.repeat(mask_label, 3).reshape(obj_part_label.shape[0], obj_part_label.shape[1], -1) * img
             mask_depth = mask_label * ma.getmaskarray(ma.masked_not_equal(depth, 0))
-            # WE NEED AT LEAST minimum_num_pt ON DEPTH IMAGE
-            print("------------> {} Obj Part:{}\tMasked Depth:{}".format(obj_name, obj_part_id, len(mask_depth.nonzero()[0])))
-            if len(mask_depth.nonzero()[0]) > self.minimum_num_pt:
+            num_mask =  len(mask_depth.nonzero()[0])
+            # WE NEED AT LEAST minimum_num_pt ON DEPTH IMAGE.
+            # This is affected by add_front to label.
+            print("------------> {} Obj Part:{}\tMasked Depth:{}".format(obj_name, obj_part_id, num_mask))
+            if num_mask > self.minimum_num_pt:
                 break
 
         # # todo (visualize): RGB ROIs

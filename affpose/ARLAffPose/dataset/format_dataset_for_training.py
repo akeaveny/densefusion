@@ -26,6 +26,8 @@ from affpose.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 #######################################
 
 SPLIT = 'test'
+NUM_PT_MIN = 500
+
 
 class TestARLAffPoseDataloader(unittest.TestCase):
 
@@ -88,7 +90,7 @@ class TestARLAffPoseDataloader(unittest.TestCase):
                             masked_obj_part_label = np.ma.getmaskarray(np.ma.masked_equal(obj_part_label, obj_part_id))
                             mask_obj_part_depth = masked_obj_part_label * ma.getmaskarray(ma.masked_not_equal(depth_16bit, 0))
                             num_obj_part_points = len(mask_obj_part_depth.nonzero()[0])
-                            if num_obj_part_points < config.NUM_PT_MIN:
+                            if num_obj_part_points < NUM_PT_MIN:
                                 print('\nimage:{}/{}, file:{}'.format(image_idx + 1, len(self.dataloader.img_files), image_addr.rstrip()))
                                 print("\tObject: {} Masked Depth: {}".format(obj_name, num_obj_points))
                                 print("\t\tAff: {}\tMasked Depth: {}".format(aff_name, num_obj_part_points))

@@ -82,7 +82,7 @@ class PoseDataset(data.Dataset):
         self.trancolor = transforms.ColorJitter(0.2, 0.2, 0.2, 0.05)
         self.noise_img_loc = 0.0
         self.noise_img_scale = 7.0
-        self.minimum_num_pt = 500
+        self.minimum_num_pt = 50
         self.norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         self.symmetry_obj_idx = [12, 15, 18, 19, 20]
         self.num_pt_mesh_small = 500
@@ -157,8 +157,9 @@ class PoseDataset(data.Dataset):
             mask_depth = ma.getmaskarray(ma.masked_not_equal(depth, 0))
             mask_label = ma.getmaskarray(ma.masked_equal(label, obj_part_id))
             mask = mask_label * mask_depth
-            print("------------> {} Obj Part:{}\tMasked Depth:{}".format(obj_name, obj_part_id, len(mask_depth.nonzero()[0])))
-            if len(mask.nonzero()[0]) > self.minimum_num_pt:
+            num_mask = len(mask.nonzero()[0])
+            print("------------> {} Obj Part:{}\tMasked Depth:{}".format(obj_name, obj_part_id, num_mask))
+            if num_mask > self.minimum_num_pt:
                 break
 
         # print('obj_part_id: ', obj_part_id)

@@ -44,19 +44,19 @@ from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from
 #######################################
 #######################################
 
-from affpose.ARLAffPose import cfg as config
-from affpose.ARLAffPose.dataset import arl_affpose_dataset_utils
-from affpose.ARLAffPose.dataset import dataloader as arl_affpose_dataloader
-from affpose.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
-from affpose.ARLAffPose.eval import eval_utils
+from affpose.YCB_Aff import cfg as config
+from affpose.YCB_Aff.dataset import ycb_aff_dataset_utils
+from affpose.YCB_Aff.dataset import dataloader as ycb_aff_dataloader
+from affpose.YCB_Aff.utils.bbox.extract_bboxs_from_label import get_obj_part_bbox
+from affpose.YCB_Aff.eval import eval_utils
 
 #######################################
 #######################################
 
-DELETE_OLD_RESULTS = True
+DELETE_OLD_RESULTS = False
 
 SELECT_RANDOM_IMAGES = False
-NUM_IMAGES = 10
+NUM_IMAGES = 50
 
 VISUALIZE_AND_GET_ERROR_METRICS = False
 PROJECT_MESH_ON_IMAGE = False
@@ -69,15 +69,15 @@ def main():
     ##################################
 
     if DELETE_OLD_RESULTS:
-        files = glob.glob(config.AFF_EVAL_FOLDER_GT + '/*')
+        files = glob.glob(config.OBJ_EVAL_FOLDER_GT + '/*')
         for file in files:
             os.remove(file)
 
-        files = glob.glob(config.AFF_EVAL_FOLDER_DF_WO_REFINE + '/*')
+        files = glob.glob(config.OBJ_EVAL_FOLDER_DF_WO_REFINE + '/*')
         for file in files:
             os.remove(file)
 
-        files = glob.glob(config.AFF_EVAL_FOLDER_DF_ITERATIVE + '/*')
+        files = glob.glob(config.OBJ_EVAL_FOLDER_DF_ITERATIVE + '/*')
         for file in files:
             os.remove(file)
 
@@ -87,12 +87,12 @@ def main():
 
     estimator = PoseNet(num_points=config.NUM_PT, num_obj=config.NUM_OBJECTS)
     estimator.cuda()
-    estimator.load_state_dict(torch.load(config.PRE_TRAINED_AFF_MODEL))
+    estimator.load_state_dict(torch.load(config.PRE_TRAINED_MODEL))
     estimator.eval()
 
     refiner = PoseRefineNet(num_points=config.NUM_PT, num_obj=config.NUM_OBJECTS)
     refiner.cuda()
-    refiner.load_state_dict(torch.load(config.PRE_TRAINED_AFF_REFINE_MODEL))
+    refiner.load_state_dict(torch.load(config.PRE_TRAINED_REFINE_MODEL))
     refiner.eval()
 
     img_norm = transforms.Normalize(mean=config.IMG_MEAN, std=config.IMG_STD)
@@ -102,19 +102,16 @@ def main():
     ###################################
 
     # load real images.
-    dataloader = arl_affpose_dataloader.ARLAffPose(split='test',
-                                                   use_pred_masks=False,
-                                                   select_random_images=SELECT_RANDOM_IMAGES,
-                                                   num_images=NUM_IMAGES)
+    dataloader = ycb_aff_dataloader.YCBAff(split='test', select_random_images=SELECT_RANDOM_IMAGES, num_images=NUM_IMAGES)
 
     ###################################
     # Stats
     ###################################
 
-    stats_pred_class_ids = np.zeros(shape=(len(dataloader.img_files), 20))
-    stats_pred_occlusion = np.zeros(shape=(len(dataloader.img_files), 20))
-    stats_pred_choose = np.zeros(shape=(len(dataloader.img_files), 20))
-    stats_pred_c = np.zeros(shape=(len(dataloader.img_files), 20))
+    stats_pred_class_ids = np.zeros(shape=(len(dataloader.img_files), 10))
+    stats_pred_occlusion = np.zeros(shape=(len(dataloader.img_files), 10))
+    stats_pred_choose = np.zeros(shape=(len(dataloader.img_files), 10))
+    stats_pred_c = np.zeros(shape=(len(dataloader.img_files), 10))
 
     for image_idx, image_addr in enumerate(dataloader.img_files):
         t0 = time.time()
@@ -149,54 +146,62 @@ def main():
 
         #####################
         #####################
-        print()
 
-        obj_ids = np.array(meta['object_class_ids']).flatten()
+        # obj ids.
+        obj_ids = np.array(meta['cls_indexes']).flatten()
+
+        # gt pose.
+        gt_poses = np.array(meta['poses']).flatten().reshape(3, 4, -1)
+
         for idx, obj_id in enumerate(obj_ids):
             if obj_id in np.unique(obj_label):
-                obj_color = arl_affpose_dataset_utils.obj_color_map(obj_id)
-                obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
-                print("Object: ID:{}, Name: {}".format(obj_id, obj_name))
+                obj_color = ycb_aff_dataset_utils.obj_color_map(obj_id)
+                print("Object: ID:{}, Name:{}".format(obj_id, dataloader.obj_classes[int(obj_id) - 1]))
 
-                #######################################
-                # ITERATE OVER OBJ PARTS
-                #######################################
-
-                obj_part_ids = arl_affpose_dataset_utils.map_obj_id_to_obj_part_ids(obj_id)
+                obj_part_ids = ycb_aff_dataset_utils.map_obj_ids_to_obj_part_ids(obj_id)
                 for obj_part_id in obj_part_ids:
                     if obj_part_id in dataloader.obj_part_ids and obj_part_id in np.unique(obj_part_label):
-                        obj_part_id = int(obj_part_id)
-                        aff_id = arl_affpose_dataset_utils.map_obj_part_id_to_aff_id(obj_part_id)
-                        aff_name = "{:<30}".format(arl_affpose_dataset_utils.map_aff_id_to_name(aff_id))
 
                         #######################################
                         # ground truth.
                         #######################################
 
-                        obj_part_id_idx = str(1000 + obj_part_id)[1:]
-                        gt_obj_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
-                        gt_obj_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]
-                        obj_occlusion = meta['obj_part_occlusion' + str(obj_part_id_idx)]
-
-                        #####################
-                        #####################
+                        obj_id_idx = str(1000 + obj_id)[1:]
+                        gt_obj_t = gt_poses[:, :, idx][0:3, -1]
+                        gt_obj_r = gt_poses[:, :, idx][0:3, 0:3]
+                        obj_occlusion = meta['obj_occlusion' + str(obj_id_idx)]
 
                         try:
 
+                            ##################################
+                            # OBJECT: Select Region of Interest
+                            ##################################
+                            # get bbox.
+                            x1, y1, x2, y2 = get_obj_part_bbox(obj_label.copy(), obj_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
+                            # get mask.
+                            mask_label = ma.getmaskarray(ma.masked_equal(obj_label, obj_id))
+                            mask_depth = mask_label * depth_16bit
+
+                            choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
+                            obj_choose = len(choose.copy())
+                            
                             ##################################
                             # OBJECT PART: Select Region of Interest
                             ##################################
                             
                             # get bbox.
-                            x1, y1, x2, y2 = get_obj_bbox(obj_part_label.copy(), obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
+                            obj_part_x1, obj_part_y1, obj_part_x2, obj_part_y2 = get_obj_part_bbox(obj_part_label.copy(), obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
                             # get mask.
-                            mask_label = ma.getmaskarray(ma.masked_equal(obj_part_label, obj_part_id))
-                            mask_depth = mask_label * depth_16bit
+                            obj_part_mask_label = ma.getmaskarray(ma.masked_equal(obj_part_label, obj_part_id))
+                            obj_part_mask_depth = obj_part_mask_label * depth_16bit
 
-                            choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
-                            obj_choose = len(choose.copy())
+                            obj_part_choose = obj_part_mask_depth[obj_part_y1:obj_part_y2, obj_part_x1:obj_part_x2].flatten().nonzero()[0]
+                            obj_part_choose = len(obj_part_choose.copy())
 
-                            if len(choose) == 0:
+                            ##################################
+                            ##################################
+
+                            if obj_part_choose == 0:
                                 raise ZeroDivisionError
                             elif len(choose) > config.NUM_PT:
                                 c_mask = np.zeros(len(choose), dtype=int)
@@ -216,7 +221,7 @@ def main():
                             # create point cloud from depth image
                             ######################################
 
-                            pt2 = depth_masked / config.CAMERA_SCALE
+                            pt2 = depth_masked / dataloader.cam_scale
                             pt0 = (ymap_masked - dataloader.cam_cx) * pt2 / dataloader.cam_fx
                             pt1 = (xmap_masked - dataloader.cam_cy) * pt2 / dataloader.cam_fy
                             cloud = np.concatenate((pt0, pt1, pt2), axis=1)
@@ -251,7 +256,6 @@ def main():
                             points = cloud.view(config.BATCH_SIZE * config.NUM_PT, 1, 3)
 
                             how_max = how_max.detach().clone().cpu().numpy()[0]
-                            print("\tAff: {} \t Choose: {},\tPred C: {:.3f}".format(aff_name, obj_choose, how_max))
 
                             my_r = pred_r[0][which_max[0]].view(-1).cpu().data.numpy()
                             my_t = (points + pred_t)[which_max[0]].view(-1).cpu().data.numpy()
@@ -335,26 +339,22 @@ def main():
                             #######################################
 
                             if VISUALIZE_AND_GET_ERROR_METRICS:
-                                if obj_part_id in arl_affpose_dataset_utils.DRAW_OBJ_PART_POSE:
-                                    obj_cld = dataloader.cld_obj_part_centered[obj_part_id]
+                                obj_cld = dataloader.cld[obj_id]
 
-                                    # projecting 3D model to 2D image
-                                    imgpts, jac = cv2.projectPoints(obj_cld * 1e3, pred_obj_r, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
-                                    if PROJECT_MESH_ON_IMAGE:
-                                        cv2_obj_part_pose_img = cv2.polylines(cv2_obj_part_pose_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
+                                # projecting 3D model to 2D image
+                                imgpts, jac = cv2.projectPoints(obj_cld * 1e3, pred_obj_r, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
+                                if PROJECT_MESH_ON_IMAGE:
+                                    cv2_obj_pose_img = cv2.polylines(cv2_obj_pose_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
 
-                                    # modify YCB objects rotation matrix
-                                    _pred_obj_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, pred_obj_r.copy())
+                                # draw pose
+                                rotV, _ = cv2.Rodrigues(pred_obj_r)
+                                points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
+                                axisPoints, _ = cv2.projectPoints(points, rotV, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
 
-                                    # draw pose
-                                    rotV, _ = cv2.Rodrigues(_pred_obj_r)
-                                    points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-                                    axisPoints, _ = cv2.projectPoints(points, rotV, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
-
-                                    axis_color = (255, 255, 255)
-                                    cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), axis_color, 3)
-                                    cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), axis_color, 3)
-                                    cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), axis_color, 3)
+                                axis_color = (255, 255, 255)
+                                cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), axis_color, 3)
+                                cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), axis_color, 3)
+                                cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), axis_color, 3)
 
                         except ZeroDivisionError:
                             print("DenseFusion Detector Lost keyframe ..")
@@ -372,7 +372,7 @@ def main():
 
         if VISUALIZE_AND_GET_ERROR_METRICS:
             cv2.imshow('depth', depth_8bit)
-            cv2.imshow('cv2_obj_part_pose_img', cv2.cvtColor(cv2_obj_part_pose_img, cv2.COLOR_BGR2RGB))
+            cv2.imshow('cv2_obj_pose_img', cv2.cvtColor(cv2_obj_pose_img, cv2.COLOR_BGR2RGB))
 
             cv2.waitKey(0)
 
@@ -380,11 +380,11 @@ def main():
         # TODO: MATLAB EVAL
         ############################
 
-        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_GT, '%04d' % image_idx),
+        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_GT, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_gt})
-        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
+        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_DF_WO_REFINE, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_df_wo_refine})
-        scio.savemat('{0}/{1}.mat'.format(config.AFF_EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
+        scio.savemat('{0}/{1}.mat'.format(config.OBJ_EVAL_FOLDER_DF_ITERATIVE, '%04d' % image_idx),
                      {"class_ids": class_ids_list, 'poses': pose_est_df_iterative})
 
         ############################

@@ -22,10 +22,10 @@ FORMATTED_VAL_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists
 FORMATTED_TEST_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/formatted_test_list.txt'
 
 # Trained models
-PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_model_18_0.012060843364452012.pth'
-PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_refine_model_37_0.010551110985974044.pth'
-PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v3/pose_model_16_0.012952367823778796.pth'
-PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v3/pose_refine_model_55_0.010159908071935377.pth'
+PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_model_13_0.011854055705214632.pth'
+PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_refine_model_26_0.01052567832528976.pth'
+PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v3/pose_model_9_0.012005668049863126.pth'
+PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v3/pose_refine_model_15_0.010520687890688751.pth'
 
 # MATLAB
 OBJ_EVAL_FOLDER_GT           = ROOT_PATH + 'affpose/ARLAffPose/matlab/obj/results/gt'
@@ -105,7 +105,7 @@ IMG_MEAN   = [164.31746134/255, 157.29184788/255, 139.49621539/255]
 IMG_STD    = [49.55041067/255, 64.919871/255, 64.19674351/255]
 
 NUM_PT = 500
-NUM_PT_MIN = 500
+NUM_PT_MIN = 50
 NUM_PT_MESH_SMALL = 500
 NUM_PT_MESH_LARGE = 2600
 

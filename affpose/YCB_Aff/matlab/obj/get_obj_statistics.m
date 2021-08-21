@@ -1,4 +1,4 @@
-function get_aff_statistics
+function get_obj_statistics
 close all; clc;clear;
 
 opt = globals();
@@ -15,7 +15,7 @@ fclose(fid);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % load results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-results_keyframe = load('results_aff_keyframe.mat');
+results_keyframe = load('results_obj_keyframe.mat');
 results_class_ids = results_keyframe.results_class_ids;
 errors_add = results_keyframe.errors_add;
 errors_add_s = results_keyframe.errors_add_s;
@@ -51,7 +51,7 @@ for class_id = 1:numel(classes)
     c = numel(d(d < auc_threshold));
     accuracy = cumsum(ones(1, n)) / n;
     AUC = VOCap(d, accuracy);
-    fprintf('%30s, \tIndex:%d, \tAUC:%.2f, \tADD<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
+    fprintf('%20s, \tIndex:%d, \tAUC:%.2f, \tADD<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
 end
 
 fprintf('\n\n')
@@ -72,7 +72,7 @@ for class_id = 1:numel(classes)
     c = numel(d(d < auc_threshold));
     accuracy = cumsum(ones(1, n)) / n;
     AUC = VOCap(d, accuracy);
-    fprintf('%30s, \tIndex:%d, \tAUC:%.2f, \tADD-S<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
+    fprintf('%20s, \tIndex:%d, \tAUC:%.2f, \tADD-S<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
 end
 
 fprintf('\n\n')
@@ -90,7 +90,7 @@ for class_id = 1:numel(classes)
     d = sort(D);
     n = numel(d);
     accuracy = cumsum(ones(1, n)) / n;
-    fprintf('%30s, \tIndex:%d, \tMean Rotation Error:%.2f [deg]\n', char(classes(class_id)), length(index), mean(d))
+    fprintf('%20s, \tIndex:%d, \tMean Rotation Error:%.2f [deg]\n', char(classes(class_id)), length(index), mean(d))
     
 end
 
@@ -109,7 +109,7 @@ for class_id = 1:numel(classes)
     d = sort(D);
     n = numel(d);
     accuracy = cumsum(ones(1, n)) / n;
-    fprintf('%30s, \tIndex:%d, \tMean Translation Error:%.2f [cm]\n', char(classes(class_id)), length(index), mean(d)*100)
+    fprintf('%20s, \tIndex:%d, \tMean Translation Error:%.2f [cm]\n', char(classes(class_id)), length(index), mean(d)*100)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % TRANSLATIONS: X, Y, Z

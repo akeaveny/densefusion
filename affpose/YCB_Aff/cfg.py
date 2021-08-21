@@ -16,6 +16,20 @@ OBJ_PART_CLASS_IDS_FILE_TRAIN = ROOT_PATH + 'datasets/ycb_aff/dataset_config/obj
 TRAIN_FILE = ROOT_PATH + 'datasets/ycb_aff/dataset_config/train_data_list.txt'
 TEST_FILE  = ROOT_PATH + 'datasets/ycb_aff/dataset_config/test_data_list.txt'
 
+# Trained models
+PRE_TRAINED_MODEL = ROOT_PATH + 'trained_models/ycb/densefusion/pose_model_26_0.012863246640872631.pth'
+PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/ycb/densefusion/pose_refine_model_69_0.009449292959118935.pth'
+PRE_TRAINED_AFF_MODEL = ROOT_PATH + 'trained_models/ycb_aff/real_and_syn/pose_model_current.pth'
+PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/ycb_aff/real_and_syn/pose_model_current.pth'
+
+# MATLAB
+OBJ_EVAL_FOLDER_GT = ROOT_PATH + 'affpose/YCB_Aff/matlab/obj/results/gt'
+OBJ_EVAL_FOLDER_DF_WO_REFINE = ROOT_PATH + 'affpose/YCB_Aff/matlab/obj/results/df_wo_refine'
+OBJ_EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'affpose/YCB_Aff/matlab/obj/results/df_iterative'
+AFF_EVAL_FOLDER_GT = ROOT_PATH + 'affpose/YCB_Aff/matlab/aff/results/gt'
+AFF_EVAL_FOLDER_DF_WO_REFINE = ROOT_PATH + 'affpose/YCB_Aff/matlab/aff/results/df_wo_refine'
+AFF_EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'affpose/YCB_Aff/matlab/aff/results/df_iterative'
+
 #######################################
 ### YCB
 #######################################
@@ -23,13 +37,14 @@ TEST_FILE  = ROOT_PATH + 'datasets/ycb_aff/dataset_config/test_data_list.txt'
 DATASET_ROOT_PATH = '/data/Akeaveny/Datasets/YCB_Video_Dataset/'
 AFF_DATASET_ROOT_PATH = '/data/Akeaveny/Datasets/YCB_Affordance_Dataset/'
 
-RGB_EXT     = '-color.png'
-DEPTH_EXT   = '-depth.png'
-LABEL_EXT   = '-label.png'
-META_EXT    = '-meta.mat'
-BOX_EXT     = '-box.txt'
+RGB_EXT = '-color.png'
+DEPTH_EXT = '-depth.png'
+LABEL_EXT = '-label.png'
+META_EXT = '-meta.mat'
+BOX_EXT = '-box.txt'
 
-AFF_LABEL_EXT   = '-aff_label.png'
+OBJ_PART_LABEL_EXT = '-obj_part_label.png'
+AFF_LABEL_EXT = '-aff_label.png'
 
 #######################################
 ### YCB AFF
@@ -37,8 +52,8 @@ AFF_LABEL_EXT   = '-aff_label.png'
 
 NUM_OBJECTS = 21
 
-IMG_MEAN   = [0.485, 0.456, 0.406]
-IMG_STD    = [0.229, 0.224, 0.225]
+IMG_MEAN = [0.485, 0.456, 0.406]
+IMG_STD = [0.229, 0.224, 0.225]
 
 #######################################
 # CAMERA CONFIGS
@@ -72,5 +87,13 @@ YMAP = np.array([[i for i in range(HEIGHT)] for j in range(WIDTH)])
 NUM_PT = 1000
 NUM_PT_MESH_SMALL = 500
 NUM_PT_MESH_LARGE = 2600
+
+FRONT_NUM = 2
+
+REFINE_ITERATIONS = 2
+BATCH_SIZE = 1
+
+PRED_C_THRESHOLD = 0.0
+
 
 

@@ -2,14 +2,28 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fef67ee5-702b-4651-9b94-1d0cb15fd781" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/DenseFusion.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DenseFusion.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/cfg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/arl_affpose_dataset_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/arl_affpose_dataset_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/dataloader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/format_data_for_training.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/format_dataset_for_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/format_dataset_for_training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/test_dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/dataset/test_dataloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/eval/eval_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/eval/eval_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_aff.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_aff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_obj.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframes_obj.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/matlab/aff/evaluate_aff_poses_keyframe.m" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/matlab/aff/evaluate_aff_poses_keyframe.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/ARLAffPose/matlab/aff/get_aff_statistics.m" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/ARLAffPose/matlab/aff/get_aff_statistics.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/cfg.py" beforeDir="false" afterPath="$PROJECT_DIR$/affpose/YCB_Aff/cfg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/dataset_config/ycb/class_ids.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/dataset_config/ycb/classes.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/dataset_config/ycb/obj_part_class_ids.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/dataset_config/ycb/obj_part_classes.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/dataset_config/ycb/test_data_list.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/affpose/YCB_Aff/dataset_config/ycb/train_data_list.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/arl_affpose/dataset_obj.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/arl_affpose/dataset_obj.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/ycb/dataset (copy).py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/ycb_aff/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets/ycb_aff/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +54,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/affpose/ARLAffPose/dataset/format_dataset_for_training.py" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.format_dataset_for_training">
+  <component name="RunManager" selected="Python.test_dataloader">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="DenseFusion" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -55,28 +69,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="evaluate_keyframe_aff" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
-      <module name="DenseFusion" />
-      <option name="INTERPRETER_OPTIONS" value="-W ignore" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/AffNet/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/affpose/ARLAffPose/eval" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/affpose/ARLAffPose/eval/evaluate_keyframe_aff.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -111,16 +103,13 @@
       <module name="DenseFusion" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/DenseFusion/bin/python" />
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/envs/AffNet/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/affpose/ARLAffPose/dataset" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/affpose/ARLAffPose/dataset/test_dataloader.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/affpose/YCB_Aff/dataset/test_dataloader.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -154,7 +143,6 @@
     <list>
       <item itemvalue="Python.format_dataset_for_training" />
       <item itemvalue="Python.test_dataloader" />
-      <item itemvalue="Python.evaluate_keyframe_aff" />
       <item itemvalue="Python.train" />
     </list>
   </component>
@@ -265,7 +253,17 @@
       <workItem from="1629040760828" duration="10523000" />
       <workItem from="1629052242455" duration="5178000" />
       <workItem from="1629063639209" duration="23000" />
-      <workItem from="1629131685996" duration="119000" />
+      <workItem from="1629131685996" duration="2742000" />
+      <workItem from="1629215897835" duration="860000" />
+      <workItem from="1629261329818" duration="15000" />
+      <workItem from="1629261993489" duration="1257000" />
+      <workItem from="1629263261634" duration="22000" />
+      <workItem from="1629303201143" duration="649000" />
+      <workItem from="1629317191988" duration="3173000" />
+      <workItem from="1629340025590" duration="70000" />
+      <workItem from="1629476955997" duration="634000" />
+      <workItem from="1629520607990" duration="19000" />
+      <workItem from="1629554974532" duration="8948000" />
     </task>
     <servers />
   </component>
@@ -298,30 +296,26 @@
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/affpose/ARLAffPose/dataset/dataloader.py</url>
-          <line>89</line>
-          <option name="timeStamp" value="18" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/affpose/ARLAffPose/dataset/dataloader.py</url>
-          <line>76</line>
-          <option name="timeStamp" value="19" />
+          <url>file://$PROJECT_DIR$/datasets/arl_affpose/dataset_aff.py</url>
+          <line>105</line>
+          <option name="timeStamp" value="20" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/DenseFusion$format_data_for_training.coverage" NAME="format_data_for_training Coverage Results" MODIFIED="1624990995178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$check_confidence_scores.coverage" NAME="check_confidence_scores Coverage Results" MODIFIED="1627356767583" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$format_dataset_for_training.coverage" NAME="format_dataset_for_training Coverage Results" MODIFIED="1629062994185" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/affpose/ARLAffPose/dataset" />
     <SUITE FILE_PATH="coverage/DenseFusion$ycb_aff_load_gt_poses.coverage" NAME="ycb_aff_load_gt_poses Coverage Results" MODIFIED="1624906203254" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB_Aff/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_obj_poses.coverage" NAME="load_gt_obj_poses Coverage Results" MODIFIED="1624811884034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$load_gt_poses.coverage" NAME="load_gt_poses Coverage Results" MODIFIED="1624535317151" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$ycb_aff_load_images.coverage" NAME="ycb_aff_load_images Coverage Results" MODIFIED="1621115523660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB_Aff/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$train.coverage" NAME="train Coverage Results" MODIFIED="1629163743680" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DenseFusion$format_data_for_training.coverage" NAME="format_data_for_training Coverage Results" MODIFIED="1624990995178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$check_confidence_scores.coverage" NAME="check_confidence_scores Coverage Results" MODIFIED="1627356767583" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB/scripts" />
+    <SUITE FILE_PATH="coverage/DenseFusion$load_gt_obj_poses.coverage" NAME="load_gt_obj_poses Coverage Results" MODIFIED="1624811884034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$evaluate_poses_keyframe_obj.coverage" NAME="evaluate_poses_keyframe Coverage Results" MODIFIED="1624819596354" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLVicon/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$evaluate_poses_keyframe.coverage" NAME="evaluate_poses_keyframe Coverage Results" MODIFIED="1621544855997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
     <SUITE FILE_PATH="coverage/DenseFusion$load_gt_obj_part_poses.coverage" NAME="load_gt_obj_part_poses Coverage Results" MODIFIED="1624811909442" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/ARLAffPose/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$ycb_aff_load_images.coverage" NAME="ycb_aff_load_images Coverage Results" MODIFIED="1621115523660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools/YCB_Aff/scripts" />
-    <SUITE FILE_PATH="coverage/DenseFusion$train.coverage" NAME="train Coverage Results" MODIFIED="1629046160270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DenseFusion$test_dataloader.coverage" NAME="test_dataloader Coverage Results" MODIFIED="1629571520754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/affpose/ARLAffPose/dataset" />
     <SUITE FILE_PATH="coverage/DenseFusion$evaluate_keyframes_obj.coverage" NAME="evaluate_keyframe_aff Coverage Results" MODIFIED="1628980396844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/affpose/ARLAffPose/eval" />
   </component>
 </project>

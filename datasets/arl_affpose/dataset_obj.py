@@ -23,6 +23,7 @@ from affpose.ARLAffPose.utils import helper_utils
 
 from affpose.ARLAffPose import cfg as config
 
+from affpose.ARLAffPose.dataset import arl_affpose_dataset_utils
 from affpose.ARLAffPose.utils.pose.load_obj_ply_files import load_obj_ply_files
 from affpose.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 
@@ -191,13 +192,15 @@ class PoseDataset(data.Dataset):
 
         while True:
             obj_id = obj_ids[np.random.randint(0, len(obj_ids))]
+            obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
             mask_label = ma.getmaskarray(ma.masked_equal(label, obj_id))
             mask_rgb = np.repeat(mask_label, 3).reshape(label.shape[0], label.shape[1], -1) * img
-            # mask_depth = mask_label * ma.getmaskarray(ma.masked_not_equal(depth, 0))
-            mask_depth = mask_label * depth
-            # WE NEED AT LEAST minimum_num_pt ON DEPTH IMAGE
-            # print("Obj ID:{}, Depth Image Pointcloud:{}".format(obj_id, len(mask_depth.nonzero()[0])))
-            if len(mask_depth.nonzero()[0]) > self.minimum_num_pt:
+            mask_depth = mask_label * ma.getmaskarray(ma.masked_not_equal(depth, 0))
+            num_mask = len(mask_depth.nonzero()[0])
+            # WE NEED AT LEAST minimum_num_pt ON DEPTH IMAGE.
+            # This is affected by add_front to label.
+            print("------------> {} Obj: {}\tMasked Depth:{}".format(obj_name, obj_id, num_mask))
+            if num_mask > self.minimum_num_pt:
                 break
 
         # todo (visualize): Mask Augmentation

@@ -108,22 +108,8 @@ def main():
         opt.repeat_epoch = 1 #number of repeat times for one epoch training
 
         # opt.start_epoch = 5
-        # opt.resume_posenet = 'pose_model_4_0.03322298243018445.pth'
+        # opt.resume_posenet = 'pose_model_4_0.023973513040808463.pth'
         # opt.resume_refinenet = 'pose_refine_model_77_0.009985599185401848.pth'
-
-    elif opt.dataset == 'elevator':
-        opt.num_objects = 1
-        opt.num_points = 250
-        opt.outf = 'trained_models/elevator'
-        opt.log_dir = 'experiments/logs/elevator'
-        opt.repeat_epoch = 1
-
-    elif opt.dataset == 'arl_vicon':
-        opt.num_objects = 1
-        opt.num_points = 1000
-        opt.outf = 'trained_models/arl_vicon/real_and_syn'
-        opt.log_dir = 'experiments/logs/arl_vicon/real_and_syn'
-        opt.repeat_epoch = 1
 
     elif opt.dataset == 'arl_affpose':
         opt.num_objects = 11
@@ -134,11 +120,11 @@ def main():
         opt.repeat_epoch = 1
 
         opt.w = 0.017
-        opt.iteration = 4
+        opt.iteration = 2
 
-        opt.start_epoch = 26
-        opt.resume_posenet = 'pose_model_18_0.012060843364452012.pth'
-        opt.resume_refinenet = 'pose_refine_model_25_0.011975645643366726.pth'
+        # opt.start_epoch = 26
+        # opt.resume_posenet = 'pose_model_18_0.012060843364452012.pth'
+        # opt.resume_refinenet = 'pose_refine_model_25_0.011975645643366726.pth'
 
     elif opt.dataset == 'arl_affpose_aff':
         opt.num_objects = 11
@@ -286,7 +272,7 @@ def main():
 
                 scalar_info = {'train/pred_c/{}'.format(idx.item()): torch.max(pred_c).item()}
                 for key, val in scalar_info.items():
-                    writer.add_scalar(key, val, epoch * len(dataloader) + i)
+                    writer.add_scalar(key, val, (epoch-1) * len(dataloader) + i)
 
                 ######################
                 ######################
@@ -316,7 +302,7 @@ def main():
                         scalar_info = {'loss/train': loss.item(),
                                        'dis/train': train_dis_avg / opt.batch_size * 100}
                         for key, val in scalar_info.items():
-                            writer.add_scalar(key, val, epoch*len(dataloader) + train_count)
+                            writer.add_scalar(key, val, (epoch-1) * len(dataloader) + train_count)
 
                     ######################
                     ######################
@@ -356,7 +342,7 @@ def main():
 
             scalar_info = {'test/pred_c/{}'.format(idx.item()): torch.max(pred_c).item()}
             for key, val in scalar_info.items():
-                writer.add_scalar(key, val, epoch * len(testdataloader) + j)
+                writer.add_scalar(key, val, (epoch-1) * len(testdataloader) + j)
 
             ######################
             ######################
@@ -380,7 +366,7 @@ def main():
                                'dis/test': test_dis * 100,
                                }
                 for key, val in scalar_info.items():
-                    writer.add_scalar(key, val, epoch * len(testdataloader) + test_count)
+                    writer.add_scalar(key, val, (epoch-1) * len(testdataloader) + test_count)
 
         test_dis = test_dis / test_count
         logger.info('Test time {} Epoch {} TEST FINISH Avg dis: {} [cm]'.format(time.strftime("%Hh %Mm %Ss", time.gmtime(time.time() - st_time)), epoch, test_dis * 100))

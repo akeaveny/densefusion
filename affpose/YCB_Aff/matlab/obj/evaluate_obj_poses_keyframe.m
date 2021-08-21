@@ -1,9 +1,9 @@
-function evaluate_aff_poses_keyframe
+function evaluate_obj_poses_keyframe
 
 clear;clc;
 
 opt = globals();
-delete 'results_aff_keyframe.mat'
+delete 'results_obj_keyframe.mat'
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read class names
@@ -27,9 +27,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read keyframes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-gt_keyframes = dir(fullfile(opt.aff_eval_folder_gt, '*.mat'));
-df_wo_refine_keyframes = dir(fullfile(opt.aff_eval_folder_df_wo_refine, '*.mat'));
-df_iterative_keyframes = dir(fullfile(opt.aff_eval_folder_df_iterative, '*.mat'));
+gt_keyframes = dir(fullfile(opt.obj_eval_folder_gt, '*.mat'));
+df_wo_refine_keyframes = dir(fullfile(opt.obj_eval_folder_df_wo_refine, '*.mat'));
+df_iterative_keyframes = dir(fullfile(opt.obj_eval_folder_df_iterative, '*.mat'));
 fprintf('Loaded %d Keyframes \n', numel(gt_keyframes))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -94,7 +94,7 @@ for i = 1:numel(gt_keyframes)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-save('results_aff_keyframe.mat', ...
+save('results_obj_keyframe.mat', ...
 'results_class_ids',...
 'errors_add', ...
 'errors_add_s',...
