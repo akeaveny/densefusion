@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 ######################
 ######################
 
-from tools.YCB import cfg as config
+from affpose.YCB import cfg as config
 
 ######################
 # IMG UTILS

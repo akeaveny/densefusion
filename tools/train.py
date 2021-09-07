@@ -107,9 +107,9 @@ def main():
         output_results = 'check_ycb.txt'
         opt.repeat_epoch = 1 #number of repeat times for one epoch training
 
-        # opt.start_epoch = 5
-        # opt.resume_posenet = 'pose_model_4_0.023973513040808463.pth'
-        # opt.resume_refinenet = 'pose_refine_model_77_0.009985599185401848.pth'
+        opt.start_epoch = 36
+        opt.resume_posenet = 'pose_model_20_0.012745570227629784.pth'
+        opt.resume_refinenet = 'pose_refine_model_35_0.011192112675707385.pth'
 
     elif opt.dataset == 'arl_affpose':
         opt.num_objects = 11

@@ -19,6 +19,8 @@ TEST_FILE  = ROOT_PATH + 'datasets/ycb_aff/dataset_config/test_data_list.txt'
 # Trained models
 PRE_TRAINED_MODEL = ROOT_PATH + 'trained_models/ycb/densefusion/pose_model_26_0.012863246640872631.pth'
 PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/ycb/densefusion/pose_refine_model_69_0.009449292959118935.pth'
+# PRE_TRAINED_MODEL = ROOT_PATH + 'trained_models/ycb/real_and_syn/pose_model_27_0.012961520093793814.pth'
+# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/ycb/real_and_syn/pose_refine_model_93_0.009422253060541326.pth'
 PRE_TRAINED_AFF_MODEL = ROOT_PATH + 'trained_models/ycb_aff/real_and_syn/pose_model_current.pth'
 PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/ycb_aff/real_and_syn/pose_model_current.pth'
 
@@ -37,6 +39,8 @@ AFF_EVAL_FOLDER_DF_ITERATIVE = ROOT_PATH + 'affpose/YCB_Aff/matlab/aff/results/d
 DATASET_ROOT_PATH = '/data/Akeaveny/Datasets/YCB_Video_Dataset/'
 AFF_DATASET_ROOT_PATH = '/data/Akeaveny/Datasets/YCB_Affordance_Dataset/'
 
+YCB_TOOLBOX_CONFIG = ROOT_PATH + 'YCB_Video_toolbox/results_PoseCNN_RSS2018/'
+
 RGB_EXT = '-color.png'
 DEPTH_EXT = '-depth.png'
 LABEL_EXT = '-label.png'
@@ -46,11 +50,14 @@ BOX_EXT = '-box.txt'
 OBJ_PART_LABEL_EXT = '-obj_part_label.png'
 AFF_LABEL_EXT = '-aff_label.png'
 
+POSECNN_EXT = '.mat'
+
 #######################################
 ### YCB AFF
 #######################################
 
 NUM_OBJECTS = 21
+NUM_OBJECTS_PARTS = 31
 
 IMG_MEAN = [0.485, 0.456, 0.406]
 IMG_STD = [0.229, 0.224, 0.225]

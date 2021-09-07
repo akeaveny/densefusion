@@ -38,10 +38,10 @@ TEST_SAVE_FOLDER = DATASET_ROOT_PATH + 'test_densefusion/'
 
 MATLAB_SCRIPTS_DIR = np.str(DENSEFUSION_ROOT_PATH + '/matlab/')
 
-EVAL_FOLDER_GT           = DENSEFUSION_ROOT_PATH + 'tools/YCB/matlab/results/gt'
-EVAL_FOLDER_POSECNN      = DENSEFUSION_ROOT_PATH + 'tools/YCB/matlab/results/posecnn'
-EVAL_FOLDER_DF_WO_REFINE = DENSEFUSION_ROOT_PATH + 'tools/YCB/matlab/results/df_wo_refine'
-EVAL_FOLDER_DF_ITERATIVE = DENSEFUSION_ROOT_PATH + 'tools/YCB/matlab/results/df_iterative'
+EVAL_FOLDER_GT = DENSEFUSION_ROOT_PATH + 'affpose/YCB/matlab/results/gt'
+EVAL_FOLDER_POSECNN = DENSEFUSION_ROOT_PATH + 'affpose/YCB/matlab/results/posecnn'
+EVAL_FOLDER_DF_WO_REFINE = DENSEFUSION_ROOT_PATH + 'affpose/YCB/matlab/results/df_wo_refine'
+EVAL_FOLDER_DF_ITERATIVE = DENSEFUSION_ROOT_PATH + 'affpose/YCB/matlab/results/df_iterative'
 
 #######################################
 ### DATASET CONFIG

@@ -16,16 +16,17 @@ OBJ_PART_CLASS_IDS_FILE_TRAIN = ROOT_PATH + 'datasets/arl_affpose/dataset_config
 TRAIN_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/train_list.txt'
 VAL_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/val_list.txt'
 TEST_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/test_list.txt'
+SINGLE_FILE  = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/single_list.txt'
 
 FORMATTED_TRAIN_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/formatted_train_list.txt'
 FORMATTED_VAL_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/formatted_val_list.txt'
 FORMATTED_TEST_FILE = ROOT_PATH + 'datasets/arl_affpose/dataset_config/data_lists/formatted_test_list.txt'
 
 # Trained models
-PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_model_13_0.011854055705214632.pth'
-PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v3/pose_refine_model_26_0.01052567832528976.pth'
-PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v3/pose_model_9_0.012005668049863126.pth'
-PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v3/pose_refine_model_15_0.010520687890688751.pth'
+PRE_TRAINED_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v0/pose_model_13_0.011854055705214632.pth'
+PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_obj/real_and_syn_v0/pose_refine_model_26_0.01052567832528976.pth'
+PRE_TRAINED_AFF_MODEL        = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v0/pose_model_9_0.012005668049863126.pth'
+PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/arl_affpose_aff/real_and_syn_v0/pose_refine_model_15_0.010520687890688751.pth'
 
 # MATLAB
 OBJ_EVAL_FOLDER_GT           = ROOT_PATH + 'affpose/ARLAffPose/matlab/obj/results/gt'
@@ -50,6 +51,7 @@ DATA_DIRECTORY       = ROOT_DATA_PATH + 'Real/'
 DATA_DIRECTORY_TRAIN = DATA_DIRECTORY + 'train/'
 DATA_DIRECTORY_VAL   = DATA_DIRECTORY + 'val/'
 DATA_DIRECTORY_TEST  = DATA_DIRECTORY + 'test/'
+DATA_DIRECTORY_SINGLE = ROOT_DATA_PATH + 'WAM/' + 'train/'
 
 # SYN
 SYN_DATA_DIRECTORY       = ROOT_DATA_PATH + 'Syn/'

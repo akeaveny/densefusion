@@ -21,9 +21,6 @@ errors_add = results_keyframe.errors_add;
 errors_add_s = results_keyframe.errors_add_s;
 errors_rotation = results_keyframe.errors_rotation;
 errors_translation = results_keyframe.errors_translation;
-errors_translation_x = results_keyframe.errors_translation_x;
-errors_translation_y = results_keyframe.errors_translation_y;
-errors_translation_z = results_keyframe.errors_translation_z;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % AUC
@@ -114,11 +111,11 @@ for class_id = 1:numel(classes)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % TRANSLATIONS: X, Y, Z
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    D = errors_translation_x(index);
+%     D = errors_translation_x(index);
 %     fprintf('%20s, \tIndex:%d, \tMean X:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
-    D = errors_translation_y(index);
+%     D = errors_translation_y(index);
 %     fprintf('%20s, \tIndex:%d, \tMean Y:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
-    D = errors_translation_z(index);
+%     D = errors_translation_z(index);
 %     fprintf('%20s, \tIndex:%d, \tMean Z:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
     
 end

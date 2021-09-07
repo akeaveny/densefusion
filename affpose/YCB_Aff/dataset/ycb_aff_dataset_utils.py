@@ -1,14 +1,14 @@
-import glob
 import numpy as np
 
-import cv2
-from PIL import Image
-import matplotlib.pyplot as plt
+##################################
+##################################
 
-import argparse
+
+DRAW_OBJ_PART_POSE = np.array([1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,23,24,26,27,29,31])
 
 ##################################
 ##################################
+
 
 def map_obj_id_to_name(object_id):
 
@@ -56,6 +56,27 @@ def map_obj_id_to_name(object_id):
         return 'foam_brick'
     else:
         print(" --- Object ID does not exist in UMD --- ")
+        exit(1)
+
+
+def map_aff_id_to_name(aff_id):
+
+    if aff_id == 1:
+        return 'grasp'
+    elif aff_id == 2:
+        return 'wrap_grasp'
+    elif aff_id == 3:
+        return 'support'
+    elif aff_id == 4:
+        return 'contain'
+    elif aff_id == 5:
+        return 'cut'
+    elif aff_id == 6:
+        return 'clamp'
+    elif aff_id == 7:
+        return 'drill'
+    else:
+        print(" --- Aff ID: {} does not map to Affordance --- ".format(aff_id))
         exit(1)
 
 ##################################
@@ -106,7 +127,7 @@ def map_obj_ids_to_obj_part_ids(object_id):
     elif object_id == 21:       # 061_foam_brick_16k
         return [31]
     else:
-        print(" --- Object ID does not map to Object Parts --- ")
+        print(" --- Object ID {} does not map to Object Parts --- ".format(object_id))
         exit(1)
 
 def map_obj_part_ids_to_obj_id(obj_part_id):

@@ -43,14 +43,14 @@ from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from
 #######################################
 #######################################
 
-from tools.YCB import cfg as config
+from affpose.YCB import cfg as config
 
-from tools.YCB.utils import helper_utils
-from tools.YCB.utils.dataset import ycb_dataset_utils
+from affpose.YCB.utils import helper_utils
+from affpose.YCB.utils.dataset import ycb_dataset_utils
 
-from tools.YCB.utils.pose.load_obj_ply_files import load_obj_ply_files
+from affpose.YCB.utils.pose.load_obj_ply_files import load_obj_ply_files
 
-from tools.YCB.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_bbox, get_posecnn_bbox
+from affpose.YCB.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_bbox, get_posecnn_bbox
 
 #######################################
 #######################################
@@ -200,7 +200,8 @@ def main():
                     #######################################
 
                     mask_depth = ma.getmaskarray(ma.masked_not_equal(depth, 0))
-                    mask_label = ma.getmaskarray(ma.masked_equal(label, pred_obj_id))
+                    # mask_label = ma.getmaskarray(ma.masked_equal(label, pred_obj_id))
+                    mask_label = ma.getmaskarray(ma.masked_equal(posecnn_label, pred_obj_id))
                     mask = mask_label * mask_depth
 
                     choose = mask[rmin:rmax, cmin:cmax].flatten().nonzero()[0]

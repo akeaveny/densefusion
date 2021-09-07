@@ -53,7 +53,7 @@ class ARLAffPose():
         ##################################
 
         self.split = split
-        assert self.split == 'train' or self.split == 'val' or self.split == 'test'
+        assert self.split == 'train' or self.split == 'val' or self.split == 'test' or self.split == 'single'
 
         if self.split == 'train':
             image_files = open('{}'.format(config.FORMATTED_TRAIN_FILE), "r")
@@ -61,6 +61,8 @@ class ARLAffPose():
             image_files = open('{}'.format(config.FORMATTED_VAL_FILE), "r")
         elif self.split == 'test':
             image_files = open('{}'.format(config.FORMATTED_TEST_FILE), "r")
+        elif self.split == 'single':
+            image_files = open('{}'.format(config.SINGLE_FILE), "r")
         self.img_files = np.sort(np.array(image_files.readlines()))
         print("Loaded Files: {}".format(len(self.img_files)))
 
@@ -89,7 +91,9 @@ class ARLAffPose():
         rgb = np.array(Image.open(rgb_addr))[..., :3]
         depth = np.array(Image.open(depth_addr))
         obj_label = np.array(Image.open(obj_label_addr))
+        og_obj_label = obj_label.copy()
         obj_part_label = np.array(Image.open(obj_part_label_addr))
+        og_obj_part_label = obj_part_label.copy()
         aff_label = np.array(Image.open(aff_label_addr))
         meta = scio.loadmat(meta_addr)
 
@@ -173,13 +177,15 @@ class ARLAffPose():
                 "depth_8bit": helper_utils.convert_16_bit_depth_to_8_bit(depth),
                 "obj_label": obj_label,
                 "obj_part_label": obj_part_label,
+                "og_obj_label": og_obj_label,
+                "og_obj_part_label": og_obj_part_label,
                 "aff_label": aff_label,
                 "cv2_obj_pose_img": cv2_obj_pose_img,
                 "cv2_obj_part_pose_img": cv2_obj_part_pose_img,
                 "meta": meta,
                 }
     
-    def draw_gt_obj_pose(self, image_idx, verbose=False, project_mesh_on_image=True):
+    def draw_gt_obj_pose(self, image_idx, verbose=False, project_mesh_on_image=False, get_occlusion_metrics=False):
 
         data = self.get_item(image_idx)
 
@@ -188,9 +194,13 @@ class ARLAffPose():
         depth_8bit = data["depth_8bit"]
         obj_label = data["obj_label"]
         obj_part_label = data["obj_part_label"]
+        og_obj_label = data["og_obj_label"]
+        og_obj_part_label = data["og_obj_part_label"]
         cv2_obj_pose_img = data["cv2_obj_pose_img"]
         cv2_obj_part_pose_img = data["cv2_obj_part_pose_img"]
         meta = data["meta"]
+
+        obj_part_occlusion_mask = {}
 
         #######################################
         # OBJECT
@@ -216,13 +226,6 @@ class ARLAffPose():
 
                 obj_r = np.array(obj_r, dtype=np.float64).reshape(3, 3)
                 obj_t = np.array(obj_t, dtype=np.float64).reshape(-1, 3)
-
-                ##################################
-                # OCCLUSION
-                ##################################
-
-                obj_occlusion_label = np.zeros(shape=(config.OG_HEIGHT, config.OG_WIDTH), dtype=np.uint8)
-                obj_part_occlusion_label = np.zeros(shape=(config.OG_HEIGHT, config.OG_WIDTH), dtype=np.uint8)
 
                 ##################################
                 # BBOX
@@ -268,24 +271,6 @@ class ARLAffPose():
                         cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
 
                         #######################################
-                        # OBJ Occlusion
-                        #######################################
-
-                        # Draw obj mask.
-                        imgpts, jac = cv2.projectPoints(obj_centered * 1e3, obj_r, obj_t * 1e3, self.og_cam_mat, self.og_cam_dist)
-                        obj_projectPoints_img = np.zeros(shape=(config.OG_HEIGHT, config.OG_WIDTH), dtype=np.uint8)
-                        obj_projectPoints_img = cv2.polylines(obj_projectPoints_img, np.int32([np.squeeze(imgpts)]), False, (obj_id))
-                        masked_obj_projectPoints_img = np.ma.getmaskarray(np.ma.masked_equal(obj_projectPoints_img, obj_id))
-
-                        # get contours.
-                        # cv2_masked = np.ma.getmaskarray(np.ma.masked_equal(obj_mask, obj_id)) * cv2_masked
-                        res = cv2.findContours(masked_obj_projectPoints_img.astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-                        contours = res[-2]  # for cv2 v3 and v4+ compatibility
-
-                        # get obj mask.
-                        obj_occlusion_label = cv2.drawContours(obj_occlusion_label, contours, contourIdx=-1, color=(obj_id), thickness=-1)
-
-                        #######################################
                         # OBJECT PART AFF CENTERED
                         #######################################
                         aff_color = arl_affpose_dataset_utils.aff_color_map(aff_id)
@@ -324,69 +309,21 @@ class ARLAffPose():
                             cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
                             cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
                             cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
-
+                        
                         #######################################
-                        # OBJ Occlusion
+                        # Occlusion
                         #######################################
 
-                        # Draw obj mask.
-                        imgpts, jac = cv2.projectPoints(obj_part_centered * 1e3, obj_part_r, obj_part_t * 1e3, self.og_cam_mat, self.og_cam_dist)
-                        obj_part_projectPoints_img = np.zeros(shape=(config.OG_HEIGHT, config.OG_WIDTH), dtype=np.uint8)
-                        obj_part_projectPoints_img = cv2.polylines(obj_part_projectPoints_img, np.int32([np.squeeze(imgpts)]), False, (obj_id))
-                        masked_obj_part_projectPoints_img = np.ma.getmaskarray(np.ma.masked_equal(obj_part_projectPoints_img, obj_id))
+                        if get_occlusion_metrics:
+                            # get expected mask.
+                            imgpts, jac = cv2.projectPoints(obj_centered * 1e3, obj_r, obj_t * 1e3, self.og_cam_mat, self.og_cam_dist)
+                            expected_obj_part_mask = np.zeros(shape=(config.OG_HEIGHT, config.OG_WIDTH), dtype=np.uint8)
+                            expected_obj_part_mask = cv2.polylines(expected_obj_part_mask, np.int32([np.squeeze(imgpts)]), isClosed=False, color=1)
 
-                        # get contours.
-                        # cv2_masked = np.ma.getmaskarray(np.ma.masked_equal(obj_mask, obj_id)) * cv2_masked
-                        res = cv2.findContours(masked_obj_part_projectPoints_img.astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-                        contours = res[-2]  # for cv2 v3 and v4+ compatibility
-
-                        # get obj mask.
-                        obj_part_occlusion_label = cv2.drawContours(obj_part_occlusion_label, contours, contourIdx=-1, color=(obj_part_id), thickness=-1)
-
-                #######################################
-                # OBJ Occlusion
-                #######################################
-
-                # actual.
-                masked_obj_label = np.ma.getmaskarray(np.ma.masked_equal(obj_label, obj_id)).astype(np.uint8)
-                actual_points = np.count_nonzero(masked_obj_label)
-
-                # projected.
-                masked_obj_occlusion_label = np.ma.getmaskarray(np.ma.masked_equal(obj_occlusion_label, obj_id)).astype(np.uint8)
-                expected_points = np.count_nonzero(masked_obj_occlusion_label)
-
-                obj_occlusion = 1 - actual_points / (expected_points+1)
-                # TODO: standardize occlusion to 1.
-                obj_occlusion = max(obj_occlusion, 0.0)
-                # print('obj_occlusion: {:.3f}'.format(obj_occlusion))
-                meta['obj_occlusion' + str(obj_meta_idx)] = obj_occlusion
-
-                #######################################
-                # OBJ Occlusion
-                #######################################
-
-                for obj_part_id in obj_part_ids:
-                    if obj_part_id in np.unique(obj_part_label):
-                        obj_part_id = int(obj_part_id)
-                        obj_part_id_idx = str(1000 + obj_part_id)[1:]
-
-                        # actual.
-                        masked_obj_part_label = np.ma.getmaskarray(np.ma.masked_equal(obj_part_label, obj_part_id)).astype(np.uint8)
-                        actual_points = np.count_nonzero(masked_obj_part_label)
-
-                        # projected.
-                        masked_obj_part_occlusion_label = np.ma.getmaskarray(np.ma.masked_equal(obj_part_occlusion_label, obj_part_id)).astype(np.uint8)
-                        expected_points = np.count_nonzero(masked_obj_part_occlusion_label)
-
-                        obj_part_occlusion = 1 - actual_points / (expected_points+1)
-                        # TODO: standardize occlusion to 1.
-                        obj_part_occlusion = max(obj_part_occlusion, 0.0)
-                        # print('obj_part_occlusion: {:.3f}'.format(obj_part_occlusion))
-                        meta['obj_part_occlusion' + str(obj_part_id_idx)] = obj_part_occlusion
-
-                        # cv2.imshow('masked_obj_part_label', masked_obj_part_label * 50)
-                        # cv2.imshow('obj_part_occlusion_label', obj_part_occlusion_label * 50)
-                        # cv2.waitKey(0)
+                            # filter out extra points drawn using cv2.polylines()
+                            masked_obj_label = np.ma.getmaskarray(np.ma.masked_not_equal(og_obj_label, 0)).astype(np.uint8)
+                            expected_obj_part_mask = cv2.bitwise_and(masked_obj_label, expected_obj_part_mask)
+                            obj_part_occlusion_mask[obj_part_id] = expected_obj_part_mask
 
         #####################
         #####################
@@ -395,5 +332,6 @@ class ARLAffPose():
         data["depth_8bit"] = depth_8bit
         data["cv2_obj_pose_img"] = cv2_obj_pose_img
         data["cv2_obj_part_pose_img"] = cv2_obj_part_pose_img
+        data["obj_part_occlusion_mask"] = obj_part_occlusion_mask
 
         return data

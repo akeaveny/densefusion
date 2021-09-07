@@ -3,10 +3,10 @@ import numpy as np
 #######################################
 #######################################
 
-from tools.YCB import cfg as config
+from affpose.YCB import cfg as config
 
-from tools.YCB.utils import helper_utils
-from tools.YCB.utils.dataset import ycb_dataset_utils
+from affpose.YCB.utils import helper_utils
+from affpose.YCB.utils.dataset import ycb_dataset_utils
 
 #######################################
 #######################################

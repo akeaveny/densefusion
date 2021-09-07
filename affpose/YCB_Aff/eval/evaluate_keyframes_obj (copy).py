@@ -44,24 +44,21 @@ from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from
 #######################################
 #######################################
 
-from affpose.ARLAffPose import cfg as config
-from affpose.ARLAffPose.dataset import arl_affpose_dataset_utils
-from affpose.ARLAffPose.dataset import dataloader as arl_affpose_dataloader
-from affpose.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
-from affpose.ARLAffPose.eval import eval_utils
+from affpose.YCB_Aff import cfg as config
+from affpose.YCB_Aff.dataset import ycb_aff_dataset_utils
+from affpose.YCB_Aff.dataset import dataloader as ycb_aff_dataloader
+from affpose.YCB_Aff.utils.bbox.extract_bboxs_from_label import get_obj_part_bbox
+from affpose.YCB_Aff.eval import eval_utils
 
 #######################################
 #######################################
 
-DELETE_OLD_RESULTS = False
+DELETE_OLD_RESULTS = True
 
-SPLIT = 'single'
-USE_PRED_MASKS = False
+SELECT_RANDOM_IMAGES = False
+NUM_IMAGES = 10
 
-SELECT_RANDOM_IMAGES = True
-NUM_IMAGES = 25
-
-VISUALIZE_AND_GET_ERROR_METRICS = True
+VISUALIZE_AND_GET_ERROR_METRICS = False
 PROJECT_MESH_ON_IMAGE = False
 
 
@@ -105,10 +102,7 @@ def main():
     ###################################
 
     # load real images.
-    dataloader = arl_affpose_dataloader.ARLAffPose(split=SPLIT,
-                                                   use_pred_masks=USE_PRED_MASKS,
-                                                   select_random_images=SELECT_RANDOM_IMAGES,
-                                                   num_images=NUM_IMAGES)
+    dataloader = ycb_aff_dataloader.YCBAff(split='test', select_random_images=SELECT_RANDOM_IMAGES, num_images=NUM_IMAGES)
 
     ###################################
     # Stats
@@ -139,6 +133,34 @@ def main():
         meta = data["meta"]
 
         #####################
+        # Load PoseCNN Results.
+        #####################
+
+        # gt pose.
+        gt_poses = np.array(meta['poses']).flatten().reshape(3, 4, -1)
+
+        # posecnn
+        posecnn_meta_idx = str(1000000 + image_idx)[1:]  # gt results and posecnn are offset by 1
+        posecnn_meta_addr = config.YCB_TOOLBOX_CONFIG + posecnn_meta_idx + config.POSECNN_EXT
+        posecnn_meta = scio.loadmat(posecnn_meta_addr)
+
+        posecnn_label = np.array(posecnn_meta['labels'])
+        posecnn_rois = np.array(posecnn_meta['rois'])
+        poses_icp = np.array(posecnn_meta['poses_icp'])
+
+        pred_obj_ids = np.array(posecnn_rois[:, 1], dtype=np.uint8)
+
+        gt_obj_ids = np.array(meta['cls_indexes'].flatten(), dtype=np.uint8)
+        gt_poses = np.array(meta['poses']).flatten().reshape(3, 4, -1)
+
+        gt_to_pred_idxs = []
+        for pred_obj_id in pred_obj_ids:
+            if pred_obj_id in gt_obj_ids.tolist():
+                gt_to_pred_idxs.append(gt_obj_ids.tolist().index(pred_obj_id))
+
+        print("\nPred [{}]: {},\tGT [{}]: {}".format(len(pred_obj_ids), pred_obj_ids, len(gt_obj_ids), gt_obj_ids))
+
+        #####################
         #####################
 
         # TODO: MATLAB EVAL
@@ -146,20 +168,32 @@ def main():
         pose_est_gt = []
         pose_est_df_wo_refine = []
         pose_est_df_iterative = []
-        occlusion_list = []
         choose_list = []
         pred_c_list = []
+        occlusion_list = []
 
         #####################
         #####################
 
-        obj_ids = np.array(meta['object_class_ids']).flatten()
-        for idx, obj_id in enumerate(obj_ids):
-            if obj_id in np.unique(obj_label):
-                obj_color = arl_affpose_dataset_utils.obj_color_map(obj_id)
-                print("Object: ID:{}, Name:{}".format(obj_id, dataloader.obj_classes[int(obj_id) - 1]))
+        gt_to_pred_idx = 0
+        for idx, pred_obj_id in enumerate(pred_obj_ids):
+            if pred_obj_id in gt_obj_ids:
 
-                obj_part_ids = arl_affpose_dataset_utils.map_obj_id_to_obj_part_ids(obj_id)
+                # TODO: MATLAB EVAL
+                class_ids_list.append(pred_obj_id)
+
+                #######################################
+                # GT OBJ ID
+                #######################################
+
+                idx = gt_to_pred_idxs[gt_to_pred_idx]
+                gt_obj_id = gt_obj_ids[idx]
+                gt_to_pred_idx += 1
+
+                obj_color = ycb_aff_dataset_utils.obj_color_map(pred_obj_id)
+                print("Object: ID:{}, Name:{}".format(pred_obj_id, dataloader.obj_classes[int(pred_obj_id) - 1]))
+
+                obj_part_ids = ycb_aff_dataset_utils.map_obj_ids_to_obj_part_ids(pred_obj_id)
                 for obj_part_id in obj_part_ids:
                     if obj_part_id in dataloader.obj_part_ids and obj_part_id in np.unique(obj_part_label):
 
@@ -167,14 +201,15 @@ def main():
                         # ground truth.
                         #######################################
 
-                        obj_id_idx = str(1000 + obj_id)[1:]
-                        gt_obj_t = meta['obj_translation_' + np.str(obj_id_idx)]
-                        gt_obj_r = meta['obj_rotation_' + np.str(obj_id_idx)]
+                        obj_id_idx = str(1000 + gt_obj_id)[1:]
                         obj_occlusion = meta['obj_occlusion' + str(obj_id_idx)]
 
-                        # TODO: MATLAB EVAL
-                        class_ids_list.append(obj_id)
-                        occlusion_list.append(obj_occlusion)
+                        gt_obj_r = gt_poses[:, :, idx][0:3, 0:3]
+                        gt_obj_t = gt_poses[:, :, idx][0:3, -1]
+
+                        gt_obj_q = quaternion_from_matrix(gt_obj_r)
+                        gt_obj_pose = np.append(np.array(gt_obj_q), np.array(gt_obj_t))
+                        pose_est_gt.append(gt_obj_pose.tolist())
 
                         try:
 
@@ -182,9 +217,9 @@ def main():
                             # OBJECT: Select Region of Interest
                             ##################################
                             # get bbox.
-                            x1, y1, x2, y2 = get_obj_bbox(obj_label.copy(), obj_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
+                            x1, y1, x2, y2 = get_obj_part_bbox(obj_label.copy(), pred_obj_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
                             # get mask.
-                            mask_label = ma.getmaskarray(ma.masked_equal(obj_label, obj_id))
+                            mask_label = ma.getmaskarray(ma.masked_equal(obj_label, pred_obj_id))
                             mask_depth = mask_label * depth_16bit
 
                             choose = mask_depth[y1:y2, x1:x2].flatten().nonzero()[0]
@@ -195,7 +230,7 @@ def main():
                             ##################################
                             
                             # get bbox.
-                            obj_part_x1, obj_part_y1, obj_part_x2, obj_part_y2 = get_obj_bbox(obj_part_label.copy(), obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
+                            obj_part_x1, obj_part_y1, obj_part_x2, obj_part_y2 = get_obj_part_bbox(obj_part_label.copy(), obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
                             # get mask.
                             obj_part_mask_label = ma.getmaskarray(ma.masked_equal(obj_part_label, obj_part_id))
                             obj_part_mask_depth = obj_part_mask_label * depth_16bit
@@ -206,7 +241,7 @@ def main():
                             ##################################
                             ##################################
 
-                            if obj_choose == 0 or obj_part_choose == 0:
+                            if obj_part_choose == 0:
                                 raise ZeroDivisionError
                             elif len(choose) > config.NUM_PT:
                                 c_mask = np.zeros(len(choose), dtype=int)
@@ -226,7 +261,7 @@ def main():
                             # create point cloud from depth image
                             ######################################
 
-                            pt2 = depth_masked / config.CAMERA_SCALE
+                            pt2 = depth_masked / dataloader.cam_scale
                             pt0 = (ymap_masked - dataloader.cam_cx) * pt2 / dataloader.cam_fx
                             pt1 = (xmap_masked - dataloader.cam_cy) * pt2 / dataloader.cam_fy
                             cloud = np.concatenate((pt0, pt1, pt2), axis=1)
@@ -238,7 +273,7 @@ def main():
                             cloud = torch.from_numpy(cloud.astype(np.float32))
                             choose = torch.LongTensor(choose.astype(np.int32))
                             img_masked = img_norm(torch.from_numpy(img_masked.astype(np.float32)))
-                            index = torch.LongTensor([obj_id - 1])  # TODO: obj part or obj_part_id
+                            index = torch.LongTensor([pred_obj_id - 1])  # TODO: obj part or obj_part_id
 
                             cloud = Variable(cloud).cuda()
                             choose = Variable(choose).cuda()
@@ -283,10 +318,10 @@ def main():
 
                             # TODO: MATLAB EVAL
                             if how_max > config.PRED_C_THRESHOLD:
-                                pose_est_gt.append(my_pred.tolist())
                                 pose_est_df_wo_refine.append(my_pred.tolist())
                                 choose_list.append(obj_choose)
                                 pred_c_list.append(how_max)
+                                occlusion_list.append(obj_occlusion)
 
                             #######################################
                             # Refine Pose.
@@ -342,18 +377,15 @@ def main():
                             #######################################
 
                             if VISUALIZE_AND_GET_ERROR_METRICS:
-                                obj_cld = dataloader.cld[obj_id]
+                                obj_cld = dataloader.cld[pred_obj_id]
 
                                 # projecting 3D model to 2D image
                                 imgpts, jac = cv2.projectPoints(obj_cld * 1e3, pred_obj_r, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
                                 if PROJECT_MESH_ON_IMAGE:
                                     cv2_obj_pose_img = cv2.polylines(cv2_obj_pose_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
 
-                                # modify YCB objects rotation matrix
-                                _pred_obj_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, pred_obj_r.copy())
-
                                 # draw pose
-                                rotV, _ = cv2.Rodrigues(_pred_obj_r)
+                                rotV, _ = cv2.Rodrigues(pred_obj_r)
                                 points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
                                 axisPoints, _ = cv2.projectPoints(points, rotV, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
 
@@ -369,8 +401,9 @@ def main():
                             pose_est_df_iterative.append([0.0 for i in range(7)])
                             choose_list.append(0)
                             pred_c_list.append(0)
+                            occlusion_list.append(0)
 
-        print('Average Time for Pred: {:.3f} [s]'.format((time.time()-t0)/len(obj_ids)))
+        print('Average Time for Pred: {:.3f} [s]'.format((time.time()-t0)/len(gt_obj_ids)))
 
         #####################
         # PLOTTING

@@ -103,7 +103,7 @@ def main():
 
     # load real images.
     dataloader = arl_affpose_dataloader.ARLAffPose(split='test',
-                                                   use_pred_masks=False,
+                                                   use_pred_masks=True,
                                                    select_random_images=SELECT_RANDOM_IMAGES,
                                                    num_images=NUM_IMAGES)
 
@@ -177,6 +177,10 @@ def main():
                         gt_obj_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
                         gt_obj_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]
                         obj_occlusion = meta['obj_part_occlusion' + str(obj_part_id_idx)]
+
+                        # TODO: MATLAB EVAL
+                        class_ids_list.append(obj_id)
+                        occlusion_list.append(obj_occlusion)
 
                         #####################
                         #####################
@@ -274,8 +278,6 @@ def main():
 
                             # TODO: MATLAB EVAL
                             if how_max > config.PRED_C_THRESHOLD:
-                                class_ids_list.append(obj_id)
-                                occlusion_list.append(obj_occlusion)
                                 pose_est_gt.append(my_pred.tolist())
                                 pose_est_df_wo_refine.append(my_pred.tolist())
                                 choose_list.append(obj_choose)
@@ -363,6 +365,7 @@ def main():
                             pose_est_df_iterative.append([0.0 for i in range(7)])
                             choose_list.append(0)
                             pred_c_list.append(0)
+
 
         print('Average Time for Pred: {:.3f} [s]'.format((time.time()-t0)/len(obj_ids)))
 

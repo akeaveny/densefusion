@@ -15,14 +15,14 @@ import argparse
 #######################################
 #######################################
 
-from tools.YCB import cfg as config
+from affpose.YCB import cfg as config
 
-from tools.YCB.utils import helper_utils
-from tools.YCB.utils.dataset import ycb_dataset_utils
+from affpose.YCB.utils import helper_utils
+from affpose.YCB.utils.dataset import ycb_dataset_utils
 
-from tools.YCB.utils.pose.load_obj_ply_files import load_obj_ply_files
+from affpose.YCB.utils.pose.load_obj_ply_files import load_obj_ply_files
 
-from tools.YCB.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_bbox
+from affpose.YCB.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_bbox
 
 #######################################
 #######################################

@@ -10,7 +10,7 @@ sys.path.append('../../../')
 #######################################
 #######################################
 
-import tools.YCB.cfg as config
+import affpose.YCB.cfg as config
 
 ################################
 # TRAIN
