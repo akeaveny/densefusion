@@ -25,7 +25,7 @@ from affpose.ARLAffPose.utils.bbox.extract_bboxs_from_label import get_obj_bbox
 #######################################
 #######################################
 
-SPLIT = 'test'
+SPLIT = 'train'
 NUM_PT_MIN = 500
 
 
@@ -34,9 +34,7 @@ class TestARLAffPoseDataloader(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestARLAffPoseDataloader, self).__init__(*args, **kwargs)
         # load real images.
-        self.dataloader = dataloader.ARLAffPose(split=SPLIT,
-                                                select_random_images=False,
-                                                num_images=5)
+        self.dataloader = dataloader.ARLAffPose(split=SPLIT)
 
     def check_masked_depth(self):
 

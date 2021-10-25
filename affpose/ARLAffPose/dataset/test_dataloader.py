@@ -31,9 +31,9 @@ class TestARLAffPoseDataloader(unittest.TestCase):
         super(TestARLAffPoseDataloader, self).__init__(*args, **kwargs)
         # load real images.
         self.dataloader = dataloader.ARLAffPose(split='test',
-                                                use_pred_masks=False,
-                                                select_random_images=False,
-                                                num_images=10)
+                                                use_pred_masks=True,
+                                                select_random_images=True,
+                                                num_images=100)
 
     def load_images(self):
 
@@ -52,16 +52,26 @@ class TestARLAffPoseDataloader(unittest.TestCase):
             #####################
 
             colour_obj_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_label)
-            colour_obj_label = cv2.addWeighted(rgb, 0.35, colour_obj_label, 0.65, 0)
+            colour_obj_label = cv2.addWeighted(rgb, 0.5, colour_obj_label, 0.5, 0)
 
             obj_part_label = arl_affpose_dataset_utils.convert_obj_part_mask_to_obj_mask(obj_part_label)
             colour_obj_part_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_part_label)
-            colour_obj_part_label = cv2.addWeighted(rgb, 0.35, colour_obj_part_label, 0.65, 0)
+            colour_obj_part_label = cv2.addWeighted(rgb, 0.5, colour_obj_part_label, 0.5, 0)
+
+            #####################
+            #####################
+
+            if self.dataloader.use_pred_masks:
+                pred_obj_label = data["pred_obj_label"]
+                pred_colour_obj_label = arl_affpose_dataset_utils.colorize_obj_mask(pred_obj_label)
+                pred_colour_obj_label = cv2.addWeighted(rgb, 0.5, pred_colour_obj_label, 0.5, 0)
+                cv2.imshow('pred_colour_obj_label', cv2.cvtColor(pred_colour_obj_label, cv2.COLOR_BGR2RGB))
 
             #####################
             # PLOTTING
             #####################
 
+            cv2.imshow('rgb', cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB))
             cv2.imshow('colour_obj_label', cv2.cvtColor(colour_obj_label, cv2.COLOR_BGR2RGB))
             cv2.imshow('colour_obj_part_label', cv2.cvtColor(colour_obj_part_label, cv2.COLOR_BGR2RGB))
             cv2.imshow('depth', depth_8bit)
@@ -246,6 +256,6 @@ if __name__ == '__main__':
 
     # run desired test.
     suite = unittest.TestSuite()
-    suite.addTest(TestARLAffPoseDataloader("get_occlusion_metrics"))
+    suite.addTest(TestARLAffPoseDataloader("load_images"))
     runner = unittest.TextTestRunner()
     runner.run(suite)

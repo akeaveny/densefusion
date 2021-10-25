@@ -64,20 +64,25 @@ for i = 1:numel(keyframes)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load gt poses
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    filename = fullfile(opt.dataset_root(), 'data', sprintf('%04d/%06d-meta.mat', seq_id, frame_id));
+    %     filename = fullfile(opt.dataset_root(), 'data', sprintf('%04d/%06d-meta.mat', seq_id, frame_id));
+    filename = strcat(gt_keyframes(i).folder, '/' , gt_keyframes(i).name);
     gt = load(filename);
+    disp(filename);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % for each class
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    for j = 1:numel(gt.cls_indexes)
+%     for j = 1:numel(gt.cls_indexes)
+     for j = 1:numel(gt.class_ids)
         count = count + 1;
         
-        cls_index = gt.cls_indexes(j);
+        cls_index = gt.class_ids(j);
         results_class_ids(count) = cls_index;
         
         % GT
-        RT_gt = gt.poses(:, :, j);
+%         RT_gt = gt.poses(:, :, j);
+        RT_gt(1:3, 1:3) = quat2rotm(gt.poses(j, 1:4));
+        RT_gt(:, 4) = gt.poses(j, 5:7);
         
         % network result
         roi_index = find(pred_results.class_ids == cls_index);

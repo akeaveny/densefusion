@@ -21,9 +21,6 @@ errors_add = results_keyframe.errors_add;
 errors_add_s = results_keyframe.errors_add_s;
 errors_rotation = results_keyframe.errors_rotation;
 errors_translation = results_keyframe.errors_translation;
-errors_translation_x = results_keyframe.errors_translation_x;
-errors_translation_y = results_keyframe.errors_translation_y;
-errors_translation_z = results_keyframe.errors_translation_z;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % AUC
@@ -51,7 +48,7 @@ for class_id = 1:numel(classes)
     c = numel(d(d < auc_threshold));
     accuracy = cumsum(ones(1, n)) / n;
     AUC = VOCap(d, accuracy);
-    fprintf('%30s, \tIndex:%d, \tAUC:%.2f, \tADD<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
+    fprintf('%50s, \tIndex:%d, \tAUC:%.2f, \tADD<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
 end
 
 fprintf('\n\n')
@@ -72,7 +69,7 @@ for class_id = 1:numel(classes)
     c = numel(d(d < auc_threshold));
     accuracy = cumsum(ones(1, n)) / n;
     AUC = VOCap(d, accuracy);
-    fprintf('%30s, \tIndex:%d, \tAUC:%.2f, \tADD-S<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
+    fprintf('%50s, \tIndex:%d, \tAUC:%.2f, \tADD-S<2cm:%.2f,\n', char(classes(class_id)), length(index), AUC*100, (c/n)*100)
 end
 
 fprintf('\n\n')
@@ -90,7 +87,7 @@ for class_id = 1:numel(classes)
     d = sort(D);
     n = numel(d);
     accuracy = cumsum(ones(1, n)) / n;
-    fprintf('%30s, \tIndex:%d, \tMean Rotation Error:%.2f [deg]\n', char(classes(class_id)), length(index), mean(d))
+    fprintf('%50s, \tIndex:%d, \tMean Rotation Error:%.2f [deg]\n', char(classes(class_id)), length(index), mean(d))
     
 end
 
@@ -109,16 +106,16 @@ for class_id = 1:numel(classes)
     d = sort(D);
     n = numel(d);
     accuracy = cumsum(ones(1, n)) / n;
-    fprintf('%30s, \tIndex:%d, \tMean Translation Error:%.2f [cm]\n', char(classes(class_id)), length(index), mean(d)*100)
+    fprintf('%50s, \tIndex:%d, \tMean Translation Error:%.2f [cm]\n', char(classes(class_id)), length(index), mean(d)*100)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % TRANSLATIONS: X, Y, Z
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    D = errors_translation_x(index);
+%     D = errors_translation_x(index);
 %     fprintf('%20s, \tIndex:%d, \tMean X:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
-    D = errors_translation_y(index);
+%     D = errors_translation_y(index);
 %     fprintf('%20s, \tIndex:%d, \tMean Y:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
-    D = errors_translation_z(index);
+%     D = errors_translation_z(index);
 %     fprintf('%20s, \tIndex:%d, \tMean Z:%.2f [cm]\n', char(classes(class_id)), length(index), mean(D)*100)
     
 end

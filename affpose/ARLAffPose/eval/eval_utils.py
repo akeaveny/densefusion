@@ -11,7 +11,7 @@ from affpose.ARLAffPose.dataset import arl_affpose_dataset_utils
 #######################################
 
 def get_error_metrics(gt_obj_t, gt_obj_r, pred_obj_t, pred_obj_r,
-                      refinement_idx, occlusion, choose, pred_c,
+                      refinement_idx, choose, pred_c,
                       verbose=True):
 
     # translation
@@ -37,13 +37,11 @@ def get_error_metrics(gt_obj_t, gt_obj_r, pred_obj_t, pred_obj_r,
 
     if verbose:
         print("\tRefinement: {}, "
-                "occlusion: {:.3f}, "
                 "choose: {}, "
                 "pred c: {:.3f}, "
                 " t: {:.2f} [cm], "
                 "R: {:.2f}"
               .format(refinement_idx,
-                       occlusion,
                        choose,
                        pred_c,
                        t_error * 100,
@@ -52,22 +50,23 @@ def get_error_metrics(gt_obj_t, gt_obj_r, pred_obj_t, pred_obj_r,
                        # ADD_S * 100
                        ))
 
+    # print(f'{gt_obj_r}, \n{gt_obj_t}')
+    # print(f'{pred_obj_r}, \n{pred_obj_t}')
+
 #######################################
 # Stats.
 #######################################
 
-def get_obj_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c):
+def get_obj_stats(pred_class_ids, objs_choose, objs_pred_c):
 
     # flatten arrays.
     pred_class_ids = pred_class_ids.reshape(-1)
-    objs_occlusion = objs_occlusion.reshape(-1)
     objs_choose = objs_choose.reshape(-1)
     objs_pred_c = objs_pred_c.reshape(-1)
 
     # find non zero idxs.
     non_zero_idx = np.nonzero(pred_class_ids)
     pred_class_ids = pred_class_ids[non_zero_idx]
-    objs_occlusion = objs_occlusion[non_zero_idx]
     objs_choose = objs_choose[non_zero_idx]
     objs_pred_c = objs_pred_c[non_zero_idx]
 
@@ -75,27 +74,18 @@ def get_obj_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c):
         obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
         # get rows for current obj.
         idxs = np.argwhere(pred_class_ids == obj_id).reshape(-1)
-        occlusion = np.sort(objs_occlusion[idxs])
         choose = np.sort(objs_choose[idxs])
         pred_c = np.sort(objs_pred_c[idxs])
-
-        # Add correction to occlusion.
-        # if np.less(min(occlusion), 0):
-        #     occlusion += min(occlusion)
 
         # print stats.
         print('Object: {}'
               'Num Pred: {},'
-              '\t\tocclusion: Min: {:.5f}, '
-              'Mean: {:.5f},'
               '\t\tChoose: Min: {:.0f}, '
               'Mean: {:.0f},'
               '\t\tPred C: Min: {:.3f}, '
               'Mean: {:.3f},'
               .format(obj_name,
                         len(idxs),
-                        np.nanmin(occlusion),
-                        np.nanmean(occlusion),
                         np.nanmin(choose),
                         np.nanmean(choose),
                         np.nanmin(pred_c),
@@ -103,18 +93,16 @@ def get_obj_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c):
               ))
 
 
-def get_pbj_part_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c):
+def get_obj_part_stats(pred_class_ids, objs_choose, objs_pred_c):
 
     # flatten arrays.
     pred_class_ids = pred_class_ids.reshape(-1)
-    objs_occlusion = objs_occlusion.reshape(-1)
     objs_choose = objs_choose.reshape(-1)
     objs_pred_c = objs_pred_c.reshape(-1)
 
     # find non zero idxs.
     non_zero_idx = np.nonzero(pred_class_ids)
     pred_class_ids = pred_class_ids[non_zero_idx]
-    objs_occlusion = objs_occlusion[non_zero_idx]
     objs_choose = objs_choose[non_zero_idx]
     objs_pred_c = objs_pred_c[non_zero_idx]
 
@@ -123,20 +111,13 @@ def get_pbj_part_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c)
         obj_name = "{:<15}".format(arl_affpose_dataset_utils.map_obj_id_to_name(obj_id))
         # get rows for current obj.
         idxs = np.argwhere(pred_class_ids == obj_part_id).reshape(-1)
-        occlusion = np.sort(objs_occlusion[idxs])
         choose = np.sort(objs_choose[idxs])
         pred_c = np.sort(objs_pred_c[idxs])
-
-        # Add correction to occlusion.
-        if np.less(min(occlusion), 0):
-            occlusion += min(occlusion)
 
         # print stats.
         print('Object: {}'
               'Part Id: {}, '
               'Num Pred: {},'
-              '\t\tocclusion: Min: {:.5f}, '
-              'Mean: {:.5f},'
               '\t\tChoose: Min: {:.0f}, '
               'Mean: {:.0f},'
               '\t\tPred C: Min: {:.3f}, '
@@ -144,8 +125,6 @@ def get_pbj_part_stats(pred_class_ids, objs_occlusion, objs_choose, objs_pred_c)
               .format(obj_name,
                         obj_part_id,
                         len(idxs),
-                        np.nanmin(occlusion),
-                        np.nanmean(occlusion),
                         np.nanmin(choose),
                         np.nanmean(choose),
                         np.nanmin(pred_c),

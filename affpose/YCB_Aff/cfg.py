@@ -17,12 +17,12 @@ TRAIN_FILE = ROOT_PATH + 'datasets/ycb_aff/dataset_config/train_data_list.txt'
 TEST_FILE  = ROOT_PATH + 'datasets/ycb_aff/dataset_config/test_data_list.txt'
 
 # Trained models
-PRE_TRAINED_MODEL = ROOT_PATH + 'trained_models/ycb/densefusion/pose_model_26_0.012863246640872631.pth'
-PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/ycb/densefusion/pose_refine_model_69_0.009449292959118935.pth'
-# PRE_TRAINED_MODEL = ROOT_PATH + 'trained_models/ycb/real_and_syn/pose_model_27_0.012961520093793814.pth'
-# PRE_TRAINED_REFINE_MODEL = ROOT_PATH + 'trained_models/ycb/real_and_syn/pose_refine_model_93_0.009422253060541326.pth'
-PRE_TRAINED_AFF_MODEL = ROOT_PATH + 'trained_models/ycb_aff/real_and_syn/pose_model_current.pth'
-PRE_TRAINED_AFF_REFINE_MODEL = ROOT_PATH + 'trained_models/ycb_aff/real_and_syn/pose_model_current.pth'
+DF_GITHUB_TRAINED_MODEL = '/data/Akeaveny/weights/DenseFusion/ycb/densefusion/pose_model_26_0.012863246640872631.pth'
+DF_GITHUB_TRAINED_REFINE_MODEL = '/data/Akeaveny/weights/DenseFusion/ycb/densefusion/pose_refine_model_69_0.009449292959118935.pth'
+TRAINED_MODEL = '/data/Akeaveny/weights/DenseFusion/ycb/real_and_syn/pose_model_27_0.012961520093793814.pth'
+TRAINED_REFINE_MODEL = '/data/Akeaveny/weights/DenseFusion/ycb/real_and_syn/pose_refine_model_93_0.009422253060541326.pth'
+TRAINED_AFF_MODEL = '/data/Akeaveny/weights/DenseFusion/ycb_aff/real_and_syn/pose_model_20_0.012745570227629784.pth'
+TRAINED_AFF_REFINE_MODEL = '/data/Akeaveny/weights/DenseFusion/ycb_aff/real_and_syn/pose_refine_model_57_0.009359799028407731.pth'
 
 # MATLAB
 OBJ_EVAL_FOLDER_GT = ROOT_PATH + 'affpose/YCB_Aff/matlab/obj/results/gt'

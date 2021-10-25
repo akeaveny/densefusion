@@ -34,8 +34,8 @@ class YCBAff():
     def __init__(self,
                  split='train',
                  use_pred_masks=False,
-                 select_random_images=True,
-                 num_images=250,
+                 select_random_images=False,
+                 num_images=100,
                  ):
 
         self.use_pred_masks = use_pred_masks
@@ -61,6 +61,10 @@ class YCBAff():
             image_files = open('{}'.format(config.TEST_FILE), "r")
         self.img_files = np.sort(np.array(image_files.readlines()))
         print("Loaded Files: {}".format(len(self.img_files)))
+
+        total_idx = np.arange(0, len(self.img_files), 25)
+        self.img_files = self.img_files[total_idx]
+        print("Chosen Files: {}".format(len(self.img_files)))
 
         if select_random_images:
             np.random.seed(0)
@@ -115,20 +119,21 @@ class YCBAff():
 
         self.cam_mat = np.array([[self.cam_fx, 0, self.cam_cx], [0, self.cam_fy, self.cam_cy], [0, 0, 1]])
         self.cam_dist = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+
         #####################
         # Image utils
         #####################
 
         # OBJ
         colour_obj_label = ycb_aff_dataset_utils.colorize_obj_mask(obj_label)
-        colour_obj_label = cv2.addWeighted(rgb, 0.35, colour_obj_label, 0.65, 0)
+        colour_obj_label = cv2.addWeighted(rgb, 0.4, colour_obj_label, 0.6, 0)
 
         # Img to draw 6-DoF Pose.
         cv2_obj_pose_img = colour_obj_label.copy()
 
         # AFF
         colour_aff_label = ycb_aff_dataset_utils.colorize_aff_mask(aff_label)
-        colour_aff_label = cv2.addWeighted(rgb, 0.35, colour_aff_label, 0.65, 0)
+        colour_aff_label = cv2.addWeighted(rgb, 0.4, colour_aff_label, 0.6, 0)
 
         # OBJ PART
         # obj_label = ycb_aff_dataset_utils.convert_obj_part_mask_to_obj_mask(obj_part_label)
@@ -202,8 +207,8 @@ class YCBAff():
                 ##################################
 
                 x1, y1, x2, y2 = get_obj_part_bbox(obj_label.copy(), obj_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
-                cv2_obj_pose_img = cv2.rectangle(cv2_obj_pose_img, (x1, y1), (x2, y2), obj_color, 2)
-                depth_8bit = cv2.rectangle(depth_8bit, (x1, y1), (x2, y2), 255, 2)
+                # cv2_obj_pose_img = cv2.rectangle(cv2_obj_pose_img, (x1, y1), (x2, y2), obj_color, 2)
+                # depth_8bit = cv2.rectangle(depth_8bit, (x1, y1), (x2, y2), 255, 2)
 
                 #######################################
                 # ITERATE OVER OBJ PARTS
@@ -223,19 +228,20 @@ class YCBAff():
                         # OBJECT POSE
                         #######################################
 
-                        # projecting 3D model to 2D image
-                        obj_centered = self.cld_obj_centered[obj_part_id]
-                        imgpts, jac = cv2.projectPoints(obj_centered * 1e3, obj_r, obj_t * 1e3, self.cam_mat, self.cam_dist)
                         if project_mesh_on_image:
+
+                            # projecting 3D model to 2D image
+                            obj_centered = self.cld_obj_centered[obj_part_id]
+                            imgpts, jac = cv2.projectPoints(obj_centered * 1e3, obj_r, obj_t * 1e3, self.cam_mat, self.cam_dist)
                             cv2_obj_pose_img = cv2.polylines(cv2_obj_pose_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
 
-                        # draw pose
-                        rotV, _ = cv2.Rodrigues(obj_r)
-                        points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-                        axisPoints, _ = cv2.projectPoints(points, rotV, obj_t * 1e3, self.cam_mat, self.cam_dist)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
+                            # draw pose
+                            rotV, _ = cv2.Rodrigues(obj_r)
+                            points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
+                            axisPoints, _ = cv2.projectPoints(points, rotV, obj_t * 1e3, self.cam_mat, self.cam_dist)
+                            cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
+                            cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
+                            cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
 
                         #######################################
                         # OBJECT PART AFF CENTERED
@@ -254,26 +260,27 @@ class YCBAff():
 
                         if obj_part_id in self.obj_part_ids:
                             obj_part_x1, obj_part_y1, obj_part_x2, obj_part_y2 = get_obj_part_bbox(obj_part_label.copy(), obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
-                            cv2_obj_part_pose_img = cv2.rectangle(cv2_obj_part_pose_img, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), aff_color, 2)
-                            depth_8bit = cv2.rectangle(depth_8bit, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), 128, 2)
+                            # cv2_obj_part_pose_img = cv2.rectangle(cv2_obj_part_pose_img, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), aff_color, 2)
+                            # depth_8bit = cv2.rectangle(depth_8bit, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), 128, 2)
 
                         ######################################
                         # 6-DOF POSE
-                        #######################################
+                        ######################################
 
-                        # draw model
-                        obj_parts_imgpts, jac = cv2.projectPoints(obj_part_centered * 1e3, obj_part_r, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
                         if project_mesh_on_image:
+
+                            # draw model
+                            obj_parts_imgpts, jac = cv2.projectPoints(obj_part_centered * 1e3, obj_part_r, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
                             cv2_obj_part_pose_img = cv2.polylines(cv2_obj_part_pose_img, np.int32([np.squeeze(obj_parts_imgpts)]), False, aff_color)
 
-                        if obj_part_id in self.obj_part_ids:
-                            # draw pose
-                            rotV, _ = cv2.Rodrigues(obj_part_r)
-                            points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-                            axisPoints, _ = cv2.projectPoints(points, rotV, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
-                            cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
-                            cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
-                            cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
+                            if obj_part_id in self.obj_part_ids:
+                                # draw pose
+                                rotV, _ = cv2.Rodrigues(obj_part_r)
+                                points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
+                                axisPoints, _ = cv2.projectPoints(points, rotV, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
 
                         #######################################
                         # Occlusion

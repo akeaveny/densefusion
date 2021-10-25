@@ -47,7 +47,7 @@ from lib.transformations import euler_matrix, quaternion_matrix, quaternion_from
 from affpose.YCB_Aff import cfg as config
 from affpose.YCB_Aff.dataset import ycb_aff_dataset_utils
 from affpose.YCB_Aff.dataset import dataloader as ycb_aff_dataloader
-from affpose.YCB_Aff.utils.bbox.extract_bboxs_from_label import get_obj_part_bbox, get_posecnn_bbox
+from affpose.YCB_Aff.utils.bbox.extract_bboxs_from_label import get_bbox, get_obj_part_bbox, get_posecnn_bbox
 from affpose.YCB_Aff.eval import eval_utils
 
 #######################################
@@ -56,13 +56,13 @@ from affpose.YCB_Aff.eval import eval_utils
 DELETE_OLD_RESULTS = True
 
 SPLIT = 'test'
-SELECT_RANDOM_IMAGES = False
-NUM_IMAGES = 100
-
 USE_PRED_MASKS = False
 
-VISUALIZE_AND_GET_ERROR_METRICS = False
-PROJECT_MESH_ON_IMAGE = False
+SELECT_RANDOM_IMAGES = False
+NUM_IMAGES = 50
+
+VISUALIZE_AND_GET_ERROR_METRICS = True
+PROJECT_MESH_ON_IMAGE = True
 
 
 def main():
@@ -85,17 +85,17 @@ def main():
             os.remove(file)
 
     ##################################
-    # DENSEFUSION
+    # DenseFusion
     ##################################
 
     estimator = PoseNet(num_points=config.NUM_PT, num_obj=config.NUM_OBJECTS)
     estimator.cuda()
-    estimator.load_state_dict(torch.load(config.PRE_TRAINED_MODEL))
+    estimator.load_state_dict(torch.load(config.TRAINED_MODEL))
     estimator.eval()
 
     refiner = PoseRefineNet(num_points=config.NUM_PT, num_obj=config.NUM_OBJECTS)
     refiner.cuda()
-    refiner.load_state_dict(torch.load(config.PRE_TRAINED_REFINE_MODEL))
+    refiner.load_state_dict(torch.load(config.TRAINED_REFINE_MODEL))
     refiner.eval()
 
     img_norm = transforms.Normalize(mean=config.IMG_MEAN, std=config.IMG_STD)
@@ -105,9 +105,7 @@ def main():
     ###################################
 
     # load real images.
-    dataloader = ycb_aff_dataloader.YCBAff(split=SPLIT,
-                                           select_random_images=SELECT_RANDOM_IMAGES,
-                                           num_images=NUM_IMAGES)
+    dataloader = ycb_aff_dataloader.YCBAff(split=SPLIT, select_random_images=SELECT_RANDOM_IMAGES)
 
     ###################################
     # Stats
@@ -124,20 +122,18 @@ def main():
         # Load GT images.
         #####################
 
-        data = dataloader.draw_gt_obj_pose(image_idx, project_mesh_on_image=PROJECT_MESH_ON_IMAGE)
+        data = dataloader.get_item(image_idx)
+        # data = dataloader.draw_gt_obj_pose(image_idx, project_mesh_on_image=False)  # PROJECT_MESH_ON_IMAGE)
 
         rgb = data["rgb"]
         depth_16bit = data["depth_16bit"]
         depth_8bit = data["depth_8bit"]
         obj_label = data["obj_label"]
-        obj_part_label = data["obj_part_label"]
-        aff_label = data["aff_label"]
         cv2_obj_pose_img = data["cv2_obj_pose_img"]
-        cv2_obj_part_pose_img = data["cv2_obj_part_pose_img"]
         meta = data["meta"]
 
         #####################
-        # Load PoseCNN Results.
+        # Get Pred Masks from PoseCNN
         #####################
 
         # gt pose.
@@ -162,7 +158,7 @@ def main():
             if pred_obj_id in gt_obj_ids.tolist():
                 gt_to_pred_idxs.append(gt_obj_ids.tolist().index(pred_obj_id))
 
-        print("\nPred [{}]: {},\tGT [{}]: {}".format(len(pred_obj_ids), pred_obj_ids, len(gt_obj_ids), gt_obj_ids))
+        print("\nPred [{}]: {}\nGT [{}]: {}".format(len(pred_obj_ids), pred_obj_ids, len(gt_obj_ids), gt_obj_ids))
 
         #####################
         #####################
@@ -176,7 +172,7 @@ def main():
         pred_c_list = []
 
         gt_to_pred_idx = 0
-        for pred_idx, pred_obj_id in enumerate(pred_obj_ids):
+        for pred_idx, pred_obj_id in enumerate(gt_obj_ids):
             if pred_obj_id in gt_obj_ids:
 
                 # TODO: MATLAB EVAL
@@ -185,8 +181,8 @@ def main():
                 obj_color = ycb_aff_dataset_utils.obj_color_map(pred_obj_id)
                 print("Object: ID:{}, Name:{}".format(pred_obj_id, dataloader.obj_classes[int(pred_obj_id) - 1]))
 
-                gt_idx = gt_to_pred_idxs[gt_to_pred_idx]
-                gt_obj_id = gt_obj_ids[gt_idx]
+                gt_idx = pred_idx  # gt_to_pred_idxs[gt_to_pred_idx]
+                # gt_obj_id = gt_obj_ids[gt_idx]
                 # print("pred\t idx:{},\t class id:{}".format(pred_idx, pred_obj_id))
                 # print("gt  \t idx:{},\t class id:{}".format(gt_idx, gt_obj_id))
                 gt_to_pred_idx += 1
@@ -197,7 +193,27 @@ def main():
                     # bbox
                     #######################################
 
-                    rmin, rmax, cmin, cmax = get_posecnn_bbox(posecnn_rois, pred_idx)
+                    if USE_PRED_MASKS:
+                        obj_label = posecnn_label
+                        mask_label = ma.getmaskarray(ma.masked_equal(obj_label, pred_obj_id)).astype(np.uint8)
+                        rmin, rmax, cmin, cmax = get_posecnn_bbox(posecnn_rois, pred_idx)
+                    else:
+                        obj_label = obj_label
+                        mask_label = ma.getmaskarray(ma.masked_equal(obj_label, pred_obj_id)).astype(np.uint8)
+                        rmin, rmax, cmin, cmax = get_bbox(mask_label)
+
+                    #######################################
+                    # visualize label.
+                    #######################################
+
+                    # if VISUALIZE_AND_GET_ERROR_METRICS:
+                    #     # colour_obj_label = ycb_aff_dataset_utils.colorize_obj_mask(obj_label)
+                    #     # cv2.imshow('obj_label', cv2.cvtColor(colour_obj_label, cv2.COLOR_BGR2RGB))
+                    #     colour_obj_label = ycb_aff_dataset_utils.colorize_obj_mask(mask_label*pred_obj_id)
+                    #     colour_obj_label = cv2.addWeighted(rgb, 0.35, colour_obj_label, 0.65, 0)
+                    #     colour_obj_label = cv2.rectangle(colour_obj_label, (cmin, rmin), (cmax, rmax), obj_color, 2)
+                    #     cv2.imshow('colour_obj_label', cv2.cvtColor(colour_obj_label, cv2.COLOR_BGR2RGB))
+                    #     cv2.waitKey(0)
 
                     #######################################
                     # real cam for test frames
@@ -211,10 +227,6 @@ def main():
                     #######################################
 
                     mask_depth = ma.getmaskarray(ma.masked_not_equal(depth_16bit, 0))
-                    if USE_PRED_MASKS:
-                        mask_label = ma.getmaskarray(ma.masked_equal(posecnn_label, pred_obj_id))
-                    else:
-                        mask_label = ma.getmaskarray(ma.masked_equal(obj_label, pred_obj_id))
                     mask = mask_label * mask_depth
 
                     choose = mask[rmin:rmax, cmin:cmax].flatten().nonzero()[0]
@@ -315,10 +327,10 @@ def main():
                     gt_obj_r = gt_pose[0:3, 0:3]
                     gt_obj_t = gt_pose[0:3, -1]
 
-                    gt_quart = quaternion_from_matrix(gt_obj_r)
-                    my_pred = np.append(np.array(gt_quart), np.array(gt_obj_t))
+                    gt_obj_q = quaternion_from_matrix(gt_obj_r)
+                    gt_list = np.append(np.array(gt_obj_q), np.array(gt_obj_t))
                     # TODO: MATLAB EVAL
-                    pose_est_gt.append(my_pred.tolist())
+                    pose_est_gt.append(gt_list.tolist())
 
                     ############################
                     # Stats
@@ -347,13 +359,17 @@ def main():
                     # plotting pred pose.
                     #######################################
 
-                    if VISUALIZE_AND_GET_ERROR_METRICS:
-                        obj_cld = dataloader.cld[pred_obj_id]
+                    if PROJECT_MESH_ON_IMAGE:
 
-                        # projecting 3D model to 2D image
-                        imgpts, jac = cv2.projectPoints(obj_cld * 1e3, pred_obj_r, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
-                        if PROJECT_MESH_ON_IMAGE:
-                            cv2_obj_pose_img = cv2.polylines(cv2_obj_pose_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
+                        obj_part_ids = ycb_aff_dataset_utils.map_obj_ids_to_obj_part_ids(pred_obj_id)
+                        for obj_part_id in obj_part_ids:
+                            alpha = 1
+                            obj_cld = dataloader.cld_obj_centered[obj_part_id]
+                            # projecting 3D model to 2D image
+                            overlay = cv2_obj_pose_img.copy()
+                            imgpts, jac = cv2.projectPoints(obj_cld * 1e3, pred_obj_r, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
+                            overlay = cv2.polylines(overlay, np.int32([np.squeeze(imgpts)]), True, obj_color)
+                            cv2_obj_pose_img = cv2.addWeighted(overlay, alpha, cv2_obj_pose_img, 1 - alpha, 0)
 
                         # draw pose
                         rotV, _ = cv2.Rodrigues(pred_obj_r)
@@ -361,9 +377,9 @@ def main():
                         axisPoints, _ = cv2.projectPoints(points, rotV, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
 
                         axis_color = (255, 255, 255)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), axis_color, 3)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), axis_color, 3)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), axis_color, 3)
+                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
+                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
+                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
 
                 except ZeroDivisionError:
                     print("DenseFusion Detector Lost keyframe ..")
@@ -378,10 +394,14 @@ def main():
         #####################
 
         if VISUALIZE_AND_GET_ERROR_METRICS:
+            # SAVE_FOLDER = '/home/akeaveny/Desktop/DenseFusion_YCB/'
+            # pred_name = SAVE_FOLDER + str(image_idx) + "_obj.png"
+            # cv2.imwrite(pred_name, cv2.cvtColor(cv2_obj_pose_img, cv2.COLOR_BGR2RGB))
+
             cv2.imshow('depth', depth_8bit)
             cv2.imshow('cv2_obj_pose_img', cv2.cvtColor(cv2_obj_pose_img, cv2.COLOR_BGR2RGB))
-
-            cv2.waitKey(0)
+            cv2.waitKey(1)
+            time.sleep(0.35)
 
         ############################
         # TODO: MATLAB EVAL

@@ -34,7 +34,7 @@ class ARLAffPose():
     def __init__(self,
                  split='train',
                  use_pred_masks=False,
-                 select_random_images=True,
+                 select_random_images=False,
                  num_images=250,
                  ):
 
@@ -53,18 +53,20 @@ class ARLAffPose():
         ##################################
 
         self.split = split
-        assert self.split == 'train' or self.split == 'val' or self.split == 'test' or self.split == 'single'
+        assert self.split == 'train' or self.split == 'val' or self.split == 'test'
 
         if self.split == 'train':
-            image_files = open('{}'.format(config.FORMATTED_TRAIN_FILE), "r")
+            image_files = open('{}'.format(config.TRAIN_FILE), "r")
         elif self.split == 'val':
-            image_files = open('{}'.format(config.FORMATTED_VAL_FILE), "r")
+            image_files = open('{}'.format(config.VAL_FILE), "r")
         elif self.split == 'test':
-            image_files = open('{}'.format(config.FORMATTED_TEST_FILE), "r")
-        elif self.split == 'single':
-            image_files = open('{}'.format(config.SINGLE_FILE), "r")
+            image_files = open('{}'.format(config.TEST_FILE), "r")
         self.img_files = np.sort(np.array(image_files.readlines()))
         print("Loaded Files: {}".format(len(self.img_files)))
+
+        total_idx = np.arange(0, len(self.img_files), 9)
+        self.img_files = self.img_files[total_idx]
+        print("Chosen Files: {}".format(len(self.img_files)))
 
         if select_random_images:
             np.random.seed(0)
@@ -114,19 +116,6 @@ class ARLAffPose():
         aff_label = helper_utils.crop(pil_img=aff_label, crop_size=config.CROP_SIZE)
 
         ##################################
-        # Load PRED masks
-        ##################################
-
-        if self.use_pred_masks:
-            obj_label_addr = dataset_dir + 'pred_obj/' + image_num + config.TEST_OBJ_PRED_EXT
-            obj_part_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PART_PRED_EXT
-            aff_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PRED_EXT
-
-            obj_label = np.array(Image.open(obj_label_addr))
-            obj_part_label = np.array(Image.open(obj_part_label_addr))
-            aff_label = np.array(Image.open(aff_label_addr))
-
-        ##################################
         # CAMERA
         ##################################
 
@@ -152,14 +141,14 @@ class ARLAffPose():
 
         # OBJ
         colour_obj_label = arl_affpose_dataset_utils.colorize_obj_mask(obj_label)
-        colour_obj_label = cv2.addWeighted(rgb, 0.35, colour_obj_label, 0.65, 0)
+        colour_obj_label = cv2.addWeighted(rgb, 0.5, colour_obj_label, 0.5, 0)
 
         # Img to draw 6-DoF Pose.
         cv2_obj_pose_img = colour_obj_label.copy()
 
         # AFF
         colour_aff_label = arl_affpose_dataset_utils.colorize_aff_mask(aff_label)
-        colour_aff_label = cv2.addWeighted(rgb, 0.35, colour_aff_label, 0.65, 0)
+        colour_aff_label = cv2.addWeighted(rgb, 0.5, colour_aff_label, 0.5, 0)
 
         # OBJ PART
         # obj_label = arl_affpose_dataset_utils.convert_obj_part_mask_to_obj_mask(obj_part_label)
@@ -169,10 +158,33 @@ class ARLAffPose():
         # Img to draw 6-DoF Pose.
         cv2_obj_part_pose_img = colour_aff_label.copy()
 
+        ##################################
+        # Load PRED masks
+        ##################################
+
+        if self.split == 'test' and self.use_pred_masks:
+            pred_obj_label_addr = dataset_dir + 'pred_obj/' + image_num + config.TEST_OBJ_PRED_EXT
+            pred_obj_part_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PART_PRED_EXT
+            pred_aff_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PRED_EXT
+
+            pred_obj_label = np.array(Image.open(pred_obj_label_addr))
+            pred_obj_part_label = np.array(Image.open(pred_obj_part_label_addr))
+            pred_aff_label = np.array(Image.open(pred_aff_label_addr))
+
+            colour_obj_label = arl_affpose_dataset_utils.colorize_obj_mask(pred_obj_label)
+            colour_obj_label = cv2.addWeighted(rgb, 0.5, colour_obj_label, 0.5, 0)
+            cv2_obj_pose_img = colour_obj_label.copy()
+
+            # AFF
+            colour_aff_label = arl_affpose_dataset_utils.colorize_aff_mask(pred_aff_label)
+            colour_aff_label = cv2.addWeighted(rgb, 0.5, colour_aff_label, 0.5, 0)
+            cv2_obj_part_pose_img = colour_aff_label.copy()
+
+
         #####################
         #####################
 
-        return {"rgb": rgb,
+        data = {"rgb": rgb,
                 "depth_16bit": depth,
                 "depth_8bit": helper_utils.convert_16_bit_depth_to_8_bit(depth),
                 "obj_label": obj_label,
@@ -184,6 +196,24 @@ class ARLAffPose():
                 "cv2_obj_part_pose_img": cv2_obj_part_pose_img,
                 "meta": meta,
                 }
+
+        ##################################
+        # Load PRED masks
+        ##################################
+
+        if self.split == 'test' and self.use_pred_masks:
+            pred_obj_label_addr = dataset_dir + 'pred_obj/' + image_num + config.TEST_OBJ_PRED_EXT
+            pred_obj_part_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PART_PRED_EXT
+            pred_aff_label_addr = dataset_dir + 'pred_aff/' + image_num + config.TEST_OBJ_PRED_EXT
+
+            data["pred_obj_label"] = pred_obj_label
+            data["pred_obj_part_label"] = pred_obj_part_label
+            data["pred_aff_label"] = pred_aff_label
+
+        #####################
+        #####################
+
+        return data
     
     def draw_gt_obj_pose(self, image_idx, verbose=False, project_mesh_on_image=False, get_occlusion_metrics=False):
 
@@ -232,8 +262,8 @@ class ARLAffPose():
                 ##################################
 
                 x1, y1, x2, y2 = get_obj_bbox(obj_label.copy(), obj_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
-                cv2_obj_pose_img = cv2.rectangle(cv2_obj_pose_img, (x1, y1), (x2, y2), obj_color, 2)
-                depth_8bit = cv2.rectangle(depth_8bit, (x1, y1), (x2, y2), 255, 2)
+                # cv2_obj_pose_img = cv2.rectangle(cv2_obj_pose_img, (x1, y1), (x2, y2), obj_color, 2)
+                # depth_8bit = cv2.rectangle(depth_8bit, (x1, y1), (x2, y2), 255, 2)
 
                 #######################################
                 # ITERATE OVER OBJ PARTS
@@ -253,22 +283,22 @@ class ARLAffPose():
                         # OBJECT POSE
                         #######################################
 
-                        # projecting 3D model to 2D image
-                        obj_centered = self.cld_obj_centered[obj_part_id]
-                        imgpts, jac = cv2.projectPoints(obj_centered * 1e3, obj_r, obj_t * 1e3, self.cam_mat, self.cam_dist)
                         if project_mesh_on_image:
+                            # projecting 3D model to 2D image
+                            obj_centered = self.cld_obj_centered[obj_part_id]
+                            imgpts, jac = cv2.projectPoints(obj_centered * 1e3, obj_r, obj_t * 1e3, self.cam_mat, self.cam_dist)
                             cv2_obj_pose_img = cv2.polylines(cv2_obj_pose_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
 
-                        # modify YCB objects rotation matrix
-                        _obj_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, obj_r.copy())
+                            # modify YCB objects rotation matrix
+                            _obj_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, obj_r.copy())
 
-                        # draw pose
-                        rotV, _ = cv2.Rodrigues(_obj_r)
-                        points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-                        axisPoints, _ = cv2.projectPoints(points, rotV, obj_t * 1e3, self.cam_mat, self.cam_dist)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
-                        cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
+                            # draw pose
+                            rotV, _ = cv2.Rodrigues(_obj_r)
+                            points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
+                            axisPoints, _ = cv2.projectPoints(points, rotV, obj_t * 1e3, self.cam_mat, self.cam_dist)
+                            cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
+                            cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
+                            cv2_obj_pose_img = cv2.line(cv2_obj_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
 
                         #######################################
                         # OBJECT PART AFF CENTERED
@@ -287,29 +317,30 @@ class ARLAffPose():
 
                         if obj_part_id in arl_affpose_dataset_utils.DRAW_OBJ_PART_POSE:
                             obj_part_x1, obj_part_y1, obj_part_x2, obj_part_y2 = get_obj_bbox(obj_part_label.copy(), obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
-                            cv2_obj_part_pose_img = cv2.rectangle(cv2_obj_part_pose_img, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), aff_color, 2)
-                            depth_8bit = cv2.rectangle(depth_8bit, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), 128, 2)
+                            # cv2_obj_part_pose_img = cv2.rectangle(cv2_obj_part_pose_img, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), aff_color, 2)
+                            # depth_8bit = cv2.rectangle(depth_8bit, (obj_part_x1, obj_part_y1), (obj_part_x2, obj_part_y2), 128, 2)
 
                         ######################################
                         # 6-DOF POSE
                         #######################################
 
-                        # draw model
-                        obj_parts_imgpts, jac = cv2.projectPoints(obj_part_centered * 1e3, obj_part_r, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
                         if project_mesh_on_image:
+
+                            # draw model
+                            obj_parts_imgpts, jac = cv2.projectPoints(obj_part_centered * 1e3, obj_part_r, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
                             cv2_obj_part_pose_img = cv2.polylines(cv2_obj_part_pose_img, np.int32([np.squeeze(obj_parts_imgpts)]), False, aff_color)
 
-                        if obj_part_id in arl_affpose_dataset_utils.DRAW_OBJ_PART_POSE:
-                            # modify YCB objects rotation matrix
-                            _obj_part_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, obj_part_r.copy())
-                            # draw pose
-                            rotV, _ = cv2.Rodrigues(_obj_part_r)
-                            points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-                            axisPoints, _ = cv2.projectPoints(points, rotV, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
-                            cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
-                            cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
-                            cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
-                        
+                            if obj_part_id in arl_affpose_dataset_utils.DRAW_OBJ_PART_POSE:
+                                # modify YCB objects rotation matrix
+                                _obj_part_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, obj_part_r.copy())
+                                # draw pose
+                                rotV, _ = cv2.Rodrigues(_obj_part_r)
+                                points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
+                                axisPoints, _ = cv2.projectPoints(points, rotV, obj_part_t * 1e3, self.cam_mat, self.cam_dist)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
+
                         #######################################
                         # Occlusion
                         #######################################

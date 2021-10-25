@@ -1,3 +1,4 @@
+
 function evaluate_obj_poses_keyframe
 
 clear;clc;
@@ -69,16 +70,19 @@ for i = 1:numel(gt_keyframes)
         % class id         
         count = count + 1;
         cls_index = gt.class_ids(j);
+%         disp(cls_index);
         results_class_ids(count) = cls_index;
         
         % Load gt & pred poses
         gt_pose = gt.poses(j, :);
         GT(1:3, 1:3) = quat2rotm(gt_pose(1:4));
         GT(:, 4) = gt_pose(5:7);
+%         disp(GT);
             
         pred_pose = pred.poses(j, :);
         PRED(1:3, 1:3) = quat2rotm(pred_pose(1:4));
         PRED(:, 4) = pred_pose(5:7);
+%         disp(PRED);
         
         % error metrics
         pointcloud = models{cls_index}(:, 1:3); % remove colour from xyz
@@ -86,9 +90,9 @@ for i = 1:numel(gt_keyframes)
         errors_add_s(count)       = adi(PRED, GT, pointcloud');
         errors_rotation(count)    = re(PRED(1:3, 1:3), GT(1:3, 1:3));
         errors_translation(count) = te(PRED(:, 4), GT(:, 4));        
-        errors_translation_x(count) = te(PRED(1, 4), GT(1, 4));    
-        errors_translation_y(count) = te(PRED(2, 4), GT(2, 4));    
-        errors_translation_z(count) = te(PRED(3, 4), GT(3, 4));    
+%         errors_translation_x(count) = te(PRED(1, 4), GT(1, 4));    
+%         errors_translation_y(count) = te(PRED(2, 4), GT(2, 4));    
+%         errors_translation_z(count) = te(PRED(3, 4), GT(3, 4));    
     end
     
 end
@@ -99,10 +103,10 @@ save('results_obj_keyframe.mat', ...
 'errors_add', ...
 'errors_add_s',...
 'errors_rotation',...
-'errors_translation',...
-'errors_translation_x',...
-'errors_translation_y',...
-'errors_translation_z');
+'errors_translation');
+% 'errors_translation_x',...
+% 'errors_translation_y',...
+% 'errors_translation_z');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,6 +170,7 @@ error_cos = 0.5 * (trace(R_est * inv(R_gt)) - 1.0);
 error_cos = min(1.0, max(-1.0, error_cos));
 error = acos(error_cos);
 error = 180.0 * error / pi;
+% disp(error);
 
 function error = te(t_est, t_gt)
 % """
@@ -176,3 +181,4 @@ function error = te(t_est, t_gt)
 % :return: Error of t_est w.r.t. t_gt.
 % """
 error = norm(t_gt - t_est);
+% disp(error*100);

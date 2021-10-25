@@ -327,48 +327,47 @@ def colorize_aff_mask(instance_mask):
 
     return np.squeeze(color_mask)
 
+
 def aff_color_map_dict():
     ''' [red, blue, green]'''
 
     aff_color_map_dict = {
         0: [0, 0, 0],
-        1: [133, 17, 235],   # red
-        2: [235, 96, 17],   # orange
-        3: [235, 195, 17],  # gold
-        4: [176, 235, 17],  # light green/yellow
-        5: [76, 235, 17],   # green
-        6: [17, 235, 139],  # teal
-        7: [17, 235, 225],  # light blue
-        8: [17, 103, 235],  # dark blue
-        9: [235, 34, 17],  # purple
+        1: [133, 17, 235],  # grasp: purple
+        2: [235, 96, 17],   # screw: orange
+        3: [235, 195, 17],  # scoop: yellow/gold
+        4: [176, 235, 17],  # pound: light green/yellow
+        5: [76, 235, 17],   # support: green
+        6: [17, 235, 139],  # cut: teal
+        7: [17, 235, 225],  # wrap-grasp: light blue
+        8: [17, 103, 235],  # contain: dark blue
+        9: [235, 34, 17],   # clamp: red
     }
 
     return aff_color_map_dict
 
-##################################
-##################################
 
 def aff_color_map(idx):
     ''' [red, blue, green]'''
 
     if idx == 1:
-        return (133,  17, 235)        # red
+        return (133, 17, 235)   # grasp: purple
     elif idx == 2:
-        return (235, 96, 17)        # orange
+        return (235, 96, 17)    # screw: orange
     elif idx == 3:
-        return (235, 195, 17)       # gold
+        return (235, 195, 17)   # scoop: yellow/gold
     elif idx == 4:
-        return (176,  235, 17)      # light green/yellow
+        return (176, 235, 17)   # pound: light green/yellow
     elif idx == 5:
-        return (76,   235, 17)      # green
+        return (76, 235, 17)    # support: green
     elif idx == 6:
-        return (17,  235, 139)      # teal
+        return (17, 235, 139)   # cut: teal
     elif idx == 7:
-        return (17,  235, 225)      # light blue
+        return (17, 235, 225)   # wrap-grasp: light blue
     elif idx == 8:
-        return (17,  103, 235)      # dark blue
+        return (17, 103, 235)   # contain: dark blue
     elif idx == 9:
-        return (235, 34, 17)      # purple
+        return (235, 34, 17)    # clamp: red
     else:
         print(" --- Affordance ID:{} does not map to a colour --- ".format(idx))
         exit(1)

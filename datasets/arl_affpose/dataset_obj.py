@@ -76,7 +76,7 @@ class PoseDataset(data.Dataset):
 
         print("Loaded: ", len(self.list))
         print("Real Images: ", len(self.real))
-        print("SYN Images: ", len(self.syn))
+        print("Syn Images: ", len(self.syn))
 
         ##################################
         # IMGAUG
@@ -203,7 +203,7 @@ class PoseDataset(data.Dataset):
             if num_mask > self.minimum_num_pt:
                 break
 
-        # todo (visualize): Mask Augmentation
+        # # todo (visualize): Mask Augmentation
         # cv2.imshow('img', cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         # cv2.imshow('mask_rgb', cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB))
         # color_mask = arl_affpose_dataset_utils.colorize_obj_mask(label)
@@ -211,7 +211,7 @@ class PoseDataset(data.Dataset):
         # cv2.waitKey(0)
 
         # # todo (visualize): RGB ROIs
-        #cv2_img = mask_rgb.copy()
+        # cv2_img = mask_rgb.copy()
         # img_name = config.TEST_DENSEFUSION_FOLDER + 'masked_rgb.png'
         # cv2.imwrite(img_name, cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB))
         # # todo (visualize): DEPTH ROIs

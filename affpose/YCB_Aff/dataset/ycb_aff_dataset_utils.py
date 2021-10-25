@@ -314,42 +314,41 @@ def colorize_aff_mask(instance_mask):
 
     return np.squeeze(color_mask)
 
+
 def aff_color_map_dict():
     ''' [red, blue, green]'''
 
     aff_color_map_dict = {
         0: [0, 0, 0],
-        1: [133, 17, 235],  # red
-        2: [17, 235, 225],  # light blue
-        3: [76, 235, 17],  # green
-        4: [17, 103, 235],  # dark blue
-        5: [17, 235, 139],  # teal
-        6: [235, 34, 17],  # purple
-        7: [235, 96, 17],  # orange
+        1: [133, 17, 235],  # grasp: purple
+        2: [17, 235, 225],  # wrap-grasp: light blue
+        3: [76, 235, 17],   # support: green
+        4: [17, 103, 235],  # contain: dark blue
+        5: [17, 235, 139],  # cut: teal
+        6: [235, 34, 17],   # clamp: red
+        7: [235, 96, 17],   # screw: orange
     }
 
     return aff_color_map_dict
 
-##################################
-##################################
 
 def aff_color_map(idx):
     ''' [red, blue, green]'''
 
     if idx == 1:
-        return (133,  17, 235)        # red
+        return (133, 17, 235)  # grasp: purple
     elif idx == 2:
-        return (235, 96, 17)        # orange
+        return (17, 235, 225)  # wrap-grasp: light blue
     elif idx == 3:
-        return (235, 195, 17)       # gold
+        return (76, 235, 17)   # support: green
     elif idx == 4:
-        return (176,  235, 17)      # light green/yellow
+        return (17, 103, 235)  # contain: dark blue
     elif idx == 5:
-        return (76,   235, 17)      # green
+        return (17, 235, 139)  # cut: teal
     elif idx == 6:
-        return (17,  235, 139)      # teal
+        return (235, 34, 17)   # clamp: red
     elif idx == 7:
-        return (17,  235, 225)      # light blue
+        return (235, 96, 17)   # screw: orange
     else:
         print(" --- idx does not map to a colour --- ")
         exit(1)

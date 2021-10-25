@@ -30,7 +30,7 @@ class TestARLAffPoseDataloader(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestARLAffPoseDataloader, self).__init__(*args, **kwargs)
         # load real images.
-        self.dataloader = dataloader.YCBAff(split='test',
+        self.dataloader = dataloader.YCBAff(split='train',
                                             select_random_images=True,
                                             num_images=100)
 
@@ -109,9 +109,6 @@ class TestARLAffPoseDataloader(unittest.TestCase):
             # occlusion from overlap
             ####################
 
-            expected_obj_mask = {obj_id: 0 for obj_id in range(1, config.NUM_OBJECTS + 1)}
-            actual_obj_mask = {obj_id: 0 for obj_id in range(1, config.NUM_OBJECTS + 1)}
-
             obj_part_ids = list(obj_part_occlusion_mask.keys())
             for obj_part_id_1 in obj_part_ids:
                 if obj_part_id_1 in ycb_aff_dataset_utils.DRAW_OBJ_PART_POSE:
@@ -123,9 +120,6 @@ class TestARLAffPoseDataloader(unittest.TestCase):
                             obj_id_2 = ycb_aff_dataset_utils.map_obj_part_ids_to_obj_id(obj_part_id_2)
                             obj_part_mask_2 = obj_part_occlusion_mask[obj_part_id_2]
 
-                            if obj_id_1 == obj_id_2:
-                                continue
-
                             #####################
                             # intersection
                             #####################
@@ -136,8 +130,8 @@ class TestARLAffPoseDataloader(unittest.TestCase):
                             if intersection_points:
 
                                 # remove duplicate.
-                                # idx = int(np.where(np.array(obj_part_ids) == obj_part_id_2)[0])
-                                # obj_part_ids.pop(idx)
+                                idx = int(np.where(np.array(obj_part_ids) == obj_part_id_2)[0])
+                                obj_part_ids.pop(idx)
 
                                 # get obj_part_id.
                                 idxs = np.nonzero(intersection)
@@ -213,6 +207,6 @@ if __name__ == '__main__':
 
     # run desired test.
     suite = unittest.TestSuite()
-    suite.addTest(TestARLAffPoseDataloader("get_occlusion_metrics"))
+    suite.addTest(TestARLAffPoseDataloader("load_gt_pose"))
     runner = unittest.TextTestRunner()
     runner.run(suite)

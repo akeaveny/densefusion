@@ -102,10 +102,10 @@ def main():
         opt.num_objects = 21 # number of object classes in the dataset
         opt.num_points = 1000 # number of points on the input pointcloud
         opt.dataset_root = '/data/Akeaveny/Datasets/YCB_Affordance_Dataset'
-        opt.outf = 'trained_models/ycb_aff/real_and_syn'      # folder to save trained models
-        opt.log_dir = 'experiments/logs/ycb_aff/real_and_syn' # folder to save logs
+        opt.outf = 'trained_models/ycb_aff/real_and_syn'  # folder to save trained models
+        opt.log_dir = 'experiments/logs/ycb_aff/real_and_syn'  # folder to save logs
         output_results = 'check_ycb.txt'
-        opt.repeat_epoch = 1 #number of repeat times for one epoch training
+        opt.repeat_epoch = 1  # number of repeat times for one epoch training
 
         opt.start_epoch = 36
         opt.resume_posenet = 'pose_model_20_0.012745570227629784.pth'
@@ -114,31 +114,31 @@ def main():
     elif opt.dataset == 'arl_affpose':
         opt.num_objects = 11
         opt.num_points = 1000
-        opt.outf = 'trained_models/arl_affpose_obj/real_and_syn_v3'
-        opt.log_dir = 'experiments/logs/arl_affpose_obj/real_and_syn_v3'
+        opt.outf = 'trained_models/arl_affpose_obj/real_and_syn_v2'
+        opt.log_dir = 'experiments/logs/arl_affpose_obj/real_and_syn_v2'
         output_results = 'check_arl_affpose.txt'
         opt.repeat_epoch = 1
 
-        opt.w = 0.017
-        opt.iteration = 2
+        # opt.w = 0.017
+        # opt.iteration = 2
 
-        # opt.start_epoch = 26
-        # opt.resume_posenet = 'pose_model_18_0.012060843364452012.pth'
+        # opt.start_epoch = 4
+        # opt.resume_posenet = 'pose_model_3_0.022228454612207727.pth'
         # opt.resume_refinenet = 'pose_refine_model_25_0.011975645643366726.pth'
 
     elif opt.dataset == 'arl_affpose_aff':
         opt.num_objects = 11
         opt.num_points = 1000
-        opt.outf = 'trained_models/arl_affpose_aff/real_and_syn_v3'
-        opt.log_dir = 'experiments/logs/arl_affpose_aff/real_and_syn_v3'
+        opt.outf = 'trained_models/arl_affpose_aff/real_and_syn_v2'
+        opt.log_dir = 'experiments/logs/arl_affpose_aff/real_and_syn_v2'
         output_results = 'check_arl_affpose.txt'
         opt.repeat_epoch = 1
 
-        opt.w = 0.017
-        opt.iteration = 2
+        # opt.w = 0.017
+        # opt.iteration = 2
 
-        # opt.start_epoch = 40
-        # opt.resume_posenet = 'pose_model_16_0.012952367823778796.pth'
+        opt.start_epoch = 2
+        opt.resume_posenet = 'pose_model_1_0.02753122073954656.pth'
         # opt.resume_refinenet = 'pose_refine_model_39_0.01199668780097741.pth'
 
     else:

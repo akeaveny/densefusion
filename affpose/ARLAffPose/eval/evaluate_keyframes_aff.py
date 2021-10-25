@@ -55,11 +55,14 @@ from affpose.ARLAffPose.eval import eval_utils
 
 DELETE_OLD_RESULTS = True
 
-SELECT_RANDOM_IMAGES = False
-NUM_IMAGES = 10
+SPLIT = 'test'
+USE_PRED_MASKS = False
 
-VISUALIZE_AND_GET_ERROR_METRICS = False
-PROJECT_MESH_ON_IMAGE = False
+SELECT_RANDOM_IMAGES = False
+NUM_IMAGES = 50
+
+VISUALIZE_AND_GET_ERROR_METRICS = True
+PROJECT_MESH_ON_IMAGE = True
 
 
 def main():
@@ -102,7 +105,7 @@ def main():
     ###################################
 
     # load real images.
-    dataloader = arl_affpose_dataloader.ARLAffPose(split='test',
+    dataloader = arl_affpose_dataloader.ARLAffPose(split=SPLIT,
                                                    use_pred_masks=True,
                                                    select_random_images=SELECT_RANDOM_IMAGES,
                                                    num_images=NUM_IMAGES)
@@ -112,7 +115,6 @@ def main():
     ###################################
 
     stats_pred_class_ids = np.zeros(shape=(len(dataloader.img_files), 20))
-    stats_pred_occlusion = np.zeros(shape=(len(dataloader.img_files), 20))
     stats_pred_choose = np.zeros(shape=(len(dataloader.img_files), 20))
     stats_pred_c = np.zeros(shape=(len(dataloader.img_files), 20))
 
@@ -123,7 +125,8 @@ def main():
         # Load GT images.
         #####################
 
-        data = dataloader.draw_gt_obj_pose(image_idx, project_mesh_on_image=PROJECT_MESH_ON_IMAGE)
+        data = dataloader.get_item(image_idx)
+        # data = dataloader.draw_gt_obj_pose(image_idx, project_mesh_on_image=False)  # PROJECT_MESH_ON_IMAGE)
 
         rgb = data["rgb"]
         depth_16bit = data["depth_16bit"]
@@ -131,9 +134,18 @@ def main():
         obj_label = data["obj_label"]
         obj_part_label = data["obj_part_label"]
         aff_label = data["aff_label"]
-        cv2_obj_pose_img = data["cv2_obj_pose_img"]
-        cv2_obj_part_pose_img = data["cv2_obj_part_pose_img"]
+        pred_obj_label = data["pred_obj_label"]
+        pred_obj_part_label = data["pred_obj_part_label"]
+        pred_aff_label = data["pred_aff_label"]
         meta = data["meta"]
+
+        if USE_PRED_MASKS:
+            cv2_obj_pose_img = data["cv2_obj_pose_img"]
+            cv2_obj_part_pose_img = data["cv2_obj_part_pose_img"]
+        else:
+            colour_aff_label = arl_affpose_dataset_utils.colorize_aff_mask(aff_label)
+            colour_aff_label = cv2.addWeighted(rgb, 0.5, colour_aff_label, 0.5, 0)
+            cv2_obj_part_pose_img = colour_aff_label.copy()
 
         #####################
         #####################
@@ -143,7 +155,6 @@ def main():
         pose_est_gt = []
         pose_est_df_wo_refine = []
         pose_est_df_iterative = []
-        occlusion_list = []
         choose_list = []
         pred_c_list = []
 
@@ -152,6 +163,7 @@ def main():
         print()
 
         obj_ids = np.array(meta['object_class_ids']).flatten()
+        # obj_ids = np.unique(pred_obj_label)[1:]
         for idx, obj_id in enumerate(obj_ids):
             if obj_id in np.unique(obj_label):
                 obj_color = arl_affpose_dataset_utils.obj_color_map(obj_id)
@@ -164,7 +176,8 @@ def main():
 
                 obj_part_ids = arl_affpose_dataset_utils.map_obj_id_to_obj_part_ids(obj_id)
                 for obj_part_id in obj_part_ids:
-                    if obj_part_id in dataloader.obj_part_ids and obj_part_id in np.unique(obj_part_label):
+                    if obj_part_id in dataloader.obj_part_ids \
+                            and obj_part_id in np.unique(obj_part_label):
                         obj_part_id = int(obj_part_id)
                         aff_id = arl_affpose_dataset_utils.map_obj_part_id_to_aff_id(obj_part_id)
                         aff_name = "{:<30}".format(arl_affpose_dataset_utils.map_aff_id_to_name(aff_id))
@@ -176,11 +189,15 @@ def main():
                         obj_part_id_idx = str(1000 + obj_part_id)[1:]
                         gt_obj_r = meta['obj_part_rotation_' + np.str(obj_part_id_idx)]
                         gt_obj_t = meta['obj_part_translation_' + np.str(obj_part_id_idx)]
-                        obj_occlusion = meta['obj_part_occlusion' + str(obj_part_id_idx)]
+
+                        gt_obj_T = np.eye(4)
+                        gt_obj_T[0:3, 0:3] = gt_obj_r
+                        gt_obj_q = np.array(quaternion_from_matrix(gt_obj_T, True))
+                        gt_list = np.append(gt_obj_q, gt_obj_t)
+                        # print(f'{gt_list}')
 
                         # TODO: MATLAB EVAL
                         class_ids_list.append(obj_id)
-                        occlusion_list.append(obj_occlusion)
 
                         #####################
                         #####################
@@ -190,6 +207,9 @@ def main():
                             ##################################
                             # OBJECT PART: Select Region of Interest
                             ##################################
+
+                            if USE_PRED_MASKS:
+                                obj_part_label = pred_obj_part_label
                             
                             # get bbox.
                             x1, y1, x2, y2 = get_obj_bbox(obj_part_label.copy(), obj_part_id, config.HEIGHT, config.WIDTH, config.BORDER_LIST)
@@ -273,12 +293,12 @@ def main():
                                 eval_utils.get_error_metrics(gt_obj_t=gt_obj_t, gt_obj_r=gt_obj_r,
                                                              pred_obj_t=pred_obj_t, pred_obj_r=pred_obj_r,
                                                              refinement_idx=0,
-                                                             occlusion=obj_occlusion, choose=obj_choose, pred_c=how_max,
+                                                             choose=obj_choose, pred_c=how_max,
                                                              verbose=True)
 
                             # TODO: MATLAB EVAL
                             if how_max > config.PRED_C_THRESHOLD:
-                                pose_est_gt.append(my_pred.tolist())
+                                pose_est_gt.append(gt_list.tolist())
                                 pose_est_df_wo_refine.append(my_pred.tolist())
                                 choose_list.append(obj_choose)
                                 pred_c_list.append(how_max)
@@ -325,7 +345,7 @@ def main():
                                     eval_utils.get_error_metrics(gt_obj_t=gt_obj_t, gt_obj_r=gt_obj_r,
                                                                  pred_obj_t=pred_obj_t, pred_obj_r=pred_obj_r,
                                                                  refinement_idx=ite+1,
-                                                                 occlusion=obj_occlusion, choose=obj_choose, pred_c=how_max,
+                                                                 choose=obj_choose, pred_c=how_max,
                                                                  verbose=True)
 
                             # TODO: MATLAB EVAL
@@ -337,26 +357,26 @@ def main():
                             #######################################
 
                             if VISUALIZE_AND_GET_ERROR_METRICS:
-                                if obj_part_id in arl_affpose_dataset_utils.DRAW_OBJ_PART_POSE:
-                                    obj_cld = dataloader.cld_obj_part_centered[obj_part_id]
 
-                                    # projecting 3D model to 2D image
-                                    imgpts, jac = cv2.projectPoints(obj_cld * 1e3, pred_obj_r, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
-                                    if PROJECT_MESH_ON_IMAGE:
+                                if PROJECT_MESH_ON_IMAGE:
+                                    if obj_part_id in arl_affpose_dataset_utils.DRAW_OBJ_PART_POSE:
+                                        obj_cld = dataloader.cld_obj_part_centered[obj_part_id]
+                                        # projecting 3D model to 2D image
+                                        imgpts, jac = cv2.projectPoints(obj_cld * 1e3, pred_obj_r, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
                                         cv2_obj_part_pose_img = cv2.polylines(cv2_obj_part_pose_img, np.int32([np.squeeze(imgpts)]), True, obj_color)
 
-                                    # modify YCB objects rotation matrix
-                                    _pred_obj_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, pred_obj_r.copy())
+                                # modify YCB objects rotation matrix
+                                _pred_obj_r = arl_affpose_dataset_utils.modify_obj_rotation_matrix_for_grasping(obj_id, pred_obj_r.copy())
 
-                                    # draw pose
-                                    rotV, _ = cv2.Rodrigues(_pred_obj_r)
-                                    points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
-                                    axisPoints, _ = cv2.projectPoints(points, rotV, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
+                                # draw pose
+                                rotV, _ = cv2.Rodrigues(_pred_obj_r)
+                                points = np.float32([[100, 0, 0], [0, 100, 0], [0, 0, 100], [0, 0, 0]]).reshape(-1, 3)
+                                axisPoints, _ = cv2.projectPoints(points, rotV, pred_obj_t * 1e3, dataloader.cam_mat, dataloader.cam_dist)
 
-                                    axis_color = (255, 255, 255)
-                                    cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), axis_color, 3)
-                                    cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), axis_color, 3)
-                                    cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), axis_color, 3)
+                                axis_color = (255, 255, 255)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[0].ravel()), (255, 0, 0), 3)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[1].ravel()), (0, 255, 0), 3)
+                                cv2_obj_part_pose_img = cv2.line(cv2_obj_part_pose_img, tuple(axisPoints[3].ravel()), tuple(axisPoints[2].ravel()), (0, 0, 255), 3)
 
                         except ZeroDivisionError:
                             print("DenseFusion Detector Lost keyframe ..")
@@ -374,10 +394,14 @@ def main():
         #####################
 
         if VISUALIZE_AND_GET_ERROR_METRICS:
+            # SAVE_FOLDER = '/home/akeaveny/Desktop/DenseFusion/'
+            # pred_name = SAVE_FOLDER + str(image_idx) + "_aff.png"
+            # cv2.imwrite(pred_name, cv2.cvtColor(cv2_obj_part_pose_img, cv2.COLOR_BGR2RGB))
+
             cv2.imshow('depth', depth_8bit)
             cv2.imshow('cv2_obj_part_pose_img', cv2.cvtColor(cv2_obj_part_pose_img, cv2.COLOR_BGR2RGB))
-
-            cv2.waitKey(0)
+            cv2.waitKey(1)
+            # time.sleep(0.35)
 
         ############################
         # TODO: MATLAB EVAL
@@ -396,12 +420,11 @@ def main():
 
         for idx in range(len(class_ids_list)):
             stats_pred_class_ids[image_idx, idx] = class_ids_list[idx]
-            stats_pred_occlusion[image_idx, idx] = occlusion_list[idx]
             stats_pred_choose[image_idx, idx] = choose_list[idx]
             stats_pred_c[image_idx, idx] = pred_c_list[idx]
 
     print('\nPrinting stats ..')
-    eval_utils.get_obj_stats(stats_pred_class_ids, stats_pred_occlusion, stats_pred_choose, stats_pred_c)
+    eval_utils.get_obj_stats(stats_pred_class_ids, stats_pred_choose, stats_pred_c)
 
 if __name__ == '__main__':
     main()
