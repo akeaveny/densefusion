@@ -1,9 +1,15 @@
 # DenseFusion
 
-This work forks [DenseFusion](https://github.com/j96w/DenseFusion), to work with a custom dataset I created. Here is the link to the[ original paper for DenseFusion](https://arxiv.org/abs/1901.04780). Here are the links to repos I used to create my dataset:
+This work forks [DenseFusion](https://github.com/j96w/DenseFusion), to work with a custom dataset I created. Here is the link to the[ original paper for DenseFusion](https://arxiv.org/abs/1901.04780). 
 
-1. [Labelusion](https://github.com/akeaveny/LabelFusion) for generating Real Images
-2. [NDDS](https://github.com/NVIDIA/Dataset_Synthesizer) for generating Synthetic Images   
+I used densefusion with the following repos:
+
+1. [LabelFusion](https://github.com/RobotLocomotion/LabelFusion) for generating real images.
+2. [NDDS](https://github.com/NVIDIA/Dataset_Synthesizer) for generating synthetic images.
+3. [arl-affpose-dataset-utils](https://github.com/UW-Advanced-Robotics-Lab/arl-affpose-dataset-utils) a custom dataset that I generated.
+4. [pytorch-simple-affnet](https://github.com/UW-Advanced-Robotics-Lab/pytorch-simple-affnet) for predicting an object affordance labels.
+6. [arl-affpose-ros-node](https://github.com/UW-Advanced-Robotics-Lab/arl-affpose-ros-node): for deploying our network for 6-DoF pose estimation with our ZED camera.
+7. [barrett_tf_publisher](https://github.com/UW-Advanced-Robotics-Lab/barrett-wam-arm) for robotic grasping experiments. Specifically barrett_tf_publisher and barrett_trac_ik. 
 
 In the sample below we see real time implementation on our 7-DoF Robot Arm.
 ![Alt text](samples/demo.gif?raw=true "Title")
